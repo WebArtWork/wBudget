@@ -1,0 +1,21 @@
+<div class="documents__title">{{budget.name}}</div>
+<div class="documents__description">{{budget.description}}</div>
+<div class="documents-tags">
+	<div
+		routerLink="/alltransactions/{{budget._id}}"
+		class="documents-tags__wrap"
+	>
+		<div class="documents-tags__item" translate>Theme.Transactions</div>
+	</div>
+	<div class="documents-tags__wrap">
+		<div class="documents-tags__item">
+			Balance: {{budget.amount||0}} {{budget.currency}}
+		</div>
+	</div>
+	<div class="documents-tags__wrap" (click)="edit()">
+		<span class="material-icons">edit</span>
+	</div>
+	<div class="documents-tags__wrap" (click)="delete()">
+		<span class="material-icons">delete</span>
+	</div>
+</div>

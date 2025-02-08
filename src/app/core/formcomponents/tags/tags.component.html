@@ -1,0 +1,23 @@
+<ng-template #templateRef let-data>
+	<div>
+		<!-- (keyup.enter) -->
+		<winput
+			[placeholder]="data.field.Placeholder"
+			(wChange)="data.field.__name = $event"
+			[value]="data.field.__name"
+			[label]="data.field.Label"
+			(wSubmit)="addTag(data)"
+			[setFocus]="data.field"
+		></winput>
+
+		<ng-container *ngFor="let tag of data.submition[data.key]; index as i">
+			<span>{{tag}}</span>
+			<i (click)="data.submition[data.key].splice(i, 1)">X</i>
+		</ng-container>
+
+		<!--  [disabled]="!inputRef.value" -->
+		<wbutton (click)="addTag(data)" [disableSubmit]="true">
+			{{data.field.Button || 'Add'}}
+		</wbutton>
+	</div>
+</ng-template>

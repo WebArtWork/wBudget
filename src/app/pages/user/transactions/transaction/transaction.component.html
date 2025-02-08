@@ -1,0 +1,17 @@
+<div class="documents__title" *ngIf="!budget_id">
+	{{budgetService.doc(transaction.budget).name}}
+</div>
+
+<div class="documents__description">{{transaction.note}}</div>
+
+<div class="documents-tags">
+	<div class="documents-tags__wrap">
+		<div class="documents-tags__item">{{transaction.amount}}</div>
+	</div>
+	<div class="documents-tags__wrap" (click)="edit()">
+		<span class="material-icons">edit</span>
+	</div>
+	<div class="documents-tags__wrap" (click)="delete()">
+		<span class="material-icons">delete</span>
+	</div>
+</div>
