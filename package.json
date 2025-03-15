@@ -7,7 +7,6 @@
     "test": "jest",
     "test:watch": "jest --watch"
   },
-  "private": true,
   "dependencies": {
     "@angular/animations": "^19.1.4",
     "@angular/cdk": "^19.1.3",
