@@ -1,0 +1,19 @@
+name: Fastlane CI/CD
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    fastlane:
+        runs-on: self-hosted # Ensures it runs on your Mac runner
+        steps:
+            - name: Change directory to Fastlane and Run Setup
+              run: |
+                  cd ../../../../fastlane
+                  pull
+                  export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+                  export ANDROID_HOME=$HOME/Library/Android/sdk
+                  export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH
+                  fastlane setup_app app_name:wBudget
