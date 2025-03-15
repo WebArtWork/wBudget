@@ -20,7 +20,7 @@ interface RespStatus {
 export class SignComponent {
 	form: FormInterface = this._form.getForm('sign', {
 		formId: 'sign',
-		title: 'Sign In / Sign Up test',
+		title: 'Sign In / Sign Up',
 		components: [
 			{
 				name: 'Email',
