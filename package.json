@@ -19,6 +19,7 @@
     "@angular/router": "^19.1.4",
     "@capacitor/android": "^7.1.0",
     "@capacitor/core": "^7.1.0",
+    "@capacitor/ios": "^7.1.0",
     "@types/node": "^20.1.5",
     "ngx-ace-wrapper": "^17.0.0",
     "ngx-image-cropper": "^7.2.1",
