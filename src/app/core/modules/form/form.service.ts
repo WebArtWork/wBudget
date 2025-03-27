@@ -7,7 +7,10 @@ import {
 	Type
 } from '@angular/core';
 import { ModalService, StoreService } from 'wacom';
-import { TemplateFieldInterface } from './interfaces/component.interface';
+import {
+	FormComponentInterface,
+	TemplateFieldInterface
+} from './interfaces/component.interface';
 import { FormInterface } from './interfaces/form.interface';
 import { ModalFormComponent } from './modals/modal-form/modal-form.component';
 import { TranslateService } from '../translate/translate.service';
@@ -342,5 +345,68 @@ export class FormService {
 			class: 'forms_modal',
 			onClose
 		});
+	}
+
+	getComponent(form: FormInterface, key: string): FormComponentInterface {
+		return (
+			this._getComponent(form.components, key) ||
+			({} as FormComponentInterface)
+		);
+	}
+
+	private _getComponent(
+		components: FormComponentInterface[],
+		key: string
+	): FormComponentInterface | null {
+		for (const component of components) {
+			if (component.key === key) {
+				return component;
+			} else if (component.components) {
+				const comp = this._getComponent(component.components, key);
+
+				if (comp) {
+					return comp;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	getField(
+		form: FormInterface,
+		key: string,
+		name: string
+	): TemplateFieldInterface | null {
+		const component = this.getComponent(form, key);
+
+		if (!component) {
+			return null;
+		}
+
+		for (const field of component?.fields || []) {
+			if (field.name === name) {
+				return field;
+			}
+		}
+
+		return null;
+	}
+
+	setValue(
+		form: FormInterface,
+		key: string,
+		name: string,
+		value: unknown
+	): void {
+		const field = this.getField(form, key, name);
+
+		if (field) {
+			field.value = value;
+
+			const component = this.getComponent(form, key);
+
+			component?.resetFields?.();
+		}
 	}
 }

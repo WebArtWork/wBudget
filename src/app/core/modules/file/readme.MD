@@ -28,7 +28,7 @@ import { FileModule } from '@your-namespace/ngx-file';
 @NgModule({
   declarations: [...],
   imports: [
-    FileModule,
+    FileComponent,
     ...
   ],
   providers: [],

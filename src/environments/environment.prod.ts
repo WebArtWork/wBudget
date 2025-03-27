@@ -21,5 +21,9 @@ export const environment = {
 			code: 'uk'
 		}
 	],
-	languageCode: 'uk'
+	user: {
+		email: '',
+		password: '',
+	},
+	defaultLanguageCode: 'en'
 };

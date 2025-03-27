@@ -167,20 +167,19 @@ export class CalendarComponent {
 	}
 	selectedDate: string = localStorage.getItem('travel_selectedDate') || '';
 	dateClicked(date: string): void {
-		if (this.isMobile) {
-			this.selectedDate = date;
+		this.selectedDate = date;
 
-			localStorage.setItem('travel_selectedDate', date);
-		} else {
-			// this.createEvent.emit(date);
-		}
+		localStorage.setItem('travel_selectedDate', date);
+
+		this.createEvent.emit({
+			year: Number(date.split('.')[0]),
+			month: Number(date.split('.')[1]),
+			day: Number(date.split('.')[2])
+		});
 	}
 	eventClicked(date: CalendarDate): void {
-		if (this.isMobile) {
-			this.selectedDate = this.date(date);
-		} else {
-			this.updateEvent.emit(date);
-		}
+		this.selectedDate = this.date(date);
+		this.updateEvent.emit(date);
 	}
 
 	/* move to wacom */

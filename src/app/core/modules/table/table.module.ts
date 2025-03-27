@@ -14,6 +14,7 @@ import { RouterModule } from '@angular/router';
 import { InputModule } from '../input/input.module';
 import { PerPagePipe } from './per-page.pipe';
 import { FormModule } from '../form/form.module';
+import { TranslateModule } from '../translate/translate.module';
 
 @NgModule({
 	imports: [
@@ -23,7 +24,8 @@ import { FormModule } from '../form/form.module';
 		FormModule,
 		ButtonModule,
 		RouterModule,
-		InputModule
+		InputModule,
+		TranslateModule
 	],
 	declarations: [
 		TableComponent,

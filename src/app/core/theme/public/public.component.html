@@ -1,0 +1,48 @@
+<div class="wrapper" id="wrapper">
+	<nav class="nav">
+		<ul class="nav__ul container">
+			<li class="nav__li">
+				<a class="nav__a">
+					<span
+						class="material-icons"
+						(click)="us.setMode(us.mode === 'dark' ? 'white' : 'dark')"
+						>{{us.mode ? 'light_mode': 'dark_mode'}}</span
+					>
+				</a>
+			</li>
+			<li class="nav__li">
+				<a
+					routerLinkActive="_activeLink"
+					routerLink="/profile"
+					class="nav__a"
+				>
+					<span class="material-icons">person</span>
+				</a>
+			</li>
+			<li class="nav__li">
+				<a
+					routerLinkActive="_activeLink"
+					(click)="showSidebar = false"
+					routerLink="/transactions"
+					class="nav__a"
+				>
+					<span class="material-icons">swap_vert</span>
+				</a>
+			</li>
+			<li class="nav__li">
+				<a
+					routerLinkActive="_activeLink"
+					(click)="showSidebar = false"
+					routerLink="/budgets"
+					class="nav__a"
+				>
+					<span class="material-icons">calculate</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+
+	<div class="main">
+		<router-outlet></router-outlet>
+	</div>
+</div>

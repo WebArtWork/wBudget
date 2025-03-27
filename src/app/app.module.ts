@@ -14,6 +14,7 @@ import { AuthenticatedGuard } from './core/guards/authenticated.guard';
 import { GuestGuard } from './core/guards/guest.guard';
 import { AdminsGuard } from './core/guards/admins.guard';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
+import { PublicComponent } from './core/theme/public/public.component';
 
 const routes: Routes = [
 	{
@@ -71,11 +72,11 @@ const routes: Routes = [
 	{
 		path: '',
 		canActivate: [AuthenticatedGuard],
-		component: UserComponent,
+		component: PublicComponent,
 		children: [
 			/* user */
 			{
-				path: 'alltransactions',
+				path: 'transactions',
 				canActivate: [MetaGuard],
 				data: {
 					meta: {
@@ -88,7 +89,7 @@ const routes: Routes = [
 					).then((m) => m.TransactionsModule)
 			},
 			{
-				path: 'minebudgets',
+				path: 'budgets',
 				canActivate: [MetaGuard],
 				data: {
 					meta: {
@@ -100,6 +101,27 @@ const routes: Routes = [
 						(m) => m.BudgetsModule
 					)
 			},
+			{
+				path: 'profile',
+				canActivate: [MetaGuard],
+				data: {
+					meta: {
+						title: 'My Profile'
+					}
+				},
+				loadChildren: () =>
+					import('./pages/user/profile/profile.module').then(
+						(m) => m.ProfileModule
+					)
+			}
+		]
+	},
+	{
+		path: 'admin',
+		canActivate: [AdminsGuard],
+		component: UserComponent,
+		children: [
+			/* admin */
 			{
 				path: 'transactions',
 				canActivate: [MetaGuard],
@@ -126,27 +148,6 @@ const routes: Routes = [
 						'./modules/budget/pages/budgets/budgets.module'
 					).then((m) => m.BudgetsModule)
 			},
-			{
-				path: 'profile',
-				canActivate: [MetaGuard],
-				data: {
-					meta: {
-						title: 'My Profile'
-					}
-				},
-				loadChildren: () =>
-					import('./pages/user/profile/profile.module').then(
-						(m) => m.ProfileModule
-					)
-			}
-		]
-	},
-	{
-		path: 'admin',
-		canActivate: [AdminsGuard],
-		component: UserComponent,
-		children: [
-			/* admin */
 			{
 				path: 'users',
 				canActivate: [MetaGuard],
@@ -196,7 +197,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-	declarations: [AppComponent, GuestComponent, UserComponent],
+	declarations: [AppComponent, GuestComponent, UserComponent, PublicComponent],
 	imports: [
 		CoreModule,
 		BrowserModule,

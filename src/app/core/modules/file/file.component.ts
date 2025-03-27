@@ -115,8 +115,11 @@ export class FileComponent implements OnInit, OnChanges {
 	) {}
 
 	ngOnInit(): void {
+		console.log(this.value);
+
 		if (!this.name && !this.multiple && this.value) {
 			const paths = ((this.value as string) || '').split('/');
+
 			this.name = paths[paths.length - 1].split('?')[0];
 		}
 	}
@@ -133,7 +136,7 @@ export class FileComponent implements OnInit, OnChanges {
 	 * Initiates the file selection and cropping process.
 	 */
 	set(): void {
-		this._fs.setFile = (dataUrl: string) => {
+		this._fs.setFile = (dataUrl: string): void => {
 			if (this.width && this.height) {
 				this._modal.show({
 					uploadImage: this.uploadImage.bind(this),
@@ -153,14 +156,16 @@ export class FileComponent implements OnInit, OnChanges {
 	 * @param dataUrl The data URL of the image.
 	 */
 	uploadImage(dataUrl: string): void {
+		const name = (this.name || '').includes('logo.png') ? '' : this.name;
+
 		this._http.post(
 			'/api/file/photo',
 			{
 				container: this.container,
-				name: this.name,
+				name,
 				dataUrl
 			},
-			(url) => {
+			(url: string) => {
 				if (this.multiple) {
 					if (!this.value) {
 						this.value = [];
@@ -169,6 +174,7 @@ export class FileComponent implements OnInit, OnChanges {
 					(this.value as string[]).push(url);
 				} else {
 					this.name = url.split('/')[5].split('?')[0];
+
 					this.value = url;
 				}
 

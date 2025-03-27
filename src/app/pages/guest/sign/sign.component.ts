@@ -6,6 +6,7 @@ import { FormService } from 'src/app/core/modules/form/form.service';
 import { TranslateService } from 'src/app/core/modules/translate/translate.service';
 import { UserService } from 'src/app/modules/user/services/user.service';
 import { User } from 'src/app/modules/user/interfaces/user.interface';
+import { environment } from 'src/environments/environment';
 
 interface RespStatus {
 	email: string;
@@ -91,8 +92,7 @@ export class SignComponent {
 	});
 
 	user = {
-		email: 'demo@webart.work',
-		password: 'asdasdasdasd',
+		...environment.user,
 		resetPin: null
 	};
 

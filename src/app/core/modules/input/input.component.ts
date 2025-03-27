@@ -11,7 +11,14 @@ import {
 } from '@angular/core';
 import { CoreService } from 'wacom';
 
-export type Value = string | number | boolean | string[] | number[] | boolean[];
+export type Value =
+	| null
+	| string
+	| number
+	| boolean
+	| string[]
+	| number[]
+	| boolean[];
 
 /**
  * InputComponent is a customizable input component that supports various types of inputs,
@@ -29,6 +36,8 @@ export class InputComponent implements OnInit, OnChanges {
 	 * The value of the input field.
 	 */
 	@Input() value: Value = '';
+
+	@Input() clearable: boolean = false;
 
 	/**
 	 * A function to replace the input value before emitting changes.
