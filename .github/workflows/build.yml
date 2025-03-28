@@ -11,6 +11,7 @@ jobs:
         steps:
             - name: Change directory to Fastlane and Run Setup
               run: |
+                  rm -rf /Volumes/work/waw/wBudget/ios/App/build
                   cd ../../../../fastlane
                   pull
                   export JAVA_HOME=$(/usr/libexec/java_home -v 21)
