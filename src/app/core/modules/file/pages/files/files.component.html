@@ -1,0 +1,12 @@
+<wtable title="Files" [columns]="columns" [config]="config" [rows]="rows">
+	<ng-template cell="img" let-element>
+		<img
+			[src]="element.url"
+			(click)="copy(element.url)"
+			style="height: 100px"
+		/>
+	</ng-template>
+	<ng-template cell="url" let-element>
+		<span (click)="copy(element.url)"> {{element.url}} </span>
+	</ng-template>
+</wtable>
