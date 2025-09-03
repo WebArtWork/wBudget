@@ -51,6 +51,45 @@ const routes: Routes = [
 		children: [
 			/* user */
 			{
+				path: 'dashboard',
+				canActivate: [MetaGuard],
+				data: {
+					meta: {
+						title: 'Dashboard'
+					}
+				},
+				loadChildren: () =>
+					import('./pages/user/dashboard/dashboard.module').then(
+						(m) => m.DashboardModule
+					)
+			},
+			{
+				path: 'transactions',
+				canActivate: [MetaGuard],
+				data: {
+					meta: {
+						title: 'Transactions'
+					}
+				},
+				loadChildren: () =>
+					import(
+						'./modules/budgettransaction/pages/transactions/transactions.routes'
+					).then((r) => r.transactionsRoutes)
+			},
+			{
+				path: 'units',
+				canActivate: [MetaGuard],
+				data: {
+					meta: {
+						title: 'Units'
+					}
+				},
+				loadChildren: () =>
+					import(
+						'./modules/budgetunit/pages/units/units.routes'
+					).then((r) => r.unitsRoutes)
+			},
+			{
 				path: 'budgets',
 				canActivate: [MetaGuard],
 				data: {
@@ -58,8 +97,11 @@ const routes: Routes = [
 						title: 'Budgets'
 					}
 				},
-				loadChildren: () => import('./modules/budget/pages/budgets/budgets.routes').then(r => r.budgetsRoutes)
-			}, 
+				loadChildren: () =>
+					import(
+						'./modules/budget/pages/budgets/budgets.routes'
+					).then((r) => r.budgetsRoutes)
+			},
 			{
 				path: 'profile',
 				canActivate: [MetaGuard],

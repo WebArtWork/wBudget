@@ -1,13 +1,13 @@
 import {
 	Component,
-	Input,
-	Output,
-	EventEmitter,
-	OnInit,
 	ElementRef,
-	ViewChild,
+	EventEmitter,
+	Input,
 	OnChanges,
-	SimpleChanges
+	OnInit,
+	Output,
+	SimpleChanges,
+	ViewChild
 } from '@angular/core';
 import { CoreService } from 'wacom';
 
@@ -139,8 +139,6 @@ export class InputComponent implements OnInit, OnChanges {
 	 * Error state of the input field, set to true if validation fails.
 	 */
 	error = false;
-
-	inputFocused = false;
 
 	constructor(private _core: CoreService) {}
 

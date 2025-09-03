@@ -21,9 +21,9 @@ export class ModalFormComponent {
 
 	close: () => void;
 	// eslint-disable-next-line
-	submit: (form: any) => void;
+	submit: (form: any) => void = (form: any) => {};
 	// eslint-disable-next-line
-	change: (form: any) => void;
+	change: (form: any) => void = (form: any) => {};
 
 	buttons: FormModalButton[];
 

@@ -19,7 +19,6 @@ import { environment } from 'src/environments/environment';
 import { CustomformService } from 'src/app/modules/customform/services/customform.service';
 
 export interface FormModalButton {
-	/** Function to execute on button click */
 	click: (submition: unknown, close: () => void) => void;
 	/** Label for the button */
 	label: string;
@@ -198,8 +197,47 @@ export class FormService {
 		return form;
 	}
 
-	/** Retrieves a form by its ID, initializing it if necessary */
+	/** Prepare form component */
+	prepareForm(form: FormInterface): FormInterface {
+		const formId = form.formId + '';
+
+		if (this.formIds.indexOf(formId) === -1) {
+			this.formIds.push(formId);
+
+			this._store.setJson('formIds', this.formIds);
+		}
+
+		form = form || this.getDefaultForm(formId);
+
+		form.formId = formId;
+
+		this._core.onComplete('form_loaded').then(() => {
+			const customForms = this._cfs.customforms.filter(
+				(f) => f.active && f.formId === form.formId
+			);
+
+			for (const customForm of customForms) {
+				form.title = form.title || customForm.name;
+
+				form.class = form.class || customForm.class;
+
+				for (const component of customForm.components) {
+					component.key = component.key?.startsWith('data.')
+						? component.key
+						: 'data.' + component.key;
+
+					form.components.push(component);
+				}
+			}
+
+			this.translateForm(form);
+		});
+
+		return form;
+	}
 	getForm(formId: string, form?: FormInterface): FormInterface {
+		console.warn('This function is deprecated');
+
 		if (
 			form &&
 			this.forms.map((c) => c.formId).indexOf(form?.formId) === -1
@@ -248,7 +286,7 @@ export class FormService {
 	modal<T>(
 		form: FormInterface | FormInterface[],
 		buttons: FormModalButton | FormModalButton[] = [],
-		submition: unknown = {},
+		submition: unknown = { data: {} },
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		change: (update: T) => void | Promise<(update: T) => void> = (
 			update: T

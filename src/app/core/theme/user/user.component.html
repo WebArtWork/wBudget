@@ -8,6 +8,16 @@
 					routerLink="/profile"
 					class="nav__a"
 				>
+					<span class="material-icons">account_circle</span>
+				</a>
+			</li>
+			<li class="nav__li">
+				<a
+					routerLinkActive="_activeLink"
+					(click)="showSidebar = false"
+					routerLink="/dashboard"
+					class="nav__a"
+				>
 					<span class="material-icons">home</span>
 				</a>
 			</li>
@@ -86,6 +96,8 @@
 					<span class="material-icons">translate</span>
 					<span translate>Theme.Translates</span>
 				</a>
+
+				<hr *ngIf="us.role('admin')" />
 				<a
 					[routerLinkActiveOptions]="{ exact: true }"
 					routerLinkActive="_activeLink"
@@ -94,9 +106,28 @@
 					(click)="hideSidebar()"
 				>
 					<span class="material-icons">account_balance_wallet</span>
-					<span translate>Theme.budget</span>
+					<span translate>Theme.Budget</span>
 				</a>
-				<hr *ngIf="us.role('admin')" />
+				<a
+					[routerLinkActiveOptions]="{ exact: true }"
+					routerLinkActive="_activeLink"
+					routerLink="/units"
+					class="nav__burger-link"
+					(click)="hideSidebar()"
+				>
+					<span class="material-icons">category</span>
+					<span translate>Theme.Units</span>
+				</a>
+				<a
+					[routerLinkActiveOptions]="{ exact: true }"
+					routerLinkActive="_activeLink"
+					routerLink="/transactions"
+					class="nav__burger-link"
+					(click)="hideSidebar()"
+				>
+					<span class="material-icons">swap_horiz</span>
+					<span translate>Theme.Transaction</span>
+				</a>
 			</div>
 		</div>
 		<router-outlet></router-outlet>

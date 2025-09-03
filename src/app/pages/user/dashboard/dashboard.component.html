@@ -1,0 +1,108 @@
+<div class="documents-wrapper" [class.documents-wrapper--open]="isMenuOpen">
+	<div class="documents-container">
+		<div class="documents-list">
+			<div class="documents-header">
+				<div class="documents-header-left">
+					<div class="documents-header-left__arrow" (click)="back()">
+						<span class="material-icons">arrow_back_ios</span>
+					</div>
+					<div
+						class="documents-header-left__avatar"
+						routerLink="/profile"
+					>
+						<img [src]="userService.thumb" alt="" />
+					</div>
+				</div>
+				<div class="documents-header__title">Title header</div>
+				<div
+					(click)="isMenuOpen = !isMenuOpen"
+					class="burger-wrap"
+					class="burger-wrap"
+				>
+					<div
+						[class.burger--close]="isMenuOpen"
+						class="burger"
+					></div>
+				</div>
+			</div>
+
+			<div class="documents-main">
+				<div class="documents-main-content">
+					<div class="documents-main-row">
+						<!-- Budget dropdown -->
+						<select
+							class="filter-dropdown"
+							[(ngModel)]="selectedBudget"
+							(change)="onBudgetChange(selectedBudget)"
+						>
+							<option
+								*ngFor="let budget of budgets"
+								[value]="budget"
+							>
+								{{ budget }}
+							</option>
+						</select>
+
+						<!-- Unit dropdown -->
+						<select
+							class="filter-dropdown"
+							[(ngModel)]="selectedUnit"
+							(change)="onUnitChange(selectedUnit)"
+						>
+							<option *ngFor="let unit of units" [value]="unit">
+								{{ unit }}
+							</option>
+						</select>
+
+						<div class="documents__title"></div>
+						<div class="circle-chart"></div>
+						<div class="summary">
+							<span id="incomeTotal">0</span>
+							<span id="expenseTotal">0</span>
+						</div>
+					</div>
+				</div>
+				<div class="documents-main-content">
+					<div class="categories">
+						<div class="category" data-category="Їжа">
+							<span class="material-icons">restaurant</span>
+							<span class="name">Їжа</span>
+							<span class="amount" id="cat-Їжа">0 грн</span>
+						</div>
+
+						<div class="category" data-category="Розваги">
+							<span class="material-icons">celebration</span>
+							<span class="name">Розваги</span>
+							<span class="amount" id="cat-Розваги">0 грн</span>
+						</div>
+						<div class="category" data-category="Інші">
+							<span class="material-icons">more_horiz</span>
+							<span class="name">Інші</span>
+							<span class="amount" id="cat-Інші">0 грн</span>
+						</div>
+					</div>
+					<div class="documents-main-row">
+						<nav class="filters">
+							<select
+								class="filter-dropdown"
+								[(ngModel)]="selectedRange"
+							>
+								<option value="day">День</option>
+								<option value="week">Тиждень</option>
+								<option value="month">Місяць</option>
+								<option value="year">Рік</option>
+							</select>
+						</nav>
+
+						<button
+							id="saveExpense"
+							[routerLink]="['/transactions']"
+						>
+							+
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

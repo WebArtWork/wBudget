@@ -95,7 +95,9 @@
 				</th>
 
 				<!-- Column for action buttons -->
-				<th *ngIf="config.delete || config.update">
+				<th
+					*ngIf="config.delete || config.update || config.buttons?.length"
+				>
 					<ng-template #customAction>
 						<ng-container
 							*ngTemplateOutlet="action.template"
@@ -137,85 +139,85 @@
 				<!-- Action buttons for each row -->
 				<td
 					class="table-body__last-td"
-					*ngIf="config.delete || config.update || config.buttons"
+					*ngIf="config.delete || config.update || config.buttons?.length"
 					data-label="Actions:&nbsp;"
 				>
 					<div class="table__actions">
 						<!-- Custom buttons -->
-						<ng-container *ngIf="config.buttons">
-							<ng-container *ngFor="let button of config.buttons">
-								<ng-container *ngIf="button">
+						<ng-container
+							*ngFor="let button of config.buttons || []"
+						>
+							<ng-container *ngIf="button">
+								<i
+									(click)="button.click(row)"
+									class="material-icons"
+									[title]="button.icon"
+									*ngIf="!button.ahref && !button.ahrefFunc && !button.href && !button.hrefFunc"
+								>
+									{{ button.icon }}
+								</i>
+								<a
+									[href]="button.ahref"
+									[target]="button.target || '_blank'"
+									*ngIf="button.href"
+								>
 									<i
-										(click)="button.click(row)"
 										class="material-icons"
 										[title]="button.icon"
-										*ngIf="!button.ahref && !button.ahrefFunc && !button.href && !button.hrefFunc"
 									>
 										{{ button.icon }}
 									</i>
-									<a
-										[href]="button.ahref"
-										[target]="button.target || '_blank'"
-										*ngIf="button.href"
+								</a>
+								<a
+									[href]="button.ahrefFunc(row)"
+									[target]="button.target || '_blank'"
+									*ngIf="button.ahrefFunc"
+								>
+									<i
+										class="material-icons"
+										[title]="button.icon"
 									>
-										<i
-											class="material-icons"
-											[title]="button.icon"
-										>
-											{{ button.icon }}
-										</i>
-									</a>
-									<a
-										[href]="button.ahrefFunc(row)"
-										[target]="button.target || '_blank'"
-										*ngIf="button.ahrefFunc"
+										{{ button.icon }}
+									</i>
+								</a>
+								<a
+									[routerLink]="button.href"
+									*ngIf="button.href"
+								>
+									<i
+										class="material-icons"
+										[title]="button.icon"
 									>
-										<i
-											class="material-icons"
-											[title]="button.icon"
-										>
-											{{ button.icon }}
-										</i>
-									</a>
-									<a
-										[routerLink]="button.href"
-										*ngIf="button.href"
+										{{ button.icon }}
+									</i>
+								</a>
+								<a
+									[routerLink]="button.hrefFunc(row)"
+									*ngIf="button.hrefFunc"
+								>
+									<i
+										class="material-icons"
+										[title]="button.icon"
 									>
-										<i
-											class="material-icons"
-											[title]="button.icon"
-										>
-											{{ button.icon }}
-										</i>
-									</a>
-									<a
-										[routerLink]="button.hrefFunc(row)"
-										*ngIf="button.hrefFunc"
-									>
-										<i
-											class="material-icons"
-											[title]="button.icon"
-										>
-											{{ button.icon }}
-										</i>
-									</a>
-								</ng-container>
+										{{ button.icon }}
+									</i>
+								</a>
 							</ng-container>
 						</ng-container>
 
 						<!-- Edit and Delete buttons -->
 						<i
+							(click)="config.update(row)"
 							class="material-icons"
 							*ngIf="config.update"
-							(click)="config.update(row)"
 							title="Edit"
 						>
 							edit
 						</i>
 						<i
+							(click)="config.delete(row)"
 							class="material-icons"
 							*ngIf="config.delete"
-							(click)="config.delete(row)"
 							title="Delete"
 						>
 							delete_outline
