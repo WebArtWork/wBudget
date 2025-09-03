@@ -86,6 +86,16 @@
 					<span class="material-icons">translate</span>
 					<span translate>Theme.Translates</span>
 				</a>
+				<a
+					[routerLinkActiveOptions]="{ exact: true }"
+					routerLinkActive="_activeLink"
+					routerLink="/budgets"
+					class="nav__burger-link"
+					(click)="hideSidebar()"
+				>
+					<span class="material-icons">account_balance_wallet</span>
+					<span translate>Theme.budget</span>
+				</a>
 				<hr *ngIf="us.role('admin')" />
 			</div>
 		</div>

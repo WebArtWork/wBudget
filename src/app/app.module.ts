@@ -51,6 +51,16 @@ const routes: Routes = [
 		children: [
 			/* user */
 			{
+				path: 'budgets',
+				canActivate: [MetaGuard],
+				data: {
+					meta: {
+						title: 'Budgets'
+					}
+				},
+				loadChildren: () => import('./modules/budget/pages/budgets/budgets.routes').then(r => r.budgetsRoutes)
+			}, 
+			{
 				path: 'profile',
 				canActivate: [MetaGuard],
 				data: {

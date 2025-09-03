@@ -10,7 +10,8 @@ export const environment = {
 		email: 'ceo@webart.work',
 		password: 'asdasdasdasd'
 	},
-	production: false
+	production: false,
+	url: ''
 };
 
 /*
