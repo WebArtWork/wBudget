@@ -47,7 +47,7 @@ const routes: Routes = [
 	{
 		path: '',
 		canActivate: [AuthenticatedGuard],
-		component: UserComponent,
+		component: PublicComponent,
 		children: [
 			/* user */
 			{
