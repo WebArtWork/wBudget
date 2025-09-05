@@ -21,7 +21,7 @@ export class TransactionsComponent extends CrudComponent<
 > {
 	override configType: 'local' | 'server' = 'local';
 
-	columns = ['name', 'amount', 'type', 'unitId', 'date'];
+	columns = ['isDeposit', 'amount', 'note', 'budget'];
 
 	config = this.getConfig();
 

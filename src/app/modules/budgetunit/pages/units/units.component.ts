@@ -21,7 +21,7 @@ export class UnitsComponent extends CrudComponent<
 > {
 	override configType: 'local' | 'server' = 'local';
 
-	columns = ['name', 'description', 'type', 'budget'];
+	columns = ['name', 'cost', 'budget'];
 
 	config = this.getConfig();
 

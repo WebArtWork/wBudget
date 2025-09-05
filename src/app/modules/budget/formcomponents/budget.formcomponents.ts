@@ -9,11 +9,41 @@ export const budgetFormComponents = {
 			fields: [
 				{
 					name: 'Placeholder',
-					value: 'fill budget title',
+					value: 'fill budget title'
 				},
 				{
 					name: 'Label',
-					value: 'Title',
+					value: 'Title'
+				}
+			]
+		},
+		{
+			name: 'Number',
+			key: 'amount',
+			focused: true,
+			fields: [
+				{
+					name: 'Placeholder',
+					value: 'fill budget amount'
+				},
+				{
+					name: 'Label',
+					value: 'Amount'
+				}
+			]
+		},
+		{
+			name: 'Text',
+			key: 'currency',
+			focused: true,
+			fields: [
+				{
+					name: 'Placeholder',
+					value: 'fill budget currency'
+				},
+				{
+					name: 'Label',
+					value: 'Currency'
 				}
 			]
 		},
@@ -23,13 +53,13 @@ export const budgetFormComponents = {
 			fields: [
 				{
 					name: 'Placeholder',
-					value: 'fill budget description',
+					value: 'fill budget description'
 				},
 				{
 					name: 'Label',
-					value: 'Description',
+					value: 'Description'
 				}
 			]
 		}
 	]
-}
+};

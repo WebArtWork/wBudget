@@ -1,10 +1,9 @@
 import { CrudDocument } from 'wacom';
 
 export interface Budgettransaction extends CrudDocument {
-	name: string;
-	description: string;
 	amount: string;
-	type: string;
+	note: string;
 	unitId: string;
-	date: string;
+	budget: string;
+	isDeposit: Boolean;
 }

@@ -3,17 +3,13 @@ export const budgettransactionFormComponents = {
 	title: 'Budgettransaction',
 	components: [
 		{
-			name: 'Text',
-			key: 'name',
+			name: 'Checkbox',
+			key: 'isDeposit',
 			focused: true,
 			fields: [
 				{
-					name: 'Placeholder',
-					value: 'fill budgettransaction title'
-				},
-				{
 					name: 'Label',
-					value: 'Title'
+					value: 'Deposit?'
 				}
 			]
 		},
@@ -33,42 +29,25 @@ export const budgettransactionFormComponents = {
 			]
 		},
 		{
-			name: 'Select',
-			key: 'type',
-			focused: false,
+			name: 'Text',
+			key: 'note',
 			fields: [
 				{
 					name: 'Placeholder',
-					value: 'Select type (e.g. Income, Expense)'
+					value: 'Enter note'
 				},
 				{
-					name: 'Items',
-					value: ['Income', 'Expense']
+					name: 'Label',
+					value: 'Note'
 				}
 			]
 		},
 		{
 			name: 'Select',
-			key: 'unitId',
+			key: 'budget',
 			fields: [
-				{
-					name: 'Label',
-					value: 'Category (Unit)'
-				},
-				{
-					name: 'Options',
-					value: []
-				} // сюди підтягуємо список категорій з UnitModule
-			]
-		},
-		{
-			name: 'Date',
-			key: 'date',
-			fields: [
-				{
-					name: 'Label',
-					value: 'Date'
-				}
+				{ name: 'Label', value: 'Budget' },
+				{ name: 'Options', value: [] }
 			]
 		}
 	]

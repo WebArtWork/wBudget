@@ -12,7 +12,7 @@ import { BudgetService } from '../../services/budget.service';
 @Component({
 	imports: [CommonModule, TableModule],
 	templateUrl: './budgets.component.html',
-	styleUrls: ['./budgets.component.scss'],
+	styleUrls: ['./budgets.component.scss']
 })
 export class BudgetsComponent extends CrudComponent<
 	BudgetService,
@@ -21,7 +21,7 @@ export class BudgetsComponent extends CrudComponent<
 > {
 	override configType: 'local' | 'server' = 'local';
 
-	columns = ['name', 'description'];
+	columns = ['name', 'description', 'amount', 'currency'];
 
 	config = this.getConfig();
 
@@ -30,7 +30,13 @@ export class BudgetsComponent extends CrudComponent<
 		_translate: TranslateService,
 		_form: FormService
 	) {
-		super(budgetFormComponents, _form, _translate, _budgetService, 'Budget');
+		super(
+			budgetFormComponents,
+			_form,
+			_translate,
+			_budgetService,
+			'Budget'
+		);
 
 		this.setDocuments();
 	}
