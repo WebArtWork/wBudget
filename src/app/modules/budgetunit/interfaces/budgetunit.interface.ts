@@ -4,4 +4,5 @@ export interface Budgetunit extends CrudDocument {
 	name: string;
 	description: string;
 	type: string;
+	budget: string;
 }

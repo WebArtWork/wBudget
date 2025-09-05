@@ -1,28 +1,27 @@
 <div class="wrapper" id="wrapper">
 	<div class="documents-header">
-		<div class="documents-header-left">
-			<div class="documents-header-left__arrow" (click)="back()">
-				<span class="material-icons">arrow_back_ios</span>
-			</div>
-
-			<!-- Budget dropdown -->
-			<wselect
-				class="filter-dropdown"
-				[items]="budgets"
-				[(ngModel)]="selectedBudget"
-				(modelChange)="onBudgetChange()"
-				placeholder=""
-			></wselect>
-
-			<!-- Unit dropdown -->
-			<wselect
-				class="filter-dropdown"
-				[items]="units"
-				[(ngModel)]="selectedUnit"
-				(modelChange)="onUnitChange()"
-				placeholder=""
-			></wselect>
+		<div class="documents-header-left__arrow" (click)="back()">
+			<span class="material-icons">arrow_back_ios</span>
 		</div>
+
+		<!-- Budget dropdown -->
+		<wselect
+			class="filter-dropdown"
+			[items]="budgets"
+			[(ngModel)]="selectedBudget"
+			(modelChange)="onBudgetChange()"
+			placeholder=""
+		></wselect>
+
+		<!-- Unit dropdown -->
+		<wselect
+			class="filter-dropdown"
+			[items]="units"
+			[(ngModel)]="selectedUnit"
+			(modelChange)="onUnitChange()"
+			placeholder=""
+		></wselect>
+
 		<div class="documents-header__title">wBudget</div>
 	</div>
 

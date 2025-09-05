@@ -20,6 +20,22 @@ export const budgetunitFormComponents = {
 
 		{
 			name: 'Select',
+			key: 'budget',
+			focused: false,
+			fields: [
+				{
+					name: 'Placeholder',
+					value: 'Select budget '
+				},
+				{
+					name: 'Items',
+					value: ['1', '2']
+				}
+			]
+		},
+
+		{
+			name: 'Select',
 			key: 'type',
 			focused: false,
 			fields: [
