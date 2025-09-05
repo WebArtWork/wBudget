@@ -5,5 +5,5 @@ export interface Budgettransaction extends CrudDocument {
 	note: string;
 	unitId: string;
 	budget: string;
-	isDeposit: Boolean;
+	isDeposit: string;
 }

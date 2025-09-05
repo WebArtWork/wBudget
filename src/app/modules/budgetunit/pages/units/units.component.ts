@@ -8,6 +8,7 @@ import { CrudComponent } from 'wacom';
 import { budgetunitFormComponents } from '../../formcomponents/budgetunit.formcomponents';
 import { Budgetunit } from '../../interfaces/budgetunit.interface';
 import { BudgetunitService } from '../../services/budgetunit.service';
+import { Router } from '@angular/router';
 
 @Component({
 	imports: [CommonModule, TableModule],
@@ -25,10 +26,13 @@ export class UnitsComponent extends CrudComponent<
 
 	config = this.getConfig();
 
+	budget = this._router.url.replace('/units/', '');
+
 	constructor(
 		_budgetunitService: BudgetunitService,
 		_translate: TranslateService,
-		_form: FormService
+		_form: FormService,
+		private _router: Router
 	) {
 		super(
 			budgetunitFormComponents,
@@ -39,5 +43,9 @@ export class UnitsComponent extends CrudComponent<
 		);
 
 		this.setDocuments();
+	}
+	override preCreate(doc: Budgetunit): void {
+		delete (doc as any).__creating;
+		doc.budget = this.budget;
 	}
 }

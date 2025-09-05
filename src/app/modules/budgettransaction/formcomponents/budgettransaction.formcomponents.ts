@@ -41,14 +41,6 @@ export const budgettransactionFormComponents = {
 					value: 'Note'
 				}
 			]
-		},
-		{
-			name: 'Select',
-			key: 'budget',
-			fields: [
-				{ name: 'Label', value: 'Budget' },
-				{ name: 'Options', value: [] }
-			]
 		}
 	]
 };
