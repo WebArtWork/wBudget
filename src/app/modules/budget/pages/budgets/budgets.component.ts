@@ -38,6 +38,19 @@ export class BudgetsComponent extends CrudComponent<
 			'Budget'
 		);
 
+		this.config.buttons.push({
+			icon: 'category',
+			hrefFunc: (doc: Budget): string => {
+				return doc._id ? '/units/' + doc._id : '/units';
+			}
+		});
+		this.config.buttons.push({
+			icon: 'swap_horiz',
+			hrefFunc: (doc: Budget): string => {
+				return doc._id ? '/transactions/' + doc._id : '/transactions';
+			}
+		});
+
 		this.setDocuments();
 	}
 }

@@ -4,6 +4,10 @@ import { TransactionsComponent } from './transactions.component';
 export const transactionsRoutes: Routes = [
 	{
 		path: '',
-		component: TransactionsComponent,
+		component: TransactionsComponent
 	},
+	{
+		path: ':id',
+		component: TransactionsComponent
+	}
 ];

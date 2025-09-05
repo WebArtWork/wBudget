@@ -4,6 +4,10 @@ import { UnitsComponent } from './units.component';
 export const unitsRoutes: Routes = [
 	{
 		path: '',
-		component: UnitsComponent,
+		component: UnitsComponent
 	},
+	{
+		path: ':id',
+		component: UnitsComponent
+	}
 ];
