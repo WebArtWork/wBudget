@@ -19,6 +19,8 @@ export class BudgetsComponent extends CrudComponent<
 	Budget,
 	FormInterface
 > {
+	budgets: Budget[] = [];
+	selectField: any;
 	override configType: 'local' | 'server' = 'local';
 
 	columns = ['name', 'description', 'amount', 'currency'];

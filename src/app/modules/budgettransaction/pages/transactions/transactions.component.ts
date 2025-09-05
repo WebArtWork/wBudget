@@ -8,6 +8,8 @@ import { CrudComponent } from 'wacom';
 import { budgettransactionFormComponents } from '../../formcomponents/budgettransaction.formcomponents';
 import { Budgettransaction } from '../../interfaces/budgettransaction.interface';
 import { BudgettransactionService } from '../../services/budgettransaction.service';
+import { BudgetService } from 'src/app/modules/budget/services/budget.service';
+import { Router } from '@angular/router';
 
 @Component({
 	imports: [CommonModule, TableModule],
@@ -24,11 +26,12 @@ export class TransactionsComponent extends CrudComponent<
 	columns = ['isDeposit', 'amount', 'note', 'budget'];
 
 	config = this.getConfig();
-
+	budget = this._router.url.replace('/transactions/', '');
 	constructor(
 		_budgettransactionService: BudgettransactionService,
 		_translate: TranslateService,
-		_form: FormService
+		_form: FormService,
+		private _router: Router
 	) {
 		super(
 			budgettransactionFormComponents,
@@ -39,5 +42,9 @@ export class TransactionsComponent extends CrudComponent<
 		);
 
 		this.setDocuments();
+	}
+	override preCreate(doc: Budgettransaction): void {
+		delete (doc as any).__creating;
+		doc.budget = this.budget;
 	}
 }
