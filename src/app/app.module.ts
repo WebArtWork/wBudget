@@ -66,19 +66,6 @@ const routes: Routes = [
 			},
 
 			{
-				path: 'budgets',
-				canActivate: [MetaGuard],
-				data: {
-					meta: {
-						title: 'Budgets'
-					}
-				},
-				loadChildren: () =>
-					import(
-						'./modules/budget/pages/budgets/budgets.routes'
-					).then((r) => r.budgetsRoutes)
-			},
-			{
 				path: 'profile',
 				canActivate: [MetaGuard],
 				data: {
@@ -125,6 +112,19 @@ const routes: Routes = [
 					import(
 						'./modules/budgetunit/pages/units/units.routes'
 					).then((r) => r.unitsRoutes)
+			},
+			{
+				path: 'budgets',
+				canActivate: [MetaGuard],
+				data: {
+					meta: {
+						title: 'Budgets'
+					}
+				},
+				loadChildren: () =>
+					import(
+						'./modules/budget/pages/budgets/budgets.routes'
+					).then((r) => r.budgetsRoutes)
 			}
 		]
 	},
