@@ -1,1 +1,43 @@
-<p>secondary works!</p>
+<div class="wrapper" id="wrapper">
+	<div class="documents-header">
+		<div class="documents-header-left__arrow" (click)="back()">
+			<span class="material-icons">arrow_back_ios</span>
+		</div>
+
+		<div class="documents-header__title">wBudget</div>
+	</div>
+
+	<nav class="nav" (clickOutside)="showSidebar = false">
+		<ul class="nav__ul container" [class._active]="showSidebar">
+			<li class="nav__li">
+				<button id="saveExpense" [routerLink]="['/transactions']">
+					+
+				</button>
+			</li>
+
+			<li class="nav__li">
+				<a
+					routerLinkActive="_activeLink"
+					(click)="showSidebar = false"
+					routerLink="/dashboard"
+					class="nav__a"
+				>
+					<span class="material-icons">home</span>
+				</a>
+			</li>
+			<a
+				[routerLinkActiveOptions]="{ exact: true }"
+				routerLinkActive="_activeLink"
+				routerLink="/budgets"
+				class="nav__burger-link"
+				(click)="hideSidebar()"
+			>
+				<span class="material-icons">account_balance_wallet</span>
+			</a>
+		</ul>
+	</nav>
+
+	<div class="main" [class.showTable]="showSidebar">
+		<router-outlet></router-outlet>
+	</div>
+</div>

@@ -16,6 +16,7 @@ import { AuthenticatedGuard } from './core/guards/authenticated.guard';
 import { GuestGuard } from './core/guards/guest.guard';
 import { AdminsGuard } from './core/guards/admins.guard';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
+import { SecondaryComponent } from './core/theme/secondary/secondary.component';
 
 const routes: Routes = [
 	{
@@ -63,32 +64,7 @@ const routes: Routes = [
 						(m) => m.DashboardModule
 					)
 			},
-			{
-				path: 'transactions',
-				canActivate: [MetaGuard],
-				data: {
-					meta: {
-						title: 'Transactions'
-					}
-				},
-				loadChildren: () =>
-					import(
-						'./modules/budgettransaction/pages/transactions/transactions.routes'
-					).then((r) => r.transactionsRoutes)
-			},
-			{
-				path: 'units',
-				canActivate: [MetaGuard],
-				data: {
-					meta: {
-						title: 'Units'
-					}
-				},
-				loadChildren: () =>
-					import(
-						'./modules/budgetunit/pages/units/units.routes'
-					).then((r) => r.unitsRoutes)
-			},
+
 			{
 				path: 'budgets',
 				canActivate: [MetaGuard],
@@ -114,6 +90,41 @@ const routes: Routes = [
 					import('./pages/user/profile/profile.module').then(
 						(m) => m.ProfileModule
 					)
+			}
+		]
+	},
+	{
+		path: '',
+		canActivate: [AuthenticatedGuard],
+		component: SecondaryComponent,
+		children: [
+			/* Secondary */
+
+			{
+				path: 'transactions',
+				canActivate: [MetaGuard],
+				data: {
+					meta: {
+						title: 'Transactions'
+					}
+				},
+				loadChildren: () =>
+					import(
+						'./modules/budgettransaction/pages/transactions/transactions.routes'
+					).then((r) => r.transactionsRoutes)
+			},
+			{
+				path: 'units',
+				canActivate: [MetaGuard],
+				data: {
+					meta: {
+						title: 'Units'
+					}
+				},
+				loadChildren: () =>
+					import(
+						'./modules/budgetunit/pages/units/units.routes'
+					).then((r) => r.unitsRoutes)
 			}
 		]
 	},
@@ -209,7 +220,8 @@ const routes: Routes = [
 		AppComponent,
 		GuestComponent,
 		UserComponent,
-		PublicComponent
+		PublicComponent,
+		SecondaryComponent
 	],
 	imports: [
 		CoreModule,
