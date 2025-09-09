@@ -22,24 +22,21 @@
 			placeholder=""
 		></wselect>
 
-		<div class="documents-header__title">wBudget</div>
+		<wselect
+			class="filter-dropdown"
+			[items]="ranges"
+			[(ngModel)]="selectedRange"
+			(modelChange)="onBudgetChange()"
+			placeholder=""
+		></wselect>
+
+		<!--<div class="documents-header__title">wBudget</div>-->
 	</div>
 
 	<nav class="nav" (clickOutside)="showSidebar = false">
 		<ul class="nav__ul container" [class._active]="showSidebar">
 			<li class="nav__li">
-				<wselect
-					class="filter-dropdown"
-					[items]="ranges"
-					[(ngModel)]="selectedRange"
-					(modelChange)="onBudgetChange()"
-					placeholder=""
-				></wselect>
-			</li>
-			<li class="nav__li">
-				<button id="saveExpense" [routerLink]="['/transactions']">
-					+
-				</button>
+				<button id="saveExpense" (click)="create()">+</button>
 			</li>
 
 			<li class="nav__li">
@@ -49,10 +46,10 @@
 					routerLink="/dashboard"
 					class="nav__a"
 				>
-					<span class="material-icons">home</span>
+					<span class="material-icons">dashboard</span>
 				</a>
 			</li>
-			<a
+			<!--<a
 				[routerLinkActiveOptions]="{ exact: true }"
 				routerLinkActive="_activeLink"
 				routerLink="/budgets"
@@ -60,7 +57,7 @@
 				(click)="hideSidebar()"
 			>
 				<span class="material-icons">account_balance_wallet</span>
-			</a>
+			</a> -->
 		</ul>
 	</nav>
 

@@ -3,7 +3,7 @@ export const budgettransactionFormComponents = {
 	title: 'Budgettransaction',
 	components: [
 		{
-			name: 'Checkbox',
+			name: 'Boolean',
 			key: 'isDeposit',
 			focused: true,
 			fields: [

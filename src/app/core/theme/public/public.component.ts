@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { UserService } from 'src/app/modules/user/services/user.service';
 import { Platform } from '@angular/cdk/platform';
-
 import { FormInterface } from 'src/app/core/modules/form/interfaces/form.interface';
+
 @Component({
 	selector: 'app-public',
 	standalone: false,
@@ -53,5 +53,20 @@ export class PublicComponent {
 
 	onRangeChange() {
 		console.log('Вибрано період:', this.selectedRange);
+	}
+	protected create() {
+		this.__form.modal<Document>(this.form, {
+			label: 'Create',
+			click: async (created: unknown, close: () => void) => {
+				close();
+				this.preCreate(created as Document);
+
+				await firstValueFrom(
+					this.crudService.create(created as Document)
+				);
+
+				this.setDocuments();
+			}
+		});
 	}
 }
