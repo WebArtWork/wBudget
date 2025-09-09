@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Budgetunit } from '../interfaces/budgetunit.interface';
 import { CrudService } from 'wacom';
+import { Budgetunit } from '../interfaces/budgetunit.interface';
 
 @Injectable({
-	providedIn: 'root',
+	providedIn: 'root'
 })
 export class BudgetunitService extends CrudService<Budgetunit> {
 	budgetunits: Budgetunit[] = this.getDocs();
@@ -12,10 +12,8 @@ export class BudgetunitService extends CrudService<Budgetunit> {
 
 	constructor() {
 		super({
-			name: 'budgetunit',
+			name: 'budgetunit'
 		});
-
-		this.get();
 
 		this.filteredDocuments(this.budgetunitsByAuthor);
 	}

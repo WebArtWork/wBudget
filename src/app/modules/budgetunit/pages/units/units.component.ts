@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormService } from 'src/app/core/modules/form/form.service';
 import { FormInterface } from 'src/app/core/modules/form/interfaces/form.interface';
 import { TableModule } from 'src/app/core/modules/table/table.module';
@@ -8,7 +9,6 @@ import { CrudComponent } from 'wacom';
 import { budgetunitFormComponents } from '../../formcomponents/budgetunit.formcomponents';
 import { Budgetunit } from '../../interfaces/budgetunit.interface';
 import { BudgetunitService } from '../../services/budgetunit.service';
-import { Router } from '@angular/router';
 
 @Component({
 	imports: [CommonModule, TableModule],
@@ -21,6 +21,12 @@ export class UnitsComponent extends CrudComponent<
 	FormInterface
 > {
 	override configType: 'local' | 'server' = 'local';
+
+	override preCreate(doc: Budgetunit): void {
+		delete (doc as any).__creating;
+
+		doc.budget = this.budget;
+	}
 
 	columns = ['name', 'cost', 'budget'];
 
@@ -42,10 +48,10 @@ export class UnitsComponent extends CrudComponent<
 			'Budgetunit'
 		);
 
-		this.setDocuments();
-	}
-	override preCreate(doc: Budgetunit): void {
-		delete (doc as any).__creating;
-		doc.budget = this.budget;
+		_budgetunitService.get({ query: 'budget=' + this.budget }).subscribe({
+			next: () => {
+				this.setDocuments();
+			}
+		});
 	}
 }
