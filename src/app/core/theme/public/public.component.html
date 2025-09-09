@@ -36,7 +36,9 @@
 	<nav class="nav" (clickOutside)="showSidebar = false">
 		<ul class="nav__ul container" [class._active]="showSidebar">
 			<li class="nav__li">
-				<button id="saveExpense" (click)="create()">+</button>
+				<button id="saveExpense" (click)="createTransaction()">
+					+
+				</button>
 			</li>
 
 			<li class="nav__li">
