@@ -3,7 +3,7 @@ import { Budget } from '../interfaces/budget.interface';
 import { CrudService } from 'wacom';
 
 @Injectable({
-	providedIn: 'root',
+	providedIn: 'root'
 })
 export class BudgetService extends CrudService<Budget> {
 	budgets: Budget[] = this.getDocs();
@@ -12,11 +12,14 @@ export class BudgetService extends CrudService<Budget> {
 
 	constructor() {
 		super({
-			name: 'budget',
+			name: 'budget'
 		});
 
 		this.get();
 
 		this.filteredDocuments(this.budgetsByAuthor);
+	}
+	async getAllBudgets(): Promise<Budget[]> {
+		return await this.getDocs();
 	}
 }
