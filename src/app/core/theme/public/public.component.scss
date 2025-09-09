@@ -11,27 +11,20 @@
 	@include mixins.flexBox(flex, column, null, null, null);
 	background: var(--c-bg-primary);
 	transition: all 0.5s ease-in-out;
-  
+
 	.main {
-	  flex-grow: 1;
-	  overflow-y: auto;
-	  @include mixins.flexBox(flex, column, null, null, null);
-	  position: relative;
-	  max-width: 100%;
-	  margin: 0 auto;
-	  width: 100%;
-	  padding: 20px;
-	  margin-top: 60px; // простір під верхній header
-	  transition: all 0.5s ease-in-out;
-  
-	  @media screen and (max-width: 991px) {
-		padding: 20px;
-	  }
-	  @media screen and (max-width: 767px) {
-		padding: 10px;
-	  }
+		flex-grow: 1;
+		overflow-y: auto;
+		@include mixins.flexBox(flex, column, null, null, null);
+		position: relative;
+		max-width: 100%;
+		margin: 0 auto;
+		width: 100%;
+
+		margin-top: 30px; // простір під верхній header
+		transition: all 0.5s ease-in-out;
 	}
-  }
+}
 
 /*.showTable {
 	padding: 20px !important;
@@ -48,7 +41,10 @@ hr {
 	transition: all 0.5s ease-in-out;
 	background: var(--c-basic);
 	width: 100%;
-	box-shadow: 0 3px 5px -1px #0003, 0 6px 10px #00000024, 0 1px 18px #0000001f;
+	box-shadow:
+		0 3px 5px -1px #0003,
+		0 6px 10px #00000024,
+		0 1px 18px #0000001f;
 	@include mixins.flexBox(flex, null, space-between, center, null);
 	min-height: 50px;
 	z-index: 100;
@@ -216,8 +212,10 @@ hr {
 		right: 0;
 		transform: translateX(120%);
 		z-index: 10;
-		box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.03),
-			0 6px 10px rgba(0, 0, 0, 0.24), 0 1px 18px rgba(0, 0, 0, 0.31);
+		box-shadow:
+			0 3px 5px -1px rgba(0, 0, 0, 0.03),
+			0 6px 10px rgba(0, 0, 0, 0.24),
+			0 1px 18px rgba(0, 0, 0, 0.31);
 		transition: all 0.5s ease-in-out;
 		@media screen and (max-width: 767px) {
 			transform: translateX(120%) !important;
@@ -286,10 +284,8 @@ hr {
 	right: 10px;
 	display: flex;
 	justify-content: flex-end;
-	margin-right: 10px;
+
 	.material-icons {
 		cursor: pointer;
 	}
 }
-
-
