@@ -1,0 +1,1 @@
+import{i as n,nb as s,s as i}from"./chunk-ZUUDRUCE.js";var m=(()=>{let t=class t extends s{constructor(){super({name:"budgetunit"})}getUnitsByBudget(e){let c=this.getDocs().filter(a=>a.budget===e);return n(c)}};t.\u0275fac=function(o){return new(o||t)},t.\u0275prov=i({token:t,factory:t.\u0275fac,providedIn:"root"});let r=t;return r})();export{m as a};
