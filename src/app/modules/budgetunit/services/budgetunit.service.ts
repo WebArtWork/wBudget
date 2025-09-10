@@ -7,14 +7,13 @@ import { Observable, of } from 'rxjs';
 	providedIn: 'root'
 })
 export class BudgetunitService extends CrudService<Budgetunit> {
-	budgetunits: Budgetunit[] = this.getDocs();
-
 	constructor() {
 		super({ name: 'budgetunit' });
 	}
 
 	getUnitsByBudget(budgetId: string): Observable<Budgetunit[]> {
-		const filtered = this.budgetunits.filter((u) => u.budget === budgetId);
-		return of(filtered);
+		const allUnits = this.getDocs(); // отримуємо всі юніти з кешу
+		const unitsForBudget = allUnits.filter((u) => u.budget === budgetId);
+		return of(unitsForBudget);
 	}
 }

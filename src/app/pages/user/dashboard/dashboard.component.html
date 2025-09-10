@@ -13,7 +13,12 @@
 					</div>
 				</div>
 				<div class="documents-main-content">
-					<div class="categories"></div>
+					<div class="categories">
+						<div class="category" *ngFor="let unit of units">
+							<span class="name">{{ unit.name }}</span>
+							<span class="amount">{{ unit.cost }} грн</span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
