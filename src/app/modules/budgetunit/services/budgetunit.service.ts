@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CrudService } from 'wacom';
 import { Budgetunit } from '../interfaces/budgetunit.interface';
+import { Observable, of } from 'rxjs';
 
 @Injectable({
 	providedIn: 'root'
@@ -8,13 +9,12 @@ import { Budgetunit } from '../interfaces/budgetunit.interface';
 export class BudgetunitService extends CrudService<Budgetunit> {
 	budgetunits: Budgetunit[] = this.getDocs();
 
-	budgetunitsByAuthor: Record<string, Budgetunit[]> = {};
-
 	constructor() {
-		super({
-			name: 'budgetunit'
-		});
+		super({ name: 'budgetunit' });
+	}
 
-		this.filteredDocuments(this.budgetunitsByAuthor);
+	getUnitsByBudget(budgetId: string): Observable<Budgetunit[]> {
+		const filtered = this.budgetunits.filter((u) => u.budget === budgetId);
+		return of(filtered);
 	}
 }

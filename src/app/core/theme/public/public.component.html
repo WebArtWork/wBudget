@@ -23,16 +23,18 @@
 		<wselect
 			class="filter-dropdown"
 			[items]="units"
-			[(ngModel)]="selectedUnit"
-			(modelChange)="onUnitChange()"
-			placeholder=""
+			[select]="selectedUnitId"
+			valueKey="_id"
+			labelKey="name"
+			(modelChange)="onUnitChange($event)"
+			placeholder="Оберіть юніт"
 		></wselect>
 
 		<wselect
 			class="filter-dropdown"
 			[items]="ranges"
 			[(ngModel)]="selectedRange"
-			(modelChange)="onBudgetChange()"
+			(modelChange)="onRangeChange()"
 			placeholder=""
 		></wselect>
 

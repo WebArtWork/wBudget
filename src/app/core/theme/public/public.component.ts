@@ -8,38 +8,34 @@ import { Budgettransaction } from 'src/app/modules/budgettransaction/interfaces/
 import { BudgettransactionService } from 'src/app/modules/budgettransaction/services/budgettransaction.service';
 import { UserService } from 'src/app/modules/user/services/user.service';
 import { FormService } from '../../modules/form/form.service';
+import { Budgetunit } from 'src/app/modules/budgetunit/interfaces/budgetunit.interface';
+import { BudgetunitService } from 'src/app/modules/budgetunit/services/budgetunit.service';
 
 @Component({
 	selector: 'app-public',
 	standalone: false,
 	templateUrl: './public.component.html',
-	styleUrl: './public.component.scss'
+	styleUrls: ['./public.component.scss']
 })
 export class PublicComponent implements OnInit {
 	showSidebar = false;
 	budgets: Budget[] = [];
+	units: Budgetunit[] = [];
 	selectedBudgetId: string | null = localStorage.getItem('selectedBudgetId');
-	isMenuOpen = false;
-	units = ['Їжа', 'Транспорт', 'Житло', 'Розваги'];
+	selectedUnitId: string | null = null;
+
 	ranges = ['day', 'week', 'month', 'year'];
-
-	isDropdownOpen = false;
-	isUnitDropdownOpen = false;
-	isRangeDropdownOpen = false;
-
 	selectedRange: string = '';
-
-	selectedUnit: string = '';
-	selectedUnits: string[] = [];
 
 	private _formService = inject(FormService);
 	private _transactionService = inject(BudgettransactionService);
 	private _budgetService = inject(BudgetService);
+	private _budgetunitService = inject(BudgetunitService);
 	private _platform = inject(Platform);
 	public userService = inject(UserService);
 
 	ngOnInit(): void {
-		this.loadBudgets(); // підвантажуємо бюджети при ініціалізації
+		this.loadBudgets();
 	}
 
 	// ----------------- Sidebar -----------------
@@ -52,24 +48,56 @@ export class PublicComponent implements OnInit {
 	back(): void {
 		window.history.back();
 	}
+
 	get selectedBudgetObj(): Budget | undefined {
 		return this.budgets.find((b) => b._id === this.selectedBudgetId);
 	}
+
 	// ----------------- Select Handlers -----------------
 	async loadBudgets() {
-		this.budgets = await this._budgetService.getAllBudgets();
-		console.log('budgets:', this.budgets);
-	}
-	onBudgetChange(event?: any) {
-		console.log('ngModel value:', this.selectedBudgetId);
-		console.log('event value:', event);
+		try {
+			this.budgets = await this._budgetService.getAllBudgets();
+			console.log('budgets:', this.budgets);
 
-		this.selectedBudgetId = event;
-
-		localStorage.setItem('selectedBudgetId', event);
+			if (this.selectedBudgetId) {
+				this.loadUnits(this.selectedBudgetId);
+			}
+		} catch (err) {
+			console.error('Помилка завантаження бюджетів:', err);
+		}
 	}
-	onUnitChange() {
-		console.log('Вибрані юніти:', this.selectedUnits);
+
+	onBudgetChange(budgetId: string | null) {
+		if (!budgetId) {
+			this.units = [];
+			this.selectedUnitId = null;
+			localStorage.removeItem('selectedBudgetId');
+			return;
+		}
+
+		this.selectedBudgetId = budgetId;
+		localStorage.setItem('selectedBudgetId', budgetId);
+		this.loadUnits(budgetId);
+	}
+
+	loadUnits(budgetId: string) {
+		if (!budgetId) return;
+
+		this._budgetunitService.getUnitsByBudget(budgetId).subscribe({
+			next: (units: Budgetunit[]) => {
+				this.units = units;
+				this.selectedUnitId = null;
+				console.log('Підтягнуті юніти:', this.units);
+			},
+			error: (err: any) =>
+				console.error('Помилка завантаження юнітів:', err)
+		});
+	}
+
+	onUnitChange(unitId: string) {
+		this.selectedUnitId = unitId;
+		const unit = this.units.find((u) => u._id === unitId);
+		console.log('Вибраний юніт:', unit?.name);
 	}
 
 	onRangeChange() {
@@ -95,6 +123,6 @@ export class PublicComponent implements OnInit {
 	}
 
 	setDocuments() {
-		// update content of this page
+		// оновити контент сторінки
 	}
 }
