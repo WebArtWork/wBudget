@@ -8,10 +8,10 @@
 		<wselect
 			class="filter-dropdown"
 			[items]="budgets"
-			[(ngModel)]="selectedBudgetId"
+			[select]="selectedBudgetId"
 			valueKey="_id"
 			labelKey="name"
-			(modelChange)="onBudgetChange()"
+			(modelChange)="onBudgetChange($event)"
 			placeholder="Оберіть бюджет"
 		></wselect>
 

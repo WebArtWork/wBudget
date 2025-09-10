@@ -1,13 +1,13 @@
 import { Platform } from '@angular/cdk/platform';
 import { Component, inject, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { Budget } from 'src/app/modules/budget/interfaces/budget.interface';
+import { BudgetService } from 'src/app/modules/budget/services/budget.service';
 import { budgettransactionFormComponents } from 'src/app/modules/budgettransaction/formcomponents/budgettransaction.formcomponents';
 import { Budgettransaction } from 'src/app/modules/budgettransaction/interfaces/budgettransaction.interface';
 import { BudgettransactionService } from 'src/app/modules/budgettransaction/services/budgettransaction.service';
 import { UserService } from 'src/app/modules/user/services/user.service';
 import { FormService } from '../../modules/form/form.service';
-import { BudgetService } from 'src/app/modules/budget/services/budget.service';
-import { Budget } from 'src/app/modules/budget/interfaces/budget.interface';
 
 @Component({
 	selector: 'app-public',
@@ -18,7 +18,7 @@ import { Budget } from 'src/app/modules/budget/interfaces/budget.interface';
 export class PublicComponent implements OnInit {
 	showSidebar = false;
 	budgets: Budget[] = [];
-	selectedBudgetId: string | null = null;
+	selectedBudgetId: string | null = localStorage.getItem('selectedBudgetId');
 	isMenuOpen = false;
 	units = ['Їжа', 'Транспорт', 'Житло', 'Розваги'];
 	ranges = ['day', 'week', 'month', 'year'];
@@ -63,6 +63,10 @@ export class PublicComponent implements OnInit {
 	onBudgetChange(event?: any) {
 		console.log('ngModel value:', this.selectedBudgetId);
 		console.log('event value:', event);
+
+		this.selectedBudgetId = event;
+
+		localStorage.setItem('selectedBudgetId', event);
 	}
 	onUnitChange() {
 		console.log('Вибрані юніти:', this.selectedUnits);
