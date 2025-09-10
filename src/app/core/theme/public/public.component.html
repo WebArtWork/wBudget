@@ -8,10 +8,16 @@
 		<wselect
 			class="filter-dropdown"
 			[items]="budgets"
-			[(ngModel)]="selectedBudget"
+			[(ngModel)]="selectedBudgetId"
+			valueKey="_id"
+			labelKey="name"
 			(modelChange)="onBudgetChange()"
-			placeholder=""
+			placeholder="Оберіть бюджет"
 		></wselect>
+
+		<p *ngIf="selectedBudgetObj">
+			Вибраний бюджет: {{ selectedBudgetObj.name }}
+		</p>
 
 		<!-- Unit dropdown -->
 		<wselect

@@ -18,8 +18,7 @@ import { Budget } from 'src/app/modules/budget/interfaces/budget.interface';
 export class PublicComponent implements OnInit {
 	showSidebar = false;
 	budgets: Budget[] = [];
-	selectedBudgetId: string = '';
-
+	selectedBudgetId: string | null = null;
 	isMenuOpen = false;
 	units = ['Їжа', 'Транспорт', 'Житло', 'Розваги'];
 	ranges = ['day', 'week', 'month', 'year'];
@@ -29,7 +28,7 @@ export class PublicComponent implements OnInit {
 	isRangeDropdownOpen = false;
 
 	selectedRange: string = '';
-	selectedBudget: string = '';
+
 	selectedUnit: string = '';
 	selectedUnits: string[] = [];
 
@@ -53,19 +52,18 @@ export class PublicComponent implements OnInit {
 	back(): void {
 		window.history.back();
 	}
-
+	get selectedBudgetObj(): Budget | undefined {
+		return this.budgets.find((b) => b._id === this.selectedBudgetId);
+	}
 	// ----------------- Select Handlers -----------------
 	async loadBudgets() {
-		this.budgets = await this._budgetService.getAllBudgets(); // отримуємо всі бюджети
+		this.budgets = await this._budgetService.getAllBudgets();
+		console.log('budgets:', this.budgets);
 	}
-
-	onBudgetChange() {
-		const budget = this.budgets.find(
-			(b) => b._id === this.selectedBudgetId
-		);
-		console.log('Вибраний бюджет:', budget?.name);
+	onBudgetChange(event?: any) {
+		console.log('ngModel value:', this.selectedBudgetId);
+		console.log('event value:', event);
 	}
-
 	onUnitChange() {
 		console.log('Вибрані юніти:', this.selectedUnits);
 	}
