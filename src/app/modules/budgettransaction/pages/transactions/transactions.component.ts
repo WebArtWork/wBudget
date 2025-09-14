@@ -23,10 +23,17 @@ export class TransactionsComponent extends CrudComponent<
 > {
 	override configType: 'local' | 'server' = 'local';
 
+	override preCreate(doc: Budgettransaction): void {
+		delete (doc as any).__creating;
+		doc.budget = this.budget;
+	}
+
 	columns = ['isDeposit', 'amount', 'note', 'budget'];
 
 	config = this.getConfig();
+
 	budget = this._router.url.replace('/transactions/', '');
+
 	constructor(
 		_budgettransactionService: BudgettransactionService,
 		_translate: TranslateService,
@@ -41,10 +48,12 @@ export class TransactionsComponent extends CrudComponent<
 			'Budgettransaction'
 		);
 
-		this.setDocuments();
-	}
-	override preCreate(doc: Budgettransaction): void {
-		delete (doc as any).__creating;
-		doc.budget = this.budget;
+		_budgettransactionService
+			.get({ query: 'budget=' + this.budget })
+			.subscribe({
+				next: () => {
+					this.setDocuments();
+				}
+			});
 	}
 }

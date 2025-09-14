@@ -14,9 +14,16 @@
 				</div>
 				<div class="documents-main-content">
 					<div class="categories">
-						<div class="category" *ngFor="let unit of units">
-							<span class="name">{{ unit.name }}</span>
-							<span class="amount">{{ unit.cost }} грн</span>
+						<div
+							class="category"
+							*ngFor="let transaction of transactions"
+						>
+							<span class="isDeposit"
+								>Deposit: {{ transaction.isDeposit }}</span
+							>
+							<span class="note">{{ transaction.note }} </span>
+
+							<span class="amount">{{ transaction.amount }}</span>
 						</div>
 					</div>
 				</div>

@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Budgettransaction } from '../interfaces/budgettransaction.interface';
 import { CrudService } from 'wacom';
+import { Observable, of } from 'rxjs';
 
 @Injectable({
-	providedIn: 'root',
+	providedIn: 'root'
 })
 export class BudgettransactionService extends CrudService<Budgettransaction> {
 	budgettransactions: Budgettransaction[] = this.getDocs();
@@ -12,11 +13,18 @@ export class BudgettransactionService extends CrudService<Budgettransaction> {
 
 	constructor() {
 		super({
-			name: 'budgettransaction',
+			name: 'budgettransaction'
 		});
 
 		this.get();
 
 		this.filteredDocuments(this.budgettransactionsByAuthor);
+	}
+	getTransactionsByBudget(budgetId: string) {
+		const allTransactions = this.getDocs(); // усі транзакції з кешу
+		const transactionsForBudget = allTransactions.filter(
+			(t) => t.budget === budgetId
+		);
+		return of(transactionsForBudget);
 	}
 }

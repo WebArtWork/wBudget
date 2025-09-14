@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { BudgetunitService } from 'src/app/modules/budgetunit/services/budgetunit.service';
 import { UserService } from 'src/app/modules/user/services/user.service';
-
+import { BudgettransactionService } from 'src/app/modules/budgettransaction/services/budgettransaction.service';
 @Component({
 	templateUrl: './dashboard.component.html',
 	styleUrls: ['./dashboard.component.scss'],
@@ -14,29 +14,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	selectedBudget: string = localStorage.getItem('selectedBudgetId') || '';
 	selectedRange: 'day' | 'week' | 'month' | 'year' = 'day';
 
-	// юніти для відображення
-	units: { name: string; cost: number }[] = [];
-
+	transactions: { isDeposit: boolean; amount: number; note?: string }[] = [];
 	private budgetListener: any;
 
 	constructor(
 		public userService: UserService,
-		private _budgetunitService: BudgetunitService
+		private _budgetunitService: BudgetunitService,
+		private _budgettransactionService: BudgettransactionService
 	) {}
 
 	ngOnInit() {
-		// якщо є збережений бюджет
 		if (this.selectedBudget) {
-			this.loadUnits(this.selectedBudget);
+			this.loadTransactions(this.selectedBudget);
 		}
 
-		// слухаємо глобальну подію зміни бюджету
 		this.budgetListener = (event: any) => {
 			const budgetId = event.detail;
 			if (budgetId) {
 				this.selectedBudget = budgetId;
 				localStorage.setItem('selectedBudgetId', budgetId);
-				this.loadUnits(budgetId);
+				this.loadTransactions(budgetId);
 			}
 		};
 		window.addEventListener('budgetChanged', this.budgetListener);
@@ -50,15 +47,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		window.history.back();
 	}
 
-	// завантаження юнітів для конкретного бюджету
-	loadUnits(budgetId: string) {
-		this._budgetunitService
-			.getUnitsByBudget(budgetId)
-			.subscribe((units) => {
-				console.log('Юніти для бюджету', budgetId, units);
-				this.units = units.map((u: any) => ({
-					name: u.name,
-					cost: Number(u.cost) || 0
+	loadTransactions(budgetId: string) {
+		this._budgettransactionService
+			.getTransactionsByBudget(budgetId)
+			.subscribe((transactions) => {
+				console.log('Транзакції для бюджету', budgetId, transactions);
+				this.transactions = transactions.map((t: any) => ({
+					isDeposit: t.isDeposit,
+					amount: Number(t.amount) || 0,
+					note: t.note
 				}));
 			});
 	}
@@ -68,7 +65,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		console.log('Вибраний період:', this.selectedRange);
 	}
 
-	getTotalCost(): number {
-		return this.units.reduce((sum, unit) => sum + unit.cost, 0);
+	getTotalAmount(): number {
+		return this.transactions.reduce(
+			(sum, t) => sum + (t.isDeposit ? t.amount : -t.amount),
+			0
+		);
 	}
 }
