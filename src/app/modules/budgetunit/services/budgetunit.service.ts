@@ -12,8 +12,6 @@ export class BudgetunitService extends CrudService<Budgetunit> {
 	}
 
 	getUnitsByBudget(budgetId: string): Observable<Budgetunit[]> {
-		const allUnits = this.getDocs(); // отримуємо всі юніти з кешу
-		const unitsForBudget = allUnits.filter((u) => u.budget === budgetId);
-		return of(unitsForBudget);
+		return this.get({ query: 'budget=' + budgetId });
 	}
 }

@@ -10,6 +10,8 @@ import { Budgettransaction } from '../../interfaces/budgettransaction.interface'
 import { BudgettransactionService } from '../../services/budgettransaction.service';
 import { BudgetService } from 'src/app/modules/budget/services/budget.service';
 import { Router } from '@angular/router';
+import { BudgetunitService } from 'src/app/modules/budgetunit/services/budgetunit.service';
+import { Budgetunit } from 'src/app/modules/budgetunit/interfaces/budgetunit.interface';
 
 @Component({
 	imports: [CommonModule, TableModule],
@@ -23,19 +25,25 @@ export class TransactionsComponent extends CrudComponent<
 > {
 	override configType: 'local' | 'server' = 'local';
 
-	override preCreate(doc: Budgettransaction): void {
-		delete (doc as any).__creating;
-		doc.budget = this.budget;
-	}
-
 	columns = ['isDeposit', 'amount', 'note', 'budget'];
 
 	config = this.getConfig();
 
 	budget = this._router.url.replace('/transactions/', '');
 
+	unitSelectConfig = {
+		name: 'Select',
+		key: 'unitId',
+		fields: [
+			{ name: 'Items', value: [] as { label: string; value: string }[] },
+			{ name: 'Placeholder', value: 'Select unit' },
+			{ name: 'Label', value: 'Unit' }
+		]
+	};
+
 	constructor(
 		_budgettransactionService: BudgettransactionService,
+		private _unitService: BudgetunitService,
 		_translate: TranslateService,
 		_form: FormService,
 		private _router: Router
@@ -51,9 +59,41 @@ export class TransactionsComponent extends CrudComponent<
 		_budgettransactionService
 			.get({ query: 'budget=' + this.budget })
 			.subscribe({
-				next: () => {
-					this.setDocuments();
-				}
+				next: () => this.setDocuments()
 			});
+	}
+	ngOnInit(): void {
+		this.loadUnits();
+	}
+
+	override preCreate(doc: Budgettransaction): void {
+		delete (doc as any).__creating;
+		doc.budget = this.budget;
+	}
+
+	loadUnits(): void {
+		this._unitService.getUnitsByBudget(this.budget).subscribe({
+			next: (res: any) => {
+				// тут res - об'єкт з docs
+				const units: Budgetunit[] = res.docs ?? [];
+
+				const itemsField = this.unitSelectConfig.fields.find(
+					(
+						f
+					): f is {
+						name: string;
+						value: { label: string; value: string }[];
+					} => f.name === 'Items'
+				);
+
+				if (itemsField) {
+					itemsField.value = units.map((u) => ({
+						label: u.name,
+						value: u._id
+					}));
+				}
+			},
+			error: (err) => console.error('Не вдалося завантажити юніти', err)
+		});
 	}
 }
