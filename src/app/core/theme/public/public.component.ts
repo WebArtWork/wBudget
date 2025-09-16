@@ -122,17 +122,32 @@ export class PublicComponent implements OnInit, OnDestroy {
 	}
 
 	createTransaction() {
+		if (!this.selectedBudgetId || !this.selectedUnitId) {
+			console.warn('Бюджет або юніт не обрано');
+			return;
+		}
+
 		this._formService.modal<Budgettransaction>(
 			budgettransactionFormComponents,
 			{
 				label: 'Create',
 				click: async (created: unknown, close: () => void) => {
+					// закриваємо модалку
 					close();
+
+					// створюємо новий об'єкт на основі форми, додаючи budget і unit
+					const transaction: Budgettransaction = {
+						...(created as Budgettransaction),
+						budget: this.selectedBudgetId!, // обраний бюджет
+						unitId: this.selectedUnitId! // обраний юніт
+					};
+
+					// відправляємо на сервер
 					await firstValueFrom(
-						this._transactionService.create(
-							created as Budgettransaction
-						)
+						this._transactionService.create(transaction)
 					);
+
+					// оновлюємо сторінку
 					this.setDocuments();
 				}
 			}

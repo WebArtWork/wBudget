@@ -20,11 +20,7 @@ export class BudgettransactionService extends CrudService<Budgettransaction> {
 
 		this.filteredDocuments(this.budgettransactionsByAuthor);
 	}
-	getTransactionsByBudget(budgetId: string) {
-		const allTransactions = this.getDocs(); // усі транзакції з кешу
-		const transactionsForBudget = allTransactions.filter(
-			(t) => t.budget === budgetId
-		);
-		return of(transactionsForBudget);
+	getTransactionsByBudget(budgetId: string): Observable<Budgettransaction[]> {
+		return this.get({ query: 'budget=' + budgetId });
 	}
 }
