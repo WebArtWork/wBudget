@@ -22,7 +22,7 @@ export class PublicComponent implements OnInit, OnDestroy {
 	budgets: Budget[] = [];
 	units: Budgetunit[] = [];
 	selectedBudgetId: string | null = localStorage.getItem('selectedBudgetId');
-	selectedUnitId: string | null = null;
+	selectedUnitId: string | null = localStorage.getItem('selectedUnitId');
 
 	ranges = ['day', 'week', 'month', 'year'];
 	selectedRange: string = '';
@@ -97,7 +97,24 @@ export class PublicComponent implements OnInit, OnDestroy {
 			this.units = await firstValueFrom(
 				this._budgetunitService.getUnitsByBudget(budgetId)
 			);
-			this.selectedUnitId = null;
+
+			if (
+				this.selectedUnitId &&
+				this.units.some((u) => u._id === this.selectedUnitId)
+			) {
+				// залишаємо збережений юніт
+				console.log(
+					'Використовуємо збережений юніт:',
+					this.selectedUnitId
+				);
+			} else {
+				// якщо немає збереженого, обираємо перший
+				this.selectedUnitId =
+					this.units.length > 0 ? this.units[0]._id : null;
+				if (this.selectedUnitId)
+					localStorage.setItem('selectedUnitId', this.selectedUnitId);
+			}
+
 			console.log('Юніти завантажені для бюджету', budgetId, this.units);
 		} catch (err) {
 			console.error('Помилка завантаження юнітів:', err);
@@ -106,8 +123,15 @@ export class PublicComponent implements OnInit, OnDestroy {
 
 	onUnitChange(unitId: string) {
 		this.selectedUnitId = unitId;
+		localStorage.setItem('selectedUnitId', unitId);
+
 		const unit = this.units.find((u) => u._id === unitId);
 		console.log('Вибраний юніт:', unit?.name);
+
+		// Повідомляємо інші компоненти про зміну
+		window.dispatchEvent(
+			new CustomEvent('unitChanged', { detail: unitId })
+		);
 	}
 
 	onRangeChange() {
@@ -122,6 +146,11 @@ export class PublicComponent implements OnInit, OnDestroy {
 	}
 
 	createTransaction() {
+		if (!this.selectedBudgetId || !this.selectedUnitId) {
+			console.warn('Бюджет або юніт не обрано');
+			return;
+		}
+
 		this._formService.modal<Budgettransaction>(
 			budgettransactionFormComponents,
 			{
@@ -129,11 +158,19 @@ export class PublicComponent implements OnInit, OnDestroy {
 				click: async (created: unknown, close: () => void) => {
 					close();
 					await firstValueFrom(
-						this._transactionService.create(
-							created as Budgettransaction
-						)
+						this._transactionService.create({
+							...(created as Budgettransaction),
+							budget: this.selectedBudgetId!,
+							unitId: this.selectedUnitId!
+						})
 					);
 					this.setDocuments();
+				}
+			},
+			{
+				initialValue: {
+					budgetId: this.selectedBudgetId!,
+					unitId: this.selectedUnitId!
 				}
 			}
 		);
