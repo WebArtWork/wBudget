@@ -96,18 +96,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 		let start = 0;
 		const colors = [
-			'#003049',
-			'#6B2C39',
-			'#D62828',
-			'#F77F00',
-			'#FCBF49',
-			'#EAE2B7',
-			'#8E3B46',
-			'#FF5C00',
-			'#F2D16B',
-			'#001F3F',
-			'#264653',
-			'#6A4C93'
+			'#005F73',
+			'#0A9396',
+			'#94D2BD',
+			'#E9D8A6',
+			'#EE9B00',
+			'#CA6702',
+			'#BB3E03',
+			'#AE2012',
+			'#023E58',
+			'#127475',
+			'#7FB3A5',
+			'#DAD7A7',
+			'#F4A300',
+			'#D15600',
+			'#A63200'
 		];
 		const gradients = Object.entries(categories).map(([key, value], i) => {
 			const percent = (value / total) * 100;
@@ -127,18 +130,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	getLegend() {
 		const { categories } = this.getCategoriesData();
 		const colors = [
-			'#003049',
-			'#6B2C39',
-			'#D62828',
-			'#F77F00',
-			'#FCBF49',
-			'#EAE2B7',
-			'#8E3B46',
-			'#FF5C00',
-			'#F2D16B',
-			'#001F3F',
-			'#264653',
-			'#6A4C93'
+			'#005F73',
+			'#0A9396',
+			'#94D2BD',
+			'#E9D8A6',
+			'#EE9B00',
+			'#CA6702',
+			'#BB3E03',
+			'#AE2012',
+			'#023E58',
+			'#127475',
+			'#7FB3A5',
+			'#DAD7A7',
+			'#F4A300',
+			'#D15600',
+			'#A63200'
 		];
 		return Object.entries(categories).map(([name, amount], i) => ({
 			name,
