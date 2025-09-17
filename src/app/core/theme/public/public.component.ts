@@ -102,13 +102,11 @@ export class PublicComponent implements OnInit, OnDestroy {
 				this.selectedUnitId &&
 				this.units.some((u) => u._id === this.selectedUnitId)
 			) {
-				// залишаємо збережений юніт
 				console.log(
 					'Використовуємо збережений юніт:',
 					this.selectedUnitId
 				);
 			} else {
-				// якщо немає збереженого, обираємо перший
 				this.selectedUnitId =
 					this.units.length > 0 ? this.units[0]._id : null;
 				if (this.selectedUnitId)
@@ -128,7 +126,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 		const unit = this.units.find((u) => u._id === unitId);
 		console.log('Вибраний юніт:', unit?.name);
 
-		// Повідомляємо інші компоненти про зміну
 		window.dispatchEvent(
 			new CustomEvent('unitChanged', { detail: unitId })
 		);
@@ -157,19 +154,35 @@ export class PublicComponent implements OnInit, OnDestroy {
 				label: 'Create',
 				click: async (created: unknown, close: () => void) => {
 					close();
+
+					const transaction = created as Budgettransaction;
+
+					// Формуємо масив units для схеми
+					const payload: Budgettransaction = {
+						...transaction,
+						budget: this.selectedBudgetId!,
+						units: [
+							{
+								unit:
+									transaction.unitId || this.selectedUnitId!,
+								amount: Number(transaction.amount) // обов’язково число
+							}
+						]
+					};
+
+					// Видаляємо поле unitId для форми
+					delete payload.unitId;
+
 					await firstValueFrom(
-						this._transactionService.create({
-							...(created as Budgettransaction),
-							budget: this.selectedBudgetId!,
-							unitId: this.selectedUnitId!
-						})
+						this._transactionService.create(payload)
 					);
+
 					this.setDocuments();
 				}
 			},
 			{
 				initialValue: {
-					budgetId: this.selectedBudgetId!,
+					budget: this.selectedBudgetId!,
 					unitId: this.selectedUnitId!
 				}
 			}
@@ -177,6 +190,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 	}
 
 	setDocuments() {
-		// оновити контент сторінки
+		// Оновлення контенту сторінки після створення транзакції
 	}
 }
