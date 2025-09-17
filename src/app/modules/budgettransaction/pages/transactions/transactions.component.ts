@@ -33,13 +33,12 @@ export class TransactionsComponent
 	implements OnInit
 {
 	override configType: 'local' | 'server' = 'local';
-
-	columns = ['isDeposit', 'amount', 'note', 'budget', 'unit'];
+	columns = ['isDeposit', 'amount', 'note', 'budget', 'unitId'];
 	config = this.getConfig();
 	budget = this._router.url.replace('/transactions/', '');
 
 	constructor(
-		_budgettransactionService: BudgettransactionService,
+		private _budgettransactionService: BudgettransactionService,
 		private _unitService: BudgetunitService,
 		_translate: TranslateService,
 		_form: FormService,
@@ -54,16 +53,44 @@ export class TransactionsComponent
 		);
 	}
 
-	ngOnInit(): void {
-		this.loadUnits().then(() => this.setDocuments());
+	async ngOnInit(): Promise<void> {
+		// Завантажуємо транзакції спочатку
+		await this.loadTransactions();
+		// Потім юніти для Select
+		await this.loadUnits();
+		// Оновлюємо таблицю
+		this.setDocuments();
 	}
 
 	// ============================
-	// Формуємо units перед створенням транзакції
+	// Завантаження транзакцій з сервера
+	// ============================
+	async loadTransactions(): Promise<void> {
+		const transactions = await firstValueFrom(
+			this._budgettransactionService.getTransactionsByBudget(this.budget)
+		);
+
+		// Підтягуємо unitId, якщо його нема
+		transactions.forEach((t) => {
+			if (!t.unitId && t.units?.length) {
+				t.unitId = t.units[0].unit;
+			}
+			t.isDeposit = !!t.isDeposit; // приводимо до boolean
+		});
+
+		this._budgettransactionService.budgettransactions = transactions;
+
+		// Відмічаємо юніти у Select
+		this.markSelectedUnits();
+	}
+
+	// ============================
+	// Перед створенням транзакції
 	// ============================
 	override preCreate(doc: Budgettransaction): void {
 		doc.budget = this.budget;
 
+		// Вибір юніта
 		const selectComponent = this.form?.components?.find(
 			(c: FormComponentInterface) =>
 				c.key === 'unitid' && c.name === 'Select'
@@ -84,64 +111,70 @@ export class TransactionsComponent
 			throw new Error('Unit is required');
 		}
 
-		// Формуємо масив units
-		doc.units = [
-			{
-				unit: selectedUnit.value,
-				amount: Number(doc.amount)
-			}
-		];
+		doc.unitId = selectedUnit.value;
+		doc.units = [{ unit: doc.unitId, amount: doc.amount }];
 
-		// Локальне поле для відображення в таблиці
-		(doc as any)._unitName = selectedUnit.name;
+		// Встановлюємо isDeposit зі значення форми
+		const isDepositField = this.form?.components
+			?.find(
+				(c: FormComponentInterface) =>
+					c.key === 'isDeposit' && c.name === 'Boolean'
+			)
+			?.fields.find(
+				(f: { name: string; value: any }) => f.name === 'Value'
+			);
+
+		doc.isDeposit = !!isDepositField?.value;
+
+		console.log('doc =', doc);
 	}
 
 	// ============================
-	// Завантажуємо юніти у Select
+	// Після створення транзакції
+	// ============================
+	postCreate(doc: Budgettransaction): void {
+		// Додаємо нову транзакцію в локальний масив
+		this._budgettransactionService.budgettransactions.push(doc);
+		// Оновлюємо таблицю
+		this.setDocuments();
+		// Відмічаємо юніти у Select
+		this.markSelectedUnits();
+	}
+	// ============================
+	// Завантаження юнітів у Select
 	// ============================
 	async loadUnits(): Promise<void> {
-		try {
-			const units = await firstValueFrom(
-				this._unitService.getUnitsByBudget(this.budget)
-			);
+		const selectComponent = this.form?.components?.find(
+			(c: FormComponentInterface) =>
+				c.key === 'unitid' && c.name === 'Select'
+		);
+		if (!selectComponent) return;
 
-			const selectComponent = this.form?.components?.find(
-				(c: FormComponentInterface) =>
-					c.key === 'unitid' && c.name === 'Select'
-			);
-			if (!selectComponent) return;
+		const units = await firstValueFrom(
+			this._unitService.getUnitsByBudget(this.budget)
+		);
 
-			// itemsField з типом
-			const itemsField = selectComponent.fields.find(
-				(f: { name: string; value: any }) => f.name === 'Items'
-			);
-			const currentSelected = (itemsField?.value as SelectItem[])?.find(
-				(u) => u.selected
-			)?.value;
+		const newItems: SelectItem[] = units.map((u) => ({
+			name: u.name,
+			value: u._id,
+			selected: false
+		}));
 
-			const newItems: SelectItem[] = units.map((u) => ({
-				name: u.name,
-				value: u._id,
-				selected: u._id === currentSelected
-			}));
+		selectComponent.fields = selectComponent.fields.map(
+			(f: { name: string; value: any }) =>
+				f.name === 'Items' ? { ...f, value: newItems } : f
+		);
 
-			selectComponent.fields = selectComponent.fields.map(
-				(f: { name: string; value: any }) =>
-					f.name === 'Items' ? { ...f, value: newItems } : f
-			);
+		this.form?.updateFields?.([selectComponent]);
 
-			this.form?.updateFields?.([selectComponent]);
-		} catch (err) {
-			console.error('Помилка завантаження юнітів:', err);
-		}
+		// Відмічаємо вже вибрані юніти
+		this.markSelectedUnits();
 	}
 
 	// ============================
-	// Відображаємо юніти у таблиці
+	// Допоміжна функція для позначення вибраних юнітів у Select
 	// ============================
-	override async setDocuments(page?: number): Promise<void> {
-		await super.setDocuments(page);
-
+	private markSelectedUnits(): void {
 		const selectComponent = this.form?.components?.find(
 			(c: FormComponentInterface) =>
 				c.key === 'unitid' && c.name === 'Select'
@@ -149,22 +182,18 @@ export class TransactionsComponent
 		if (!selectComponent) return;
 
 		const itemsField = selectComponent.fields.find(
-			(f: any): f is { name: string; value: SelectItem[] } =>
-				f.name === 'Items'
+			(f: { name: string; value: any }) => f.name === 'Items'
 		);
 		if (!itemsField) return;
 
-		this.documents.forEach((t) => {
-			const unitId = t.units?.[0]?.unit || null;
-			if (!unitId) {
-				(t as any)._unitName = '—';
-				return;
-			}
+		const items = itemsField.value as SelectItem[];
 
-			const unit = (itemsField.value as SelectItem[]).find(
-				(u) => u.value?.toString() === unitId?.toString()
-			);
-			(t as any)._unitName = unit?.name || '—';
+		this._budgettransactionService.budgettransactions.forEach((t) => {
+			const match = items.find((i) => i.value === t.unitId);
+			if (match) match.selected = true;
 		});
+
+		itemsField.value = items;
+		this.form?.updateFields?.([selectComponent]);
 	}
 }

@@ -1,11 +1,11 @@
 import { CrudDocument } from 'wacom';
 
 export interface Budgettransaction extends CrudDocument {
-	amount: string;
+	amount: number;
 	note: string;
 	unitId?: string;
 	budget: string;
-	isDeposit: string;
+	isDeposit: boolean;
 
 	units?: {
 		unit: string;
