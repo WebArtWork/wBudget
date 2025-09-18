@@ -21,8 +21,8 @@ export class PublicComponent implements OnInit, OnDestroy {
 	showSidebar = false;
 	budgets: Budget[] = [];
 	units: Budgetunit[] = [];
-	selectedBudgetId: string | null = localStorage.getItem('selectedBudgetId');
-	selectedUnitId: string | null = localStorage.getItem('selectedUnitId');
+	selectedBudgetId: string | null = null;
+	selectedUnitId: string | null = null;
 
 	ranges = ['day', 'week', 'month', 'year'];
 	selectedRange: string = '';
@@ -65,13 +65,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 		try {
 			this.budgets = await this._budgetService.getAllBudgets();
 			console.log('budgets:', this.budgets);
-
-			if (this.selectedBudgetId) {
-				await this.loadUnits(this.selectedBudgetId);
-			} else if (this.budgets.length > 0) {
-				this.selectedBudgetId = this.budgets[0]._id;
-				await this.loadUnits(this.selectedBudgetId);
-			}
 		} catch (err) {
 			console.error('Помилка завантаження бюджетів:', err);
 		}
@@ -97,21 +90,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 			this.units = await firstValueFrom(
 				this._budgetunitService.getUnitsByBudget(budgetId)
 			);
-
-			if (
-				this.selectedUnitId &&
-				this.units.some((u) => u._id === this.selectedUnitId)
-			) {
-				console.log(
-					'Використовуємо збережений юніт:',
-					this.selectedUnitId
-				);
-			} else {
-				this.selectedUnitId =
-					this.units.length > 0 ? this.units[0]._id : null;
-				if (this.selectedUnitId)
-					localStorage.setItem('selectedUnitId', this.selectedUnitId);
-			}
 
 			console.log('Юніти завантажені для бюджету', budgetId, this.units);
 		} catch (err) {

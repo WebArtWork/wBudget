@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { BudgetunitService } from 'src/app/modules/budgetunit/services/budgetunit.service';
 import { FormComponentInterface } from 'src/app/core/modules/form/interfaces/component.interface';
 import { firstValueFrom } from 'rxjs';
+import { Budgetunit } from 'src/app/modules/budgetunit/interfaces/budgetunit.interface';
 
 interface SelectItem {
 	name: string;
@@ -88,12 +89,13 @@ export class TransactionsComponent
 	// Перед створенням транзакції
 	// ============================
 	override preCreate(doc: Budgettransaction): void {
+		console.log(doc, doc.unitId);
 		doc.budget = this.budget;
 
 		// Вибір юніта
 		const selectComponent = this.form?.components?.find(
 			(c: FormComponentInterface) =>
-				c.key === 'unitid' && c.name === 'Select'
+				c.key === 'unitId' && c.name === 'Select'
 		);
 		if (!selectComponent)
 			throw new Error('Unit select component not found');
@@ -103,16 +105,17 @@ export class TransactionsComponent
 		);
 		if (!itemsField) throw new Error('Unit items field not found');
 
-		const selectedUnit = (itemsField.value as SelectItem[]).find(
-			(u) => u.selected
-		);
-		if (!selectedUnit) {
-			alert('Виберіть юніт перед створенням транзакції');
-			throw new Error('Unit is required');
-		}
+		// const selectedUnit = (itemsField.value as SelectItem[]).find(
+		// 	(u) => u.selected
+		// );
+		// if (!selectedUnit) {
+		// 	alert('Виберіть юніт перед створенням транзакції');
+		// 	throw new Error('Unit is required');
+		// }
 
-		doc.unitId = selectedUnit.value;
-		doc.units = [{ unit: doc.unitId, amount: doc.amount }];
+		// doc.unitId = selectedUnit.value;
+
+		doc.units = [{ unit: doc.unitId as string, amount: doc.amount }];
 
 		// Встановлюємо isDeposit зі значення форми
 		const isDepositField = this.form?.components
@@ -144,31 +147,17 @@ export class TransactionsComponent
 	// Завантаження юнітів у Select
 	// ============================
 	async loadUnits(): Promise<void> {
-		const selectComponent = this.form?.components?.find(
-			(c: FormComponentInterface) =>
-				c.key === 'unitid' && c.name === 'Select'
-		);
-		if (!selectComponent) return;
+		const units: Budgetunit[] = budgettransactionFormComponents
+			.components[3].fields[0].value as unknown as Budgetunit[];
 
-		const units = await firstValueFrom(
-			this._unitService.getUnitsByBudget(this.budget)
-		);
+		units.splice(0, units.length);
 
-		const newItems: SelectItem[] = units.map((u) => ({
-			name: u.name,
-			value: u._id,
-			selected: false
-		}));
-
-		selectComponent.fields = selectComponent.fields.map(
-			(f: { name: string; value: any }) =>
-				f.name === 'Items' ? { ...f, value: newItems } : f
-		);
-
-		this.form?.updateFields?.([selectComponent]);
-
-		// Відмічаємо вже вибрані юніти
-		this.markSelectedUnits();
+		this._unitService
+			.getUnitsByBudget(this.budget)
+			.subscribe((allUnits) => {
+				units.push(...allUnits);
+				console.log(allUnits);
+			});
 	}
 
 	// ============================

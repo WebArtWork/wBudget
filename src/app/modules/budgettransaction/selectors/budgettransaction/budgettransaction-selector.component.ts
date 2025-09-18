@@ -4,7 +4,7 @@ import {
 	Component,
 	OnChanges,
 	Output,
-	Input,
+	Input
 } from '@angular/core';
 import { SelectModule } from 'src/app/core/modules/select/select.module';
 import { BudgettransactionService } from '../../services/budgettransaction.service';
@@ -14,7 +14,7 @@ import { Budgettransaction } from '../../interfaces/budgettransaction.interface'
 	selector: 'budgettransaction-selector',
 	templateUrl: './budgettransaction-selector.component.html',
 	styleUrls: ['./budgettransaction-selector.component.scss'],
-	imports: [SelectModule],
+	imports: [SelectModule]
 })
 export class BudgettransactionSelectorComponent implements OnChanges {
 	@Input() value: string;

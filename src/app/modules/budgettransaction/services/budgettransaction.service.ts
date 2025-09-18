@@ -23,4 +23,7 @@ export class BudgettransactionService extends CrudService<Budgettransaction> {
 	getTransactionsByBudget(budgetId: string): Observable<Budgettransaction[]> {
 		return this.get({ query: 'budget=' + budgetId });
 	}
+	getTransactionsByUnit(unitId: string): Observable<Budgettransaction[]> {
+		return this.get({ query: 'unitId=' + unitId });
+	}
 }

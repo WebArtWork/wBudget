@@ -2,37 +2,73 @@
 	<div class="documents-container">
 		<div class="documents-list">
 			<div class="documents-main">
+				<!-- Кругова діаграма і загальна сума -->
 				<div class="circle-block">
-					<div class="documents__title"></div>
+					<div class="documents__title">Dashboard</div>
 					<div class="circle-chart" [ngStyle]="circleChartStyle">
 						<div class="circle-chart-inner">
 							{{ getTotalAmount() }} ₴
 						</div>
 					</div>
 					<div class="summary">
-						<span id="incomeTotal"> {{ getIncomeTotal() }} ₴</span>
-						<span id="expenseTotal">
-							{{ getExpenseTotal() }} ₴</span
-						>
+						<span id="incomeTotal">{{ getIncomeTotal() }} ₴</span>
+						<span id="expenseTotal">{{ getExpenseTotal() }} ₴</span>
 					</div>
 				</div>
-				<div class="documents-main-content">
-					<div class="categories">
-						<div
-							class="category"
-							*ngFor="let transaction of transactions"
-						>
-							<span
-								class="legend-color"
-								[style.background]="getColorForTransaction(transaction)"
-							></span>
-							<span class="isDeposit"
-								>Deposit: {{ transaction.isDeposit }}</span
-							>
-							<span class="note">{{ transaction.note }} </span>
 
-							<span class="amount">{{ transaction.amount }}</span>
+				<div class="documents-main-content">
+					<!-- Якщо обраний бюджет, але ще не обрано юніт -->
+					<div *ngIf="selectedBudget && !selectedUnit">
+						<h3>Виберіть юніт</h3>
+						<div class="categories units-list">
+							<div
+								class="category unit-item"
+								*ngFor="let unit of units"
+								(click)="selectUnit(unit._id)"
+								[class.unit-selected]="unit._id === selectedUnit"
+							>
+								<span class="unit-name">{{ unit.name }}</span>
+								<span class="amount">{{ unit.cost }} ₴</span>
+							</div>
 						</div>
+					</div>
+
+					<div class="documents-main-content">
+						<h3 *ngIf="selectedUnit">
+							Транзакції для обраного юніта
+						</h3>
+
+						<div
+							class="categories"
+							*ngIf="transactions.length > 0; else noTransactions"
+						>
+							<div
+								class="category"
+								*ngFor="let transaction of transactions; let i = index"
+							>
+								<span
+									class="legend-color"
+									[style.background]="getColorForTransaction(transaction)"
+									title="Категорія: {{ transaction.note || 'Без категорії' }}"
+								></span>
+								<span class="isDeposit">
+									{{ transaction.isDeposit ? 'Доходи' :
+									'Витрати' }}
+								</span>
+								<span class="note">
+									{{ transaction.note || 'Без категорії' }}
+								</span>
+								<span class="amount"
+									>{{ transaction.amount }} ₴</span
+								>
+								<span class="debug" style="display: none">
+								</span>
+							</div>
+						</div>
+
+						<ng-template #noTransactions>
+							<p>Транзакцій ще немає для цього юніта.</p>
+						</ng-template>
 					</div>
 				</div>
 			</div>
