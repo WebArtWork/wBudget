@@ -39,7 +39,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 	async ngOnInit(): Promise<void> {
 		await this.loadBudgets();
 
-		// слухаємо вибір бюджету з футера
 		this.budgetListener = (event: any) => {
 			const budgetId = event.detail;
 			if (budgetId) this.loadUnits(budgetId);
@@ -72,18 +71,12 @@ export class PublicComponent implements OnInit, OnDestroy {
 
 	async onBudgetChange(budgetId: string) {
 		if (!budgetId) return;
-
 		this.selectedBudgetId = budgetId;
 		localStorage.setItem('selectedBudgetId', budgetId);
-
-		// Очищаємо вибраний юніт перед завантаженням нових
 		this.selectedUnitId = null;
 		this.units = [];
-
-		// Підвантажуємо юніти для нового бюджету
 		await this.loadUnits(budgetId);
 
-		// Повідомляємо інші компоненти
 		window.dispatchEvent(
 			new CustomEvent('budgetChanged', { detail: budgetId })
 		);
@@ -94,7 +87,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 			this.units = await firstValueFrom(
 				this._budgetunitService.getUnitsByBudget(budgetId)
 			);
-
 			console.log('Юніти завантажені для бюджету', budgetId, this.units);
 		} catch (err) {
 			console.error('Помилка завантаження юнітів:', err);
@@ -125,19 +117,16 @@ export class PublicComponent implements OnInit, OnDestroy {
 	}
 
 	createTransaction() {
-		const selectedBudget = this.selectedBudgetId;
-		const selectedUnit = this.selectedUnitId;
+		const selectedBudget = this.selectedBudgetId!;
+		const selectedUnit = this.selectedUnitId!;
 		const unitName =
 			this.units.find((u) => u._id === selectedUnit)?.name || '';
 
-		// Копіюємо компоненти форми, щоб не змінювати глобальний об’єкт
 		const formComponents = JSON.parse(
 			JSON.stringify(budgettransactionFormComponents)
 		);
 
-		// ==========================
-		// Юніт залишаємо без змін
-		// ==========================
+		// Налаштування юніту
 		const unitSelect = formComponents.components.find(
 			(c: any) => c.key === 'unitId' && c.name === 'Select'
 		);
@@ -145,18 +134,15 @@ export class PublicComponent implements OnInit, OnDestroy {
 			const itemsField = unitSelect.fields.find(
 				(f: any) => f.name === 'Items'
 			);
-			if (itemsField) {
+			if (itemsField)
 				itemsField.value = [{ name: unitName, value: selectedUnit }];
-			}
 			const disabledField = unitSelect.fields.find(
 				(f: any) => f.name === 'Disabled'
 			);
 			if (disabledField) disabledField.value = true;
 		}
 
-		// ==========================
-		// Підставляємо тільки вибраний бюджет
-		// ==========================
+		// Налаштування бюджету
 		const budgetField = formComponents.components.find(
 			(c: any) => c.key === 'budget'
 		);
@@ -168,32 +154,51 @@ export class PublicComponent implements OnInit, OnDestroy {
 				const selectedBudgetObj = this.budgets.find(
 					(b) => b._id === selectedBudget
 				);
-				if (selectedBudgetObj) {
-					itemsField.value = [
-						{
-							name: selectedBudgetObj.name,
-							value: selectedBudgetObj._id,
-							selected: true
-						}
-					];
-				} else {
-					// Якщо бюджет не вибраний, залишаємо пустим, щоб кнопка не блокувалась
-					itemsField.value = [];
-				}
+				itemsField.value = selectedBudgetObj
+					? [
+							{
+								name: selectedBudgetObj.name,
+								value: selectedBudgetObj._id,
+								selected: true
+							}
+						]
+					: [];
 			}
-
 			const disabledField = budgetField.fields.find(
 				(f: any) => f.name === 'Disabled'
 			);
 			if (disabledField) disabledField.value = true;
 		}
 
-		// Відкриваємо модальне вікно
+		// Модалка з create через subscribe
 		this._formService.modal<Budgettransaction>(formComponents, [
 			{
 				label: 'Create',
-				click: (_created: unknown, close: () => void) => {
-					close(); // кнопка працює і закриває модалку
+				click: (submitted: unknown, close: () => void) => {
+					const created = submitted as Budgettransaction;
+
+					// preCreate-like логіка
+					created.budget = selectedBudget;
+					created.units = [
+						{ unit: selectedUnit, amount: created.amount }
+					];
+					created.isDeposit = !!created.isDeposit;
+
+					// Виклик сервісу через subscribe
+					this._transactionService
+						.createTransaction(created)
+						.subscribe({
+							next: (res: Budgettransaction) => {
+								console.log('Транзакція створена:', res);
+								this.setDocuments();
+								close();
+							},
+							error: (err: any) =>
+								console.error(
+									'Помилка створення транзакції:',
+									err
+								)
+						});
 				}
 			}
 		]);
