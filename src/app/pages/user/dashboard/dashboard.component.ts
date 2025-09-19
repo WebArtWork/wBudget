@@ -13,7 +13,7 @@ import { Budgettransaction } from 'src/app/modules/budgettransaction/interfaces/
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 	isMenuOpen = false;
-	units: Budgetunit[] = [];
+	units: (Budgetunit & { totalAmount?: number })[] = [];
 
 	selectedBudget: string | null = null;
 	selectedUnit: string | null = null;
@@ -36,12 +36,43 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			if (budgetId) {
 				this.selectedBudget = budgetId;
 				this.selectedUnit = null;
-				this.transactions = [];
 
 				// Підвантажуємо юніти
 				this.units = await firstValueFrom(
 					this._budgetunitService.getUnitsByBudget(budgetId)
 				);
+
+				// Підвантажуємо всі транзакції для бюджету
+				this._budgettransactionService
+					.getTransactionsByBudget(budgetId)
+					.subscribe((transactions) => {
+						this.transactions = transactions.map((t: any) => {
+							if (!t.unitId && t.units?.length) {
+								t.unitId = t.units[0]?.unit || null;
+							}
+							return {
+								...t,
+								unitId: t.unitId ? String(t.unitId) : null,
+								isDeposit: !!t.isDeposit,
+								amount: Number(t.amount) || 0
+							};
+						});
+
+						// Обчислюємо суму транзакцій для кожного юніта
+						this.units = this.units.map((u) => ({
+							...u,
+							totalAmount: this.transactions
+								.filter(
+									(t) => String(t.unitId) === String(u._id)
+								)
+								.reduce(
+									(sum, t) =>
+										sum +
+										(t.isDeposit ? t.amount : -t.amount),
+									0
+								)
+						}));
+					});
 			} else {
 				this.units = [];
 				this.transactions = [];
@@ -55,7 +86,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		this.unitListener = (event: any) => {
 			const unitId = event.detail;
 			this.selectedUnit = unitId || null;
-			this.loadTransactions();
+			// Відображати транзакції тільки для вибраного юніта
 		};
 		window.addEventListener('unitChanged', this.unitListener);
 	}
@@ -72,36 +103,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		);
 	}
 
-	// Завантаження транзакцій для обраного бюджету та юніта
-	loadTransactions() {
-		if (!this.selectedBudget || !this.selectedUnit) {
-			this.transactions = [];
-			return;
-		}
-
-		this._budgettransactionService
-			.getTransactionsByBudget(this.selectedBudget)
-			.subscribe((transactions) => {
-				this.transactions = transactions
-					.map((t: any) => {
-						if (!t.unitId && t.units?.length) {
-							t.unitId = t.units[0]?.unit || null;
-						}
-						return {
-							...t,
-							unitId: t.unitId ? String(t.unitId) : null,
-							isDeposit: !!t.isDeposit,
-							amount: Number(t.amount) || 0
-						};
-					})
-					.filter(
-						(t) => String(t.unitId) === String(this.selectedUnit)
-					);
-			});
-	}
-
 	get filteredTransactions(): Budgettransaction[] {
-		return this.transactions;
+		if (!this.selectedUnit) return [];
+		return this.transactions.filter(
+			(t) => String(t.unitId) === String(this.selectedUnit)
+		);
 	}
 
 	getTotalAmount(): number {
@@ -111,7 +117,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				0
 			);
 		} else {
-			return this.units.reduce((sum, u) => sum + (u.cost || 0), 0);
+			return this.units.reduce((sum, u) => sum + (u.totalAmount || 0), 0);
 		}
 	}
 
@@ -121,7 +127,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				.filter((t) => t.isDeposit)
 				.reduce((sum, t) => sum + t.amount, 0);
 		} else {
-			return this.units.reduce((sum, u) => sum + (u.cost || 0), 0);
+			return this.units.reduce((sum, u) => sum + (u.totalAmount || 0), 0);
 		}
 	}
 
@@ -145,7 +151,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			});
 		} else {
 			this.units.forEach((u) => {
-				categories[u.name] = u.cost || 0;
+				categories[u.name] = u.totalAmount || 0;
 			});
 		}
 

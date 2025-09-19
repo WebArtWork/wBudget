@@ -28,7 +28,9 @@
 								[class.unit-selected]="unit._id === selectedUnit"
 							>
 								<span class="unit-name">{{ unit.name }}</span>
-								<span class="amount">{{ unit.cost }} ₴</span>
+								<span class="amount"
+									>{{ unit.totalAmount || 0 }} ₴</span
+								>
 							</div>
 						</div>
 					</div>
