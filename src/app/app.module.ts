@@ -50,7 +50,7 @@ const routes: Routes = [
 		canActivate: [AuthenticatedGuard],
 		component: PublicComponent,
 		children: [
-			/* user */
+			/* public */
 			{
 				path: 'dashboard',
 				canActivate: [MetaGuard],
@@ -62,20 +62,6 @@ const routes: Routes = [
 				loadChildren: () =>
 					import('./pages/user/dashboard/dashboard.module').then(
 						(m) => m.DashboardModule
-					)
-			},
-
-			{
-				path: 'profile',
-				canActivate: [MetaGuard],
-				data: {
-					meta: {
-						title: 'My Profile'
-					}
-				},
-				loadChildren: () =>
-					import('./pages/user/profile/profile.module').then(
-						(m) => m.ProfileModule
 					)
 			}
 		]
@@ -125,6 +111,19 @@ const routes: Routes = [
 					import(
 						'./modules/budget/pages/budgets/budgets.routes'
 					).then((r) => r.budgetsRoutes)
+			},
+			{
+				path: 'profile',
+				canActivate: [MetaGuard],
+				data: {
+					meta: {
+						title: 'My Profile'
+					}
+				},
+				loadChildren: () =>
+					import('./pages/user/profile/profile.module').then(
+						(m) => m.ProfileModule
+					)
 			}
 		]
 	},

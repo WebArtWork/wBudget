@@ -18,20 +18,16 @@
 
 				<div class="documents-main-content">
 					<!-- Якщо обраний бюджет, але ще не обрано юніт -->
-					<div *ngIf="selectedBudget && !selectedUnit">
-						<h3>Виберіть юніт</h3>
-						<div class="categories units-list">
-							<div
-								class="category unit-item"
-								*ngFor="let unit of units"
-								(click)="selectUnit(unit._id)"
-								[class.unit-selected]="unit._id === selectedUnit"
+					<div *ngIf="!selectedUnit" class="categories">
+						<div *ngFor="let unit of units" class="category">
+							<span
+								class="legend-color"
+								[style.background]="getColorForUnit(unit)"
+							></span>
+							<span class="note">{{ unit.name }}</span>
+							<span class="amount"
+								>{{ unit.totalAmount || 0 }} ₴</span
 							>
-								<span class="unit-name">{{ unit.name }}</span>
-								<span class="amount"
-									>{{ unit.totalAmount || 0 }} ₴</span
-								>
-							</div>
 						</div>
 					</div>
 

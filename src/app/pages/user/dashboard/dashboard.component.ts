@@ -221,4 +221,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		);
 		return colors[index % colors.length];
 	}
+	getColorForUnit(unit: { name: string }) {
+		const { categories } = this.getCategoriesData();
+		const colors = [
+			'#005F73',
+			'#0A9396',
+			'#94D2BD',
+			'#E9D8A6',
+			'#EE9B00',
+			'#CA6702',
+			'#BB3E03',
+			'#AE2012',
+			'#023E58',
+			'#127475',
+			'#7FB3A5',
+			'#DAD7A7',
+			'#F4A300',
+			'#D15600',
+			'#A63200'
+		];
+		const index = Object.keys(categories).indexOf(unit.name);
+		return colors[index % colors.length];
+	}
 }
