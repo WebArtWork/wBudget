@@ -17,14 +17,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 	selectedBudget: string | null = null;
 	selectedUnit: string | null = null;
-	selectedRange: 'day' | 'week' | 'month' | 'year' = 'day';
 
-	transactions: {
-		isDeposit: boolean;
-		amount: number;
-		note?: string;
-		unitId?: string;
-	}[] = [];
+	transactions: Budgettransaction[] = [];
 
 	private budgetListener: any;
 	private unitListener: any;
@@ -38,7 +32,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	ngOnInit() {
 		// Слухаємо зміну бюджету
 		this.budgetListener = async (event: any) => {
-			console.log('budgetChanged event received:', event.detail);
 			const budgetId = event.detail;
 			if (budgetId) {
 				this.selectedBudget = budgetId;
@@ -49,64 +42,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				this.units = await firstValueFrom(
 					this._budgetunitService.getUnitsByBudget(budgetId)
 				);
-				console.log('Units loaded:', this.units);
 			} else {
 				this.units = [];
 				this.transactions = [];
 				this.selectedBudget = null;
 				this.selectedUnit = null;
 			}
-			this.logTransactionsState();
 		};
 		window.addEventListener('budgetChanged', this.budgetListener);
 
 		// Слухаємо зміну юніта
 		this.unitListener = (event: any) => {
 			const unitId = event.detail;
-			console.log('unitChanged event received:', unitId);
-			if (unitId) {
-				this.selectedUnit = unitId;
-				this._budgettransactionService
-					.getTransactionsByUnit(unitId)
-					.subscribe((transactions) => {
-						console.log(
-							'Transactions for unit',
-							unitId,
-							transactions
-						);
-
-						if (!transactions || !Array.isArray(transactions)) {
-							console.warn(
-								'Transactions пусті або неправильний формат, підставляю тестові дані'
-							);
-							this.transactions = [
-								{
-									isDeposit: true,
-									amount: 100,
-									note: 'Test deposit',
-									unitId
-								},
-								{
-									isDeposit: false,
-									amount: 50,
-									note: 'Test expense',
-									unitId
-								}
-							];
-						} else {
-							this.transactions = transactions.map((t: any) => ({
-								isDeposit: !!t.isDeposit,
-								amount: Number(t.amount) || 0,
-								note: t.note,
-								unitId: t.unitId
-							}));
-						}
-						this.logTransactionsState();
-					});
-			} else {
-				this.transactions = [];
-				this.selectedUnit = null;
-			}
+			this.selectedUnit = unitId || null;
+			this.loadTransactions();
 		};
 		window.addEventListener('unitChanged', this.unitListener);
 	}
@@ -116,75 +65,94 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		window.removeEventListener('unitChanged', this.unitListener);
 	}
 
-	back(): void {
-		window.history.back();
+	selectUnit(unitId: string) {
+		this.selectedUnit = unitId;
+		window.dispatchEvent(
+			new CustomEvent('unitChanged', { detail: unitId })
+		);
 	}
 
-	loadTransactions(budgetId: string) {
+	// Завантаження транзакцій для обраного бюджету та юніта
+	loadTransactions() {
+		if (!this.selectedBudget || !this.selectedUnit) {
+			this.transactions = [];
+			return;
+		}
+
 		this._budgettransactionService
-			.getTransactionsByBudget(budgetId)
+			.getTransactionsByBudget(this.selectedBudget)
 			.subscribe((transactions) => {
-				console.log('Transactions for budget', budgetId, transactions);
-				if (!transactions || !Array.isArray(transactions)) {
-					console.warn('Transactions пусті для бюджету', budgetId);
-					this.transactions = [];
-				} else {
-					this.transactions = transactions.map((t: any) => ({
-						isDeposit: !!t.isDeposit,
-						amount: Number(t.amount) || 0,
-						note: t.note,
-						unitId: t.unitId
-					}));
-				}
-				this.logTransactionsState();
+				this.transactions = transactions
+					.map((t: any) => {
+						if (!t.unitId && t.units?.length) {
+							t.unitId = t.units[0]?.unit || null;
+						}
+						return {
+							...t,
+							unitId: t.unitId ? String(t.unitId) : null,
+							isDeposit: !!t.isDeposit,
+							amount: Number(t.amount) || 0
+						};
+					})
+					.filter(
+						(t) => String(t.unitId) === String(this.selectedUnit)
+					);
 			});
 	}
 
-	loadTransactionsByUnit(unitId: string) {
-		this._budgettransactionService
-			.getTransactionsByUnit(unitId)
-			.subscribe((transactions) => {
-				console.log('Transactions by unit', unitId, transactions);
-				if (!transactions || !Array.isArray(transactions)) {
-					console.warn('Transactions пусті для юніта', unitId);
-					this.transactions = [];
-				} else {
-					this.transactions = transactions.map((t: any) => ({
-						isDeposit: !!t.isDeposit,
-						amount: Number(t.amount) || 0,
-						note: t.note,
-						unitId: t.unitId
-					}));
-				}
-				this.logTransactionsState();
-			});
-	}
-
-	onRangeChange(range: 'day' | 'week' | 'month' | 'year') {
-		this.selectedRange = range;
-		console.log('Selected range:', this.selectedRange);
+	get filteredTransactions(): Budgettransaction[] {
+		return this.transactions;
 	}
 
 	getTotalAmount(): number {
-		const total = this.transactions.reduce(
-			(sum, t) => sum + (t.isDeposit ? t.amount : -t.amount),
-			0
-		);
-		console.log('Total amount calculated:', total);
-		return total;
+		if (this.selectedUnit) {
+			return this.filteredTransactions.reduce(
+				(sum, t) => sum + (t.isDeposit ? t.amount : -t.amount),
+				0
+			);
+		} else {
+			return this.units.reduce((sum, u) => sum + (u.cost || 0), 0);
+		}
+	}
+
+	getIncomeTotal(): number {
+		if (this.selectedUnit) {
+			return this.filteredTransactions
+				.filter((t) => t.isDeposit)
+				.reduce((sum, t) => sum + t.amount, 0);
+		} else {
+			return this.units.reduce((sum, u) => sum + (u.cost || 0), 0);
+		}
+	}
+
+	getExpenseTotal(): number {
+		if (this.selectedUnit) {
+			return this.filteredTransactions
+				.filter((t) => !t.isDeposit)
+				.reduce((sum, t) => sum + t.amount, 0);
+		} else {
+			return 0;
+		}
 	}
 
 	getCategoriesData() {
 		const categories: { [key: string]: number } = {};
-		this.transactions.forEach((t) => {
-			const category = t.note || 'Other';
-			categories[category] = (categories[category] || 0) + t.amount;
-		});
+
+		if (this.selectedUnit) {
+			this.filteredTransactions.forEach((t) => {
+				const category = t.note || 'Other';
+				categories[category] = (categories[category] || 0) + t.amount;
+			});
+		} else {
+			this.units.forEach((u) => {
+				categories[u.name] = u.cost || 0;
+			});
+		}
+
 		const total = Object.values(categories).reduce(
 			(sum, val) => sum + val,
 			0
 		);
-		console.log('Categories data:', categories, 'Total:', total);
 		return { categories, total };
 	}
 
@@ -210,7 +178,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			'#D15600',
 			'#A63200'
 		];
-		const gradients = Object.entries(categories).map(([key, value], i) => {
+
+		const gradients = Object.entries(categories).map(([_, value], i) => {
 			const percent = (value / total) * 100;
 			const end = start + percent;
 			const color = colors[i % colors.length];
@@ -222,7 +191,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		return { background: `conic-gradient(${gradients.join(', ')})` };
 	}
 
-	getLegend() {
+	getColorForTransaction(transaction: { note?: string }) {
 		const { categories } = this.getCategoriesData();
 		const colors = [
 			'#005F73',
@@ -241,49 +210,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			'#D15600',
 			'#A63200'
 		];
-		return Object.entries(categories).map(([name, amount], i) => ({
-			name,
-			amount,
-			color: colors[i % colors.length]
-		}));
-	}
-
-	getColorForTransaction(transaction: { note?: string }) {
-		const legend = this.getLegend();
-		const item = legend.find(
-			(l) => l.name === (transaction.note || 'Other')
+		const index = Object.keys(categories).indexOf(
+			transaction.note || 'Other'
 		);
-		return item ? item.color : '#999';
-	}
-
-	selectUnit(unitId: string) {
-		this.selectedUnit = unitId;
-		window.dispatchEvent(
-			new CustomEvent('unitChanged', { detail: unitId })
-		);
-	}
-
-	getIncomeTotal(): number {
-		const total = this.transactions
-			.filter((t) => t.isDeposit)
-			.reduce((sum, t) => sum + t.amount, 0);
-		console.log('Income total:', total);
-		return total;
-	}
-
-	getExpenseTotal(): number {
-		const total = this.transactions
-			.filter((t) => !t.isDeposit)
-			.reduce((sum, t) => sum + t.amount, 0);
-		console.log('Expense total:', total);
-		return total;
-	}
-
-	private logTransactionsState() {
-		console.log('Current transactions:', this.transactions);
-		console.log('Categories:', this.getCategoriesData());
-		console.log('Total amount:', this.getTotalAmount());
-		console.log('Income total:', this.getIncomeTotal());
-		console.log('Expense total:', this.getExpenseTotal());
+		return colors[index % colors.length];
 	}
 }

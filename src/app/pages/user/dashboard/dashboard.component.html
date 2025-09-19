@@ -33,42 +33,35 @@
 						</div>
 					</div>
 
-					<div class="documents-main-content">
-						<h3 *ngIf="selectedUnit">
-							Транзакції для обраного юніта
-						</h3>
+					<!-- Транзакції обраного юніта -->
+					<div *ngIf="selectedUnit">
+						<h3>Транзакції для обраного юніта</h3>
 
 						<div
+							*ngIf="filteredTransactions.length > 0"
 							class="categories"
-							*ngIf="transactions.length > 0; else noTransactions"
 						>
 							<div
 								class="category"
-								*ngFor="let transaction of transactions; let i = index"
+								*ngFor="let transaction of filteredTransactions"
 							>
 								<span
 									class="legend-color"
 									[style.background]="getColorForTransaction(transaction)"
-									title="Категорія: {{ transaction.note || 'Без категорії' }}"
 								></span>
 								<span class="isDeposit">
-									{{ transaction.isDeposit ? 'Доходи' :
-									'Витрати' }}
+									{{ transaction.isDeposit ? 'Income' :
+									'Expense' }}
 								</span>
-								<span class="note">
-									{{ transaction.note || 'Без категорії' }}
-								</span>
+								<span class="note"
+									>{{ transaction.note || 'Без категорії'
+									}}</span
+								>
 								<span class="amount"
 									>{{ transaction.amount }} ₴</span
 								>
-								<span class="debug" style="display: none">
-								</span>
 							</div>
 						</div>
-
-						<ng-template #noTransactions>
-							<p>Транзакцій ще немає для цього юніта.</p>
-						</ng-template>
 					</div>
 				</div>
 			</div>
