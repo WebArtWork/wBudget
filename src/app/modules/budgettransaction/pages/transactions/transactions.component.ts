@@ -62,6 +62,7 @@ export class TransactionsComponent
 		await this.loadTransactions();
 		// Потім юніти для Select
 		await this.loadUnits();
+		this.markSelectedBudget();
 		// Оновлюємо таблицю
 		this.setDocuments();
 	}
@@ -213,5 +214,28 @@ export class TransactionsComponent
 
 		itemsField.value = items;
 		this.form?.updateFields?.([selectComponent]);
+	}
+	private markSelectedBudget(): void {
+		const budgetSelect = this.form?.components?.find(
+			(c: FormComponentInterface) =>
+				c.key === 'budget' && c.name === 'Select'
+		);
+		if (!budgetSelect) return;
+
+		const itemsField = budgetSelect.fields.find(
+			(f: { name: string; value: any }) => f.name === 'Items'
+		);
+		if (!itemsField) return;
+
+		// Підставляємо тільки поточний бюджет
+		itemsField.value = [
+			{
+				name: this.budget, // або actual name, якщо він у Budget
+				value: this.budget,
+				selected: true
+			}
+		];
+
+		this.form?.updateFields?.([budgetSelect]);
 	}
 }
