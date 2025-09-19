@@ -76,6 +76,10 @@ export class PublicComponent implements OnInit, OnDestroy {
 		this.selectedBudgetId = budgetId;
 		localStorage.setItem('selectedBudgetId', budgetId);
 
+		// Очищаємо вибраний юніт перед завантаженням нових
+		this.selectedUnitId = null;
+		this.units = [];
+
 		// Підвантажуємо юніти для нового бюджету
 		await this.loadUnits(budgetId);
 
