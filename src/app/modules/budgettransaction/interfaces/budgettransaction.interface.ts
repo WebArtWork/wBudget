@@ -6,6 +6,9 @@ export interface Budgettransaction extends CrudDocument {
 	budget: string;
 	isDeposit: boolean;
 
+	unitName?: string;
+	budgetName?: string;
+
 	unitId?: string;
 	units?: {
 		unit: string;

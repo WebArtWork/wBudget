@@ -36,9 +36,13 @@ export class TransactionsComponent
 	implements OnInit
 {
 	override configType: 'local' | 'server' = 'local';
-	columns = ['isDeposit', 'amount', 'note', 'budget', 'unitId'];
+
+	columns = ['isDeposit', 'amount', 'note', 'budgetName', 'unitName'];
 	config = this.getConfig();
 	budget = this._router.url.replace('/transactions/', '');
+
+	// Локальний масив юнітів
+	private allUnits: Budgetunit[] = [];
 
 	constructor(
 		private _budgettransactionService: BudgettransactionService,
@@ -58,34 +62,41 @@ export class TransactionsComponent
 	}
 
 	async ngOnInit(): Promise<void> {
-		// Завантажуємо транзакції спочатку
-		await this.loadTransactions();
-		// Потім юніти для Select
+		// Завантажуємо бюджети та юніти для назв
+		await this.loadBudgets();
 		await this.loadUnits();
+		// Потім транзакції
+		await this.loadTransactions();
 		this.markSelectedBudget();
-		// Оновлюємо таблицю
 		this.setDocuments();
 	}
 
 	// ============================
-	// Завантаження транзакцій з сервера
+	// Завантаження транзакцій
 	// ============================
 	async loadTransactions(): Promise<void> {
 		const transactions = await firstValueFrom(
 			this._budgettransactionService.getTransactionsByBudget(this.budget)
 		);
 
-		// Підтягуємо unitId, якщо його нема
-		transactions.forEach((t) => {
-			if (!t.unitId && t.units?.length) {
-				t.unitId = t.units[0].unit;
-			}
-			t.isDeposit = !!t.isDeposit; // приводимо до boolean
+		transactions.forEach((t: Budgettransaction) => {
+			if (!t.unitId && t.units?.length) t.unitId = t.units[0].unit;
+			t.isDeposit = !!t.isDeposit;
+
+			const unit = this.allUnits.find(
+				(u: Budgetunit) => u._id === t.unitId
+			);
+			t.unitName = unit ? unit.name : t.unitId;
+
+			const budgetObj = this._budgetService.budgets?.find(
+				(b: Budget) => b._id === t.budget
+			);
+			t.budgetName = budgetObj ? budgetObj.name : t.budget;
 		});
 
 		this._budgettransactionService.budgettransactions = transactions;
+		this.documents = transactions;
 
-		// Відмічаємо юніти у Select
 		this.markSelectedUnits();
 	}
 
@@ -93,10 +104,8 @@ export class TransactionsComponent
 	// Перед створенням транзакції
 	// ============================
 	override preCreate(doc: Budgettransaction): void {
-		console.log(doc, doc.unitId);
 		doc.budget = this.budget;
 
-		// Вибір юніта
 		const selectComponent = this.form?.components?.find(
 			(c: FormComponentInterface) =>
 				c.key === 'unitId' && c.name === 'Select'
@@ -109,19 +118,8 @@ export class TransactionsComponent
 		);
 		if (!itemsField) throw new Error('Unit items field not found');
 
-		// const selectedUnit = (itemsField.value as SelectItem[]).find(
-		// 	(u) => u.selected
-		// );
-		// if (!selectedUnit) {
-		// 	alert('Виберіть юніт перед створенням транзакції');
-		// 	throw new Error('Unit is required');
-		// }
-
-		// doc.unitId = selectedUnit.value;
-
 		doc.units = [{ unit: doc.unitId as string, amount: doc.amount }];
 
-		// Встановлюємо isDeposit зі значення форми
 		const isDepositField = this.form?.components
 			?.find(
 				(c: FormComponentInterface) =>
@@ -132,23 +130,30 @@ export class TransactionsComponent
 			);
 
 		doc.isDeposit = !!isDepositField?.value;
-
-		console.log('doc =', doc);
 	}
 
 	// ============================
 	// Після створення транзакції
 	// ============================
 	postCreate(doc: Budgettransaction): void {
-		// Додаємо нову транзакцію в локальний масив
+		const unit = this.allUnits.find(
+			(u: Budgetunit) => u._id === doc.unitId
+		);
+		doc.unitName = unit ? unit.name : doc.unitId;
+
+		const budgetObj = this._budgetService.budgets?.find(
+			(b: Budget) => b._id === doc.budget
+		);
+		doc.budgetName = budgetObj ? budgetObj.name : doc.budget;
+
 		this._budgettransactionService.budgettransactions.push(doc);
-		// Оновлюємо таблицю
+		this.documents.push(doc);
 		this.setDocuments();
-		// Відмічаємо юніти у Select
 		this.markSelectedUnits();
 	}
+
 	// ============================
-	// Завантаження юнітів у Select
+	// Завантаження юнітів
 	// ============================
 	async loadUnits(): Promise<void> {
 		const units: Budgetunit[] = budgettransactionFormComponents
@@ -158,32 +163,34 @@ export class TransactionsComponent
 
 		this._unitService
 			.getUnitsByBudget(this.budget)
-			.subscribe((allUnits) => {
+			.subscribe((allUnits: Budgetunit[]) => {
+				this.allUnits = allUnits;
 				units.push(...allUnits);
-				console.log(allUnits);
+				console.log('Юніти завантажені:', allUnits);
 			});
 	}
+
+	// ============================
+	// Завантаження бюджетів
+	// ============================
 	async loadBudgets(): Promise<void> {
-		// Отримуємо компонент бюджету з форми
 		const budgetSelect = budgettransactionFormComponents.components.find(
 			(c) => c.key === 'budget' && c.name === 'Select'
 		);
-
 		if (!budgetSelect) return;
 
 		const itemsField = budgetSelect.fields.find((f) => f.name === 'Items');
 		if (!itemsField) return;
 
 		const budgets: Budget[] = itemsField.value as unknown as Budget[];
-		budgets.splice(0, budgets.length); // очищаємо старі дані
+		budgets.splice(0, budgets.length);
 
 		try {
-			// Підвантажуємо бюджети з сервера
 			const allBudgets = await this._budgetService.getAllBudgets();
 			budgets.push(...allBudgets);
+			this._budgetService.budgets = allBudgets;
 			console.log('Бюджети завантажені:', allBudgets);
 
-			// Оновлюємо форму
 			this.form?.updateFields?.([budgetSelect]);
 		} catch (err) {
 			console.error('Помилка при завантаженні бюджетів:', err);
@@ -191,7 +198,7 @@ export class TransactionsComponent
 	}
 
 	// ============================
-	// Допоміжна функція для позначення вибраних юнітів у Select
+	// Допоміжні функції для Select
 	// ============================
 	private markSelectedUnits(): void {
 		const selectComponent = this.form?.components?.find(
@@ -215,6 +222,7 @@ export class TransactionsComponent
 		itemsField.value = items;
 		this.form?.updateFields?.([selectComponent]);
 	}
+
 	private markSelectedBudget(): void {
 		const budgetSelect = this.form?.components?.find(
 			(c: FormComponentInterface) =>
@@ -227,14 +235,19 @@ export class TransactionsComponent
 		);
 		if (!itemsField) return;
 
-		// Підставляємо тільки поточний бюджет
-		itemsField.value = [
-			{
-				name: this.budget, // або actual name, якщо він у Budget
-				value: this.budget,
-				selected: true
-			}
-		];
+		const selectedBudgetObj = this._budgetService.budgets?.find(
+			(b: Budget) => b._id === this.budget
+		);
+
+		if (selectedBudgetObj) {
+			itemsField.value = [
+				{
+					name: selectedBudgetObj.name,
+					value: selectedBudgetObj._id,
+					selected: true
+				}
+			];
+		}
 
 		this.form?.updateFields?.([budgetSelect]);
 	}
