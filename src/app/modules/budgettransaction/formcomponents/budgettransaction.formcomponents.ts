@@ -57,6 +57,32 @@ export const budgettransactionFormComponents = {
 				{
 					name: 'Label',
 					value: 'Unit'
+				},
+				{
+					name: 'Disabled',
+					value: false
+				}
+			]
+		},
+		{
+			name: 'Select',
+			key: 'budget',
+			fields: [
+				{
+					name: 'Items',
+					value: []
+				},
+				{
+					name: 'Placeholder',
+					value: 'Select budget'
+				},
+				{
+					name: 'Label',
+					value: 'Budget'
+				},
+				{
+					name: 'Disabled',
+					value: false
 				}
 			]
 		}

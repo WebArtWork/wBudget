@@ -13,6 +13,8 @@ import { BudgetunitService } from 'src/app/modules/budgetunit/services/budgetuni
 import { FormComponentInterface } from 'src/app/core/modules/form/interfaces/component.interface';
 import { firstValueFrom } from 'rxjs';
 import { Budgetunit } from 'src/app/modules/budgetunit/interfaces/budgetunit.interface';
+import { Budget } from 'src/app/modules/budget/interfaces/budget.interface';
+import { BudgetService } from 'src/app/modules/budget/services/budget.service';
 
 interface SelectItem {
 	name: string;
@@ -41,6 +43,7 @@ export class TransactionsComponent
 	constructor(
 		private _budgettransactionService: BudgettransactionService,
 		private _unitService: BudgetunitService,
+		private _budgetService: BudgetService,
 		_translate: TranslateService,
 		_form: FormService,
 		private _router: Router
@@ -159,6 +162,32 @@ export class TransactionsComponent
 				console.log(allUnits);
 			});
 	}
+	async loadBudgets(): Promise<void> {
+		// Отримуємо компонент бюджету з форми
+		const budgetSelect = budgettransactionFormComponents.components.find(
+			(c) => c.key === 'budget' && c.name === 'Select'
+		);
+
+		if (!budgetSelect) return;
+
+		const itemsField = budgetSelect.fields.find((f) => f.name === 'Items');
+		if (!itemsField) return;
+
+		const budgets: Budget[] = itemsField.value as unknown as Budget[];
+		budgets.splice(0, budgets.length); // очищаємо старі дані
+
+		try {
+			// Підвантажуємо бюджети з сервера
+			const allBudgets = await this._budgetService.getAllBudgets();
+			budgets.push(...allBudgets);
+			console.log('Бюджети завантажені:', allBudgets);
+
+			// Оновлюємо форму
+			this.form?.updateFields?.([budgetSelect]);
+		} catch (err) {
+			console.error('Помилка при завантаженні бюджетів:', err);
+		}
+	}
 
 	// ============================
 	// Допоміжна функція для позначення вибраних юнітів у Select
@@ -166,7 +195,7 @@ export class TransactionsComponent
 	private markSelectedUnits(): void {
 		const selectComponent = this.form?.components?.find(
 			(c: FormComponentInterface) =>
-				c.key === 'unitid' && c.name === 'Select'
+				c.key === 'unitId' && c.name === 'Select'
 		);
 		if (!selectComponent) return;
 

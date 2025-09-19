@@ -121,15 +121,78 @@ export class PublicComponent implements OnInit, OnDestroy {
 	}
 
 	createTransaction() {
-		this._formService.modal<Budgettransaction>(
-			budgettransactionFormComponents,
+		const selectedBudget = this.selectedBudgetId;
+		const selectedUnit = this.selectedUnitId;
+		const unitName =
+			this.units.find((u) => u._id === selectedUnit)?.name || '';
+
+		// Копіюємо компоненти форми, щоб не змінювати глобальний об’єкт
+		const formComponents = JSON.parse(
+			JSON.stringify(budgettransactionFormComponents)
+		);
+
+		// ==========================
+		// Юніт залишаємо без змін
+		// ==========================
+		const unitSelect = formComponents.components.find(
+			(c: any) => c.key === 'unitId' && c.name === 'Select'
+		);
+		if (unitSelect) {
+			const itemsField = unitSelect.fields.find(
+				(f: any) => f.name === 'Items'
+			);
+			if (itemsField) {
+				itemsField.value = [{ name: unitName, value: selectedUnit }];
+			}
+			const disabledField = unitSelect.fields.find(
+				(f: any) => f.name === 'Disabled'
+			);
+			if (disabledField) disabledField.value = true;
+		}
+
+		// ==========================
+		// Підставляємо тільки вибраний бюджет
+		// ==========================
+		const budgetField = formComponents.components.find(
+			(c: any) => c.key === 'budget'
+		);
+		if (budgetField) {
+			const itemsField = budgetField.fields.find(
+				(f: any) => f.name === 'Items'
+			);
+			if (itemsField) {
+				const selectedBudgetObj = this.budgets.find(
+					(b) => b._id === selectedBudget
+				);
+				if (selectedBudgetObj) {
+					itemsField.value = [
+						{
+							name: selectedBudgetObj.name,
+							value: selectedBudgetObj._id,
+							selected: true
+						}
+					];
+				} else {
+					// Якщо бюджет не вибраний, залишаємо пустим, щоб кнопка не блокувалась
+					itemsField.value = [];
+				}
+			}
+
+			const disabledField = budgetField.fields.find(
+				(f: any) => f.name === 'Disabled'
+			);
+			if (disabledField) disabledField.value = true;
+		}
+
+		// Відкриваємо модальне вікно
+		this._formService.modal<Budgettransaction>(formComponents, [
 			{
 				label: 'Create',
 				click: (_created: unknown, close: () => void) => {
-					close(); // просто закриваємо модальне вікно після кліку
+					close(); // кнопка працює і закриває модалку
 				}
 			}
-		);
+		]);
 	}
 
 	setDocuments() {
