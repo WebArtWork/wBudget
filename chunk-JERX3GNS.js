@@ -1,0 +1,1 @@
+import{nb as n,r as o}from"./chunk-PK2OHHY4.js";var a=(()=>{let t=class t extends n{constructor(){super({name:"budgetunit"})}getUnitsByBudget(r){return this.get({query:"budget="+r})}};t.\u0275fac=function(i){return new(i||t)},t.\u0275prov=o({token:t,factory:t.\u0275fac,providedIn:"root"});let e=t;return e})();export{a};
