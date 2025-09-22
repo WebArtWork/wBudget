@@ -17,6 +17,11 @@ import { GuestGuard } from './core/guards/guest.guard';
 import { AdminsGuard } from './core/guards/admins.guard';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { SecondaryComponent } from './core/theme/secondary/secondary.component';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 const routes: Routes = [
 	{
@@ -225,7 +230,10 @@ const routes: Routes = [
 	imports: [
 		CoreModule,
 		BrowserModule,
-		BrowserAnimationsModule,
+		NoopAnimationsModule,
+		MatDatepickerModule,
+		MatInputModule,
+		MatNativeDateModule,
 		WacomModule.forRoot({
 			store: {},
 			http: {

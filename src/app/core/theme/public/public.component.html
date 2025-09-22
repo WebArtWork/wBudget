@@ -12,7 +12,7 @@
 			valueKey="_id"
 			labelKey="name"
 			(modelChange)="onBudgetChange($event)"
-			placeholder="Оберіть бюджет"
+			placeholder=""
 		></wselect>
 
 		<!-- Unit dropdown -->
@@ -23,16 +23,24 @@
 			valueKey="_id"
 			labelKey="name"
 			(modelChange)="onUnitChange($event)"
-			placeholder="Оберіть юніт"
-		></wselect>
-
-		<wselect
-			class="filter-dropdown"
-			[items]="ranges"
-			[(ngModel)]="selectedRange"
-			(modelChange)="onRangeChange()"
 			placeholder=""
 		></wselect>
+
+		<mat-form-field appearance="fill">
+			<mat-label></mat-label>
+			<mat-date-range-input
+				[rangePicker]="picker"
+				(dateInput)="onDateChange($event)"
+			>
+				<input matStartDate placeholder="Start date" />
+				<input matEndDate placeholder="End date" />
+			</mat-date-range-input>
+			<mat-datepicker-toggle
+				matSuffix
+				[for]="picker"
+			></mat-datepicker-toggle>
+			<mat-date-range-picker #picker></mat-date-range-picker>
+		</mat-form-field>
 
 		<!--<div class="documents-header__title">wBudget</div>-->
 	</div>

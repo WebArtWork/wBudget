@@ -10,22 +10,29 @@ import { Budgetunit } from 'src/app/modules/budgetunit/interfaces/budgetunit.int
 import { BudgetunitService } from 'src/app/modules/budgetunit/services/budgetunit.service';
 import { budgettransactionFormComponents } from 'src/app/modules/budgettransaction/formcomponents/budgettransaction.formcomponents';
 import { Budgettransaction } from 'src/app/modules/budgettransaction/interfaces/budgettransaction.interface';
+import { ViewEncapsulation } from '@angular/core';
+import { ViewChild } from '@angular/core';
+import { MatDateRangePicker } from '@angular/material/datepicker';
 
 @Component({
 	selector: 'app-public',
 	standalone: false,
 	templateUrl: './public.component.html',
-	styleUrls: ['./public.component.scss']
+	styleUrls: ['./public.component.scss'],
+	encapsulation: ViewEncapsulation.None
 })
 export class PublicComponent implements OnInit, OnDestroy {
+	@ViewChild('picker') picker!: MatDateRangePicker<Date>;
 	showSidebar = false;
 	budgets: Budget[] = [];
 	units: Budgetunit[] = [];
 	selectedBudgetId: string | null = null;
 	selectedUnitId: string | null = null;
 
-	ranges = ['day', 'week', 'month', 'year'];
-	selectedRange: string = '';
+	selectedRange: { start: Date | null; end: Date | null } = {
+		start: null,
+		end: null
+	};
 
 	private _formService = inject(FormService);
 	private _transactionService = inject(BudgettransactionService);
@@ -105,8 +112,10 @@ export class PublicComponent implements OnInit, OnDestroy {
 		);
 	}
 
-	onRangeChange() {
-		console.log('Вибрано період:', this.selectedRange);
+	onDateChange(event: any) {
+		this.selectedRange = event.value;
+		console.log('Selected range:', this.selectedRange);
+		// НЕ викликаємо picker.close() тут
 	}
 
 	getTotalCost(): number {
