@@ -47,3 +47,13 @@
 .mat-calendar-body-cell {
 	color: white;
 }
+.mat-datepicker-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 50px; /* фіксована ширина, щоб не стрибало */
+	height: 50px; /* фіксована висота */
+	border-radius: 12px;
+
+	cursor: pointer;
+}

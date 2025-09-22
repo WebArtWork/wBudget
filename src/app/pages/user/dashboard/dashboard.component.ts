@@ -19,9 +19,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	selectedUnit: string | null = null;
 
 	transactions: Budgettransaction[] = [];
+	selectedRange: { start: Date | null; end: Date | null } = {
+		start: null,
+		end: null
+	};
 
 	private budgetListener: any;
 	private unitListener: any;
+	private dateRangeListener: any;
 
 	constructor(
 		public userService: UserService,
@@ -89,11 +94,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			// Відображати транзакції тільки для вибраного юніта
 		};
 		window.addEventListener('unitChanged', this.unitListener);
+		this.dateRangeListener = (event: any) => {
+			this.selectedRange = event.detail;
+		};
+		window.addEventListener('dateRangeChanged', this.dateRangeListener);
 	}
 
 	ngOnDestroy() {
 		window.removeEventListener('budgetChanged', this.budgetListener);
 		window.removeEventListener('unitChanged', this.unitListener);
+		window.removeEventListener('dateRangeChanged', this.dateRangeListener);
 	}
 
 	selectUnit(unitId: string) {
@@ -105,9 +115,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 	get filteredTransactions(): Budgettransaction[] {
 		if (!this.selectedUnit) return [];
-		return this.transactions.filter(
-			(t) => String(t.unitId) === String(this.selectedUnit)
-		);
+
+		return this.transactions.filter((t) => {
+			const matchUnit = String(t.unitId) === String(this.selectedUnit);
+			if (!matchUnit) return false;
+
+			if (this.selectedRange.start && this.selectedRange.end && t._id) {
+				// Витягуємо дату з Mongo ObjectId
+				const timestamp = parseInt(t._id.substring(0, 8), 16) * 1000;
+				const txDate = new Date(timestamp);
+
+				return (
+					txDate >= this.selectedRange.start &&
+					txDate <= this.selectedRange.end
+				);
+			}
+
+			return true;
+		});
 	}
 
 	getTotalAmount(): number {

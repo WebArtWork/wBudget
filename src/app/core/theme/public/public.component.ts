@@ -13,6 +13,7 @@ import { Budgettransaction } from 'src/app/modules/budgettransaction/interfaces/
 import { ViewEncapsulation } from '@angular/core';
 import { ViewChild } from '@angular/core';
 import { MatDateRangePicker } from '@angular/material/datepicker';
+import { DateRange } from '@angular/material/datepicker';
 
 @Component({
 	selector: 'app-public',
@@ -46,11 +47,52 @@ export class PublicComponent implements OnInit, OnDestroy {
 	async ngOnInit(): Promise<void> {
 		await this.loadBudgets();
 
-		this.budgetListener = (event: any) => {
-			const budgetId = event.detail;
-			if (budgetId) this.loadUnits(budgetId);
-		};
-		window.addEventListener('budgetChanged', this.budgetListener);
+		// Відновлення вибраного бюджету
+		const savedBudgetId = localStorage.getItem('selectedBudgetId');
+		if (
+			savedBudgetId &&
+			this.budgets.find((b) => b._id === savedBudgetId)
+		) {
+			this.selectedBudgetId = savedBudgetId;
+			await this.loadUnits(savedBudgetId);
+
+			const savedUnitId = localStorage.getItem('selectedUnitId');
+			if (savedUnitId && this.units.find((u) => u._id === savedUnitId)) {
+				this.selectedUnitId = savedUnitId;
+			}
+
+			window.dispatchEvent(
+				new CustomEvent('budgetChanged', {
+					detail: this.selectedBudgetId
+				})
+			);
+			if (this.selectedUnitId) {
+				window.dispatchEvent(
+					new CustomEvent('unitChanged', {
+						detail: this.selectedUnitId
+					})
+				);
+			}
+		}
+
+		// Відновлення вибраного періоду
+		const savedRange = localStorage.getItem('selectedRange');
+		console.log('Saved range from localStorage on init:', savedRange);
+
+		if (savedRange) {
+			const parsed = JSON.parse(savedRange);
+			this.selectedRange = {
+				start: parsed.start ? new Date(parsed.start) : null,
+				end: parsed.end ? new Date(parsed.end) : null
+			};
+			console.log('Parsed range as Date objects:', this.selectedRange);
+
+			window.dispatchEvent(
+				new CustomEvent('dateRangeChanged', {
+					detail: this.selectedRange
+				})
+			);
+		}
 	}
 
 	ngOnDestroy(): void {
@@ -80,7 +122,9 @@ export class PublicComponent implements OnInit, OnDestroy {
 		if (!budgetId) return;
 		this.selectedBudgetId = budgetId;
 		localStorage.setItem('selectedBudgetId', budgetId);
+
 		this.selectedUnitId = null;
+		localStorage.removeItem('selectedUnitId'); // скидаємо юніт, бо бюджет змінився
 		this.units = [];
 		await this.loadUnits(budgetId);
 
@@ -113,9 +157,27 @@ export class PublicComponent implements OnInit, OnDestroy {
 	}
 
 	onDateChange(event: any) {
-		this.selectedRange = event.value;
-		console.log('Selected range:', this.selectedRange);
-		// НЕ викликаємо picker.close() тут
+		this.selectedRange = {
+			start: event.value?.start ?? null,
+			end: event.value?.end ?? null
+		};
+
+		console.log('onDateChange called, selectedRange:', this.selectedRange);
+
+		// Зберігаємо в localStorage
+		localStorage.setItem(
+			'selectedRange',
+			JSON.stringify(this.selectedRange)
+		);
+
+		console.log(
+			'Saved in localStorage:',
+			localStorage.getItem('selectedRange')
+		);
+
+		window.dispatchEvent(
+			new CustomEvent('dateRangeChanged', { detail: this.selectedRange })
+		);
 	}
 
 	getTotalCost(): number {

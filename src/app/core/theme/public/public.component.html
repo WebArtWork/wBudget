@@ -4,6 +4,17 @@
 			<span class="material-icons">arrow_back_ios</span>
 		</div>
 
+		<!-- Calendar -->
+		<mat-date-range-input
+			[rangePicker]="picker"
+			[(ngModel)]="selectedRange"
+			(dateInput)="onDateChange($event)"
+		>
+		</mat-date-range-input>
+
+		<mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+		<mat-date-range-picker #picker></mat-date-range-picker>
+
 		<!-- Budget dropdown -->
 		<wselect
 			class="filter-dropdown"
@@ -25,22 +36,6 @@
 			(modelChange)="onUnitChange($event)"
 			placeholder=""
 		></wselect>
-
-		<mat-form-field appearance="fill">
-			<mat-label></mat-label>
-			<mat-date-range-input
-				[rangePicker]="picker"
-				(dateInput)="onDateChange($event)"
-			>
-				<input matStartDate placeholder="Start date" />
-				<input matEndDate placeholder="End date" />
-			</mat-date-range-input>
-			<mat-datepicker-toggle
-				matSuffix
-				[for]="picker"
-			></mat-datepicker-toggle>
-			<mat-date-range-picker #picker></mat-date-range-picker>
-		</mat-form-field>
 
 		<!--<div class="documents-header__title">wBudget</div>-->
 	</div>
