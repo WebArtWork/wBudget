@@ -4,10 +4,10 @@
 			<div class="documents-main">
 				<!-- Кругова діаграма і загальна сума -->
 				<div class="circle-block">
-					<div class="documents__title">Dashboard</div>
+					<div class="documents__title"></div>
 					<div class="circle-chart" [ngStyle]="circleChartStyle">
 						<div class="circle-chart-inner">
-							{{ getTotalAmount() }} ₴
+							{{ getCircleTotal() }}₴
 						</div>
 					</div>
 					<div class="summary">
@@ -18,7 +18,9 @@
 
 				<div class="documents-main-content">
 					<!-- Якщо обраний бюджет, але ще не обрано юніт -->
+
 					<div *ngIf="!selectedUnit" class="categories">
+						<h3>Units</h3>
 						<div
 							*ngFor="let unit of getFilteredUnits()"
 							class="category"
@@ -36,12 +38,12 @@
 
 					<!-- Транзакції обраного юніта -->
 					<div *ngIf="selectedUnit">
-						<h3>Транзакції для обраного юніта</h3>
-
 						<div
 							*ngIf="filteredTransactions.length > 0"
 							class="categories"
 						>
+							<h3>Transactions</h3>
+
 							<div
 								class="category"
 								*ngFor="let transaction of filteredTransactions"
@@ -55,8 +57,7 @@
 									'Expense' }}
 								</span>
 								<span class="note"
-									>{{ transaction.note || 'Без категорії'
-									}}</span
+									>{{ transaction.note || '' }}</span
 								>
 								<span class="amount"
 									>{{ transaction.amount }} ₴</span

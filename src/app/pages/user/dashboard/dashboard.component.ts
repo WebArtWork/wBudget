@@ -135,63 +135,46 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		);
 	}
 
+	private getEndOfDay(date: Date): Date {
+		const endDate = new Date(date);
+		endDate.setHours(23, 59, 59, 999);
+		return endDate;
+	}
+
 	get filteredTransactions(): Budgettransaction[] {
 		if (!this.selectedUnit) return [];
 
 		return this.transactions.filter((t) => {
-			const matchUnit = String(t.unitId) === String(this.selectedUnit);
-			if (!matchUnit) return false;
+			if (String(t.unitId) !== String(this.selectedUnit)) return false;
 
 			if (this.selectedRange.start && this.selectedRange.end && t._id) {
-				// Перетворюємо ObjectId у дату
 				const timestamp = parseInt(t._id.substring(0, 8), 16) * 1000;
 				const txDate = new Date(timestamp);
 
-				return (
-					txDate >= this.selectedRange.start &&
-					txDate <= this.selectedRange.end
-				);
+				const endDate = this.getEndOfDay(this.selectedRange.end);
+				return txDate >= this.selectedRange.start && txDate <= endDate;
 			}
-
 			return true;
 		});
 	}
 
-	// Приватна функція для фільтрації транзакцій по діапазону дат
-	private filterTransactionsByDate(
-		transactions: Budgettransaction[]
-	): Budgettransaction[] {
-		if (!this.selectedRange.start || !this.selectedRange.end)
-			return transactions;
-
-		return transactions.filter((t) => {
-			const timestamp = parseInt(t._id.substring(0, 8), 16) * 1000;
-			const txDate = new Date(timestamp);
-			return (
-				txDate >= this.selectedRange.start! &&
-				txDate <= this.selectedRange.end!
-			);
-		});
-	}
-
-	// Оновлюємо totalAmount для юнітів
-	// Динамічно обчислюємо totalAmount для всіх юнітів з урахуванням selectedRange
 	getFilteredUnits(): (Budgetunit & { totalAmount: number })[] {
+		const endDate = this.selectedRange.end
+			? this.getEndOfDay(this.selectedRange.end)
+			: null;
+
 		return this.units.map((u) => {
-			// Беремо всі транзакції цього юніта
 			let txs = this.transactions.filter(
 				(t) => String(t.unitId) === String(u._id)
 			);
 
-			// Фільтруємо по датах, якщо вибрано діапазон
-			if (this.selectedRange.start && this.selectedRange.end) {
+			if (this.selectedRange.start && endDate) {
 				txs = txs.filter((t) => {
 					const timestamp =
 						parseInt(t._id.substring(0, 8), 16) * 1000;
 					const txDate = new Date(timestamp);
 					return (
-						txDate >= this.selectedRange.start! &&
-						txDate <= this.selectedRange.end!
+						txDate >= this.selectedRange.start! && txDate <= endDate
 					);
 				});
 			}
@@ -204,45 +187,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	// Тепер getTotalAmount можна використовувати так
-	getTotalAmount(): number {
-		if (this.selectedUnit) {
-			return this.filteredTransactions.reduce(
-				(sum, t) => sum + (t.isDeposit ? t.amount : -t.amount),
-				0
-			);
-		} else {
-			return this.getFilteredUnits().reduce(
-				(sum, u) => sum + u.totalAmount,
-				0
-			);
-		}
-	}
-
 	getIncomeTotal(): number {
+		const endDate = this.selectedRange.end
+			? this.getEndOfDay(this.selectedRange.end)
+			: null;
+
 		if (this.selectedUnit) {
 			return this.filteredTransactions
 				.filter((t) => t.isDeposit)
 				.reduce((sum, t) => sum + t.amount, 0);
 		} else {
-			// Беремо totalAmount вже з фільтруючого геттера
 			return this.getFilteredUnits().reduce((sum, u) => {
-				// Відбираємо лише позитивні суми, якщо хочемо врахувати доходи
 				const income = this.transactions
 					.filter(
 						(t) => String(t.unitId) === String(u._id) && t.isDeposit
 					)
 					.filter((t) => {
-						if (
-							this.selectedRange.start &&
-							this.selectedRange.end
-						) {
+						if (this.selectedRange.start && endDate) {
 							const timestamp =
 								parseInt(t._id.substring(0, 8), 16) * 1000;
 							const txDate = new Date(timestamp);
 							return (
 								txDate >= this.selectedRange.start! &&
-								txDate <= this.selectedRange.end!
+								txDate <= endDate
 							);
 						}
 						return true;
@@ -254,12 +221,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	}
 
 	getExpenseTotal(): number {
+		const endDate = this.selectedRange.end
+			? this.getEndOfDay(this.selectedRange.end)
+			: null;
+
 		if (this.selectedUnit) {
 			return this.filteredTransactions
 				.filter((t) => !t.isDeposit)
 				.reduce((sum, t) => sum + t.amount, 0);
 		} else {
-			// Для всіх юнітів
 			return this.getFilteredUnits().reduce((sum, u) => {
 				const expense = this.transactions
 					.filter(
@@ -267,16 +237,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 							String(t.unitId) === String(u._id) && !t.isDeposit
 					)
 					.filter((t) => {
-						if (
-							this.selectedRange.start &&
-							this.selectedRange.end
-						) {
+						if (this.selectedRange.start && endDate) {
 							const timestamp =
 								parseInt(t._id.substring(0, 8), 16) * 1000;
 							const txDate = new Date(timestamp);
 							return (
 								txDate >= this.selectedRange.start! &&
-								txDate <= this.selectedRange.end!
+								txDate <= endDate
 							);
 						}
 						return true;
@@ -286,20 +253,71 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			}, 0);
 		}
 	}
+	public getCircleTotal(): number {
+		if (this.selectedUnit) {
+			// Фільтруємо транзакції тільки для вибраного юніта
+			return this.transactions
+				.filter((t) => String(t.unitId) === String(this.selectedUnit))
+				.filter((t) => {
+					if (this.selectedRange.start && this.selectedRange.end) {
+						const start = this.selectedRange.start;
+						const end = new Date(this.selectedRange.end);
+						end.setHours(23, 59, 59, 999); // включно до кінця дня
+						const timestamp =
+							parseInt(t._id.substring(0, 8), 16) * 1000;
+						const txDate = new Date(timestamp);
+						return txDate >= start && txDate <= end;
+					}
+					return true;
+				})
+				.reduce(
+					(sum, t) => sum + (t.isDeposit ? t.amount : -t.amount),
+					0
+				);
+		} else {
+			// Для всіх юнітів: беремо їхні totalAmount з урахуванням дат
+			return this.units
+				.map((u) => {
+					let txs = this.transactions.filter(
+						(t) => String(t.unitId) === String(u._id)
+					);
+
+					if (this.selectedRange.start && this.selectedRange.end) {
+						const start = this.selectedRange.start;
+						const end = new Date(this.selectedRange.end);
+						end.setHours(23, 59, 59, 999); // включно до кінця дня
+						txs = txs.filter((t) => {
+							const timestamp =
+								parseInt(t._id.substring(0, 8), 16) * 1000;
+							const txDate = new Date(timestamp);
+							return txDate >= start && txDate <= end;
+						});
+					}
+
+					return txs.reduce(
+						(sum, t) => sum + (t.isDeposit ? t.amount : -t.amount),
+						0
+					);
+				})
+				.reduce((sum, amount) => sum + amount, 0);
+		}
+	}
 
 	getCategoriesData() {
 		const categories: { [key: string]: number } = {};
 
 		if (this.selectedUnit) {
-			// Беремо фільтровані транзакції тільки для цього юніта
+			// Для транзакцій вибраного юніта
 			this.filteredTransactions.forEach((t) => {
-				const category = t.note || 'Other';
+				const category = t.note || 'Без категорії';
 				categories[category] = (categories[category] || 0) + t.amount;
 			});
 		} else {
-			// Для всіх юнітів беремо відфільтровані totalAmount по датах
+			// Для всіх юнітів беремо тільки ті, де totalAmount > 0
 			this.getFilteredUnits().forEach((u) => {
-				categories[u.name] = u.totalAmount || 0;
+				if ((u.totalAmount || 0) > 0) {
+					categories[u.name] = u.totalAmount!;
+				}
 			});
 		}
 
@@ -312,9 +330,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 	get circleChartStyle() {
 		const { categories, total } = this.getCategoriesData();
-		if (total === 0) return { background: '#ccc' };
+		if (total === 0) return { background: '#ccc', borderRadius: '50%' };
 
-		let start = 0;
 		const colors = [
 			'#005F73',
 			'#0A9396',
@@ -333,16 +350,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			'#A63200'
 		];
 
-		const gradients = Object.entries(categories).map(([_, value], i) => {
+		let start = 0;
+		const entries = Object.entries(categories);
+		const gradients = entries.map(([_, value], i) => {
 			const percent = (value / total) * 100;
 			const end = start + percent;
-			const color = colors[i % colors.length];
+			const color = colors[i % colors.length]; // кожна категорія свій колір
 			const g = `${color} ${start}% ${end}%`;
 			start = end;
 			return g;
 		});
 
-		return { background: `conic-gradient(${gradients.join(', ')})` };
+		return {
+			background: `conic-gradient(${gradients.join(', ')})`,
+			borderRadius: '50%',
+			width: '200px',
+			height: '200px'
+		};
 	}
 
 	getColorForTransaction(transaction: { note?: string }) {

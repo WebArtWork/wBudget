@@ -3,7 +3,28 @@
 		<div class="documents-header-left__arrow" (click)="back()">
 			<span class="material-icons">arrow_back_ios</span>
 		</div>
-
+		<!-- Calendar -->
+		<form [formGroup]="range">
+			<mat-form-field appearance="fill">
+				<mat-date-range-input [rangePicker]="picker">
+					<input
+						matStartDate
+						formControlName="start"
+						placeholder="Початкова дата"
+					/>
+					<input
+						matEndDate
+						formControlName="end"
+						placeholder="Кінцева дата"
+					/>
+				</mat-date-range-input>
+				<mat-datepicker-toggle
+					matSuffix
+					[for]="picker"
+				></mat-datepicker-toggle>
+				<mat-date-range-picker #picker></mat-date-range-picker>
+			</mat-form-field>
+		</form>
 		<!-- Budget dropdown -->
 		<wselect
 			class="filter-dropdown"
@@ -66,33 +87,6 @@
 					<span class="material-icons">account_circle</span>
 				</a>
 			</li>
-			<!-- Calendar -->
-			<form [formGroup]="range">
-				<mat-form-field appearance="fill">
-					<mat-date-range-input [rangePicker]="picker">
-						<input
-							matStartDate
-							formControlName="start"
-							placeholder="Початкова дата"
-						/>
-						<input
-							matEndDate
-							formControlName="end"
-							placeholder="Кінцева дата"
-						/>
-					</mat-date-range-input>
-					<mat-datepicker-toggle
-						matSuffix
-						[for]="picker"
-					></mat-datepicker-toggle>
-					<mat-date-range-picker #picker></mat-date-range-picker>
-				</mat-form-field>
-			</form>
-
-			<p>
-				Вибрано: {{ range.value.start | date:'shortDate' }} - {{
-				range.value.end | date:'shortDate' }}
-			</p>
 		</ul>
 	</nav>
 

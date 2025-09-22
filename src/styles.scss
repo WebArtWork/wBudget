@@ -57,3 +57,25 @@
 
 	cursor: pointer;
 }
+/* Прибираємо нижню лінію та padding для всіх mat-date-range-input */
+.mat-date-range-input {
+	padding: 0 !important;
+	min-height: 0 !important;
+}
+
+.mat-date-range-input .mat-form-field-underline,
+.mat-date-range-input .mat-form-field-infix,
+.mat-date-range-input .mat-form-field-wrapper {
+	display: none !important;
+}
+
+/* Щоб кнопка календаря була нормальної форми */
+.mat-datepicker-toggle {
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	width: 50px !important;
+	height: 50px !important;
+	border-radius: 12px !important;
+	cursor: pointer;
+}
