@@ -30,11 +30,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 	selectedBudgetId: string | null = null;
 	selectedUnitId: string | null = null;
 
-	selectedRange: { start: Date | null; end: Date | null } = {
-		start: null,
-		end: null
-	};
-
 	private _formService = inject(FormService);
 	private _transactionService = inject(BudgettransactionService);
 	private _budgetService = inject(BudgetService);
@@ -73,25 +68,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 					})
 				);
 			}
-		}
-
-		// Відновлення вибраного періоду
-		const savedRange = localStorage.getItem('selectedRange');
-		console.log('Saved range from localStorage on init:', savedRange);
-
-		if (savedRange) {
-			const parsed = JSON.parse(savedRange);
-			this.selectedRange = {
-				start: parsed.start ? new Date(parsed.start) : null,
-				end: parsed.end ? new Date(parsed.end) : null
-			};
-			console.log('Parsed range as Date objects:', this.selectedRange);
-
-			window.dispatchEvent(
-				new CustomEvent('dateRangeChanged', {
-					detail: this.selectedRange
-				})
-			);
 		}
 	}
 
@@ -153,30 +129,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 
 		window.dispatchEvent(
 			new CustomEvent('unitChanged', { detail: unitId })
-		);
-	}
-
-	onDateChange(event: any) {
-		this.selectedRange = {
-			start: event.value?.start ?? null,
-			end: event.value?.end ?? null
-		};
-
-		console.log('onDateChange called, selectedRange:', this.selectedRange);
-
-		// Зберігаємо в localStorage
-		localStorage.setItem(
-			'selectedRange',
-			JSON.stringify(this.selectedRange)
-		);
-
-		console.log(
-			'Saved in localStorage:',
-			localStorage.getItem('selectedRange')
-		);
-
-		window.dispatchEvent(
-			new CustomEvent('dateRangeChanged', { detail: this.selectedRange })
 		);
 	}
 
