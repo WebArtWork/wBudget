@@ -157,6 +157,54 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		});
 	}
 
+	// Приватна функція для фільтрації транзакцій по діапазону дат
+	private filterTransactionsByDate(
+		transactions: Budgettransaction[]
+	): Budgettransaction[] {
+		if (!this.selectedRange.start || !this.selectedRange.end)
+			return transactions;
+
+		return transactions.filter((t) => {
+			const timestamp = parseInt(t._id.substring(0, 8), 16) * 1000;
+			const txDate = new Date(timestamp);
+			return (
+				txDate >= this.selectedRange.start! &&
+				txDate <= this.selectedRange.end!
+			);
+		});
+	}
+
+	// Оновлюємо totalAmount для юнітів
+	// Динамічно обчислюємо totalAmount для всіх юнітів з урахуванням selectedRange
+	getFilteredUnits(): (Budgetunit & { totalAmount: number })[] {
+		return this.units.map((u) => {
+			// Беремо всі транзакції цього юніта
+			let txs = this.transactions.filter(
+				(t) => String(t.unitId) === String(u._id)
+			);
+
+			// Фільтруємо по датах, якщо вибрано діапазон
+			if (this.selectedRange.start && this.selectedRange.end) {
+				txs = txs.filter((t) => {
+					const timestamp =
+						parseInt(t._id.substring(0, 8), 16) * 1000;
+					const txDate = new Date(timestamp);
+					return (
+						txDate >= this.selectedRange.start! &&
+						txDate <= this.selectedRange.end!
+					);
+				});
+			}
+
+			const totalAmount = txs.reduce(
+				(sum, t) => sum + (t.isDeposit ? t.amount : -t.amount),
+				0
+			);
+			return { ...u, totalAmount };
+		});
+	}
+
+	// Тепер getTotalAmount можна використовувати так
 	getTotalAmount(): number {
 		if (this.selectedUnit) {
 			return this.filteredTransactions.reduce(
@@ -164,7 +212,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				0
 			);
 		} else {
-			return this.units.reduce((sum, u) => sum + (u.totalAmount || 0), 0);
+			return this.getFilteredUnits().reduce(
+				(sum, u) => sum + u.totalAmount,
+				0
+			);
 		}
 	}
 
@@ -174,7 +225,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				.filter((t) => t.isDeposit)
 				.reduce((sum, t) => sum + t.amount, 0);
 		} else {
-			return this.units.reduce((sum, u) => sum + (u.totalAmount || 0), 0);
+			// Беремо totalAmount вже з фільтруючого геттера
+			return this.getFilteredUnits().reduce((sum, u) => {
+				// Відбираємо лише позитивні суми, якщо хочемо врахувати доходи
+				const income = this.transactions
+					.filter(
+						(t) => String(t.unitId) === String(u._id) && t.isDeposit
+					)
+					.filter((t) => {
+						if (
+							this.selectedRange.start &&
+							this.selectedRange.end
+						) {
+							const timestamp =
+								parseInt(t._id.substring(0, 8), 16) * 1000;
+							const txDate = new Date(timestamp);
+							return (
+								txDate >= this.selectedRange.start! &&
+								txDate <= this.selectedRange.end!
+							);
+						}
+						return true;
+					})
+					.reduce((s, t) => s + t.amount, 0);
+				return sum + income;
+			}, 0);
 		}
 	}
 
@@ -184,7 +259,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				.filter((t) => !t.isDeposit)
 				.reduce((sum, t) => sum + t.amount, 0);
 		} else {
-			return 0;
+			// Для всіх юнітів
+			return this.getFilteredUnits().reduce((sum, u) => {
+				const expense = this.transactions
+					.filter(
+						(t) =>
+							String(t.unitId) === String(u._id) && !t.isDeposit
+					)
+					.filter((t) => {
+						if (
+							this.selectedRange.start &&
+							this.selectedRange.end
+						) {
+							const timestamp =
+								parseInt(t._id.substring(0, 8), 16) * 1000;
+							const txDate = new Date(timestamp);
+							return (
+								txDate >= this.selectedRange.start! &&
+								txDate <= this.selectedRange.end!
+							);
+						}
+						return true;
+					})
+					.reduce((s, t) => s + t.amount, 0);
+				return sum + expense;
+			}, 0);
 		}
 	}
 
@@ -192,12 +291,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		const categories: { [key: string]: number } = {};
 
 		if (this.selectedUnit) {
+			// Беремо фільтровані транзакції тільки для цього юніта
 			this.filteredTransactions.forEach((t) => {
 				const category = t.note || 'Other';
 				categories[category] = (categories[category] || 0) + t.amount;
 			});
 		} else {
-			this.units.forEach((u) => {
+			// Для всіх юнітів беремо відфільтровані totalAmount по датах
+			this.getFilteredUnits().forEach((u) => {
 				categories[u.name] = u.totalAmount || 0;
 			});
 		}

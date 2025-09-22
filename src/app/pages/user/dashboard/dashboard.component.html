@@ -19,7 +19,10 @@
 				<div class="documents-main-content">
 					<!-- Якщо обраний бюджет, але ще не обрано юніт -->
 					<div *ngIf="!selectedUnit" class="categories">
-						<div *ngFor="let unit of units" class="category">
+						<div
+							*ngFor="let unit of getFilteredUnits()"
+							class="category"
+						>
 							<span
 								class="legend-color"
 								[style.background]="getColorForUnit(unit)"
