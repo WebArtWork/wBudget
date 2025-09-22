@@ -14,6 +14,7 @@ import { ViewEncapsulation } from '@angular/core';
 import { ViewChild } from '@angular/core';
 import { MatDateRangePicker } from '@angular/material/datepicker';
 import { DateRange } from '@angular/material/datepicker';
+import { FormGroup, FormControl } from '@angular/forms';
 
 @Component({
 	selector: 'app-public',
@@ -29,6 +30,10 @@ export class PublicComponent implements OnInit, OnDestroy {
 	units: Budgetunit[] = [];
 	selectedBudgetId: string | null = null;
 	selectedUnitId: string | null = null;
+	range = new FormGroup({
+		start: new FormControl<Date | null>(null),
+		end: new FormControl<Date | null>(null)
+	});
 
 	private _formService = inject(FormService);
 	private _transactionService = inject(BudgettransactionService);
@@ -69,6 +74,22 @@ export class PublicComponent implements OnInit, OnDestroy {
 				);
 			}
 		}
+		const saved = localStorage.getItem('dateRange');
+		if (saved) {
+			const parsed = JSON.parse(saved);
+			this.range.setValue({
+				start: parsed.start ? new Date(parsed.start) : null,
+				end: parsed.end ? new Date(parsed.end) : null
+			});
+		}
+
+		// Слухаємо зміни та зберігаємо у localStorage + кидаємо подію
+		this.range.valueChanges.subscribe((val) => {
+			localStorage.setItem('dateRange', JSON.stringify(val));
+			window.dispatchEvent(
+				new CustomEvent('dateRangeChanged', { detail: val })
+			);
+		});
 	}
 
 	ngOnDestroy(): void {

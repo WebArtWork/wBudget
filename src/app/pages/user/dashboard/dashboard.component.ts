@@ -27,7 +27,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	private budgetListener: any;
 	private unitListener: any;
 	private dateRangeListener: any;
-
 	constructor(
 		public userService: UserService,
 		private _budgetunitService: BudgetunitService,
@@ -98,12 +97,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			this.selectedRange = event.detail;
 		};
 		window.addEventListener('dateRangeChanged', this.dateRangeListener);
+		// Відновлення вибраного діапазону після перезавантаження
+		const saved = localStorage.getItem('dateRange');
+		if (saved) {
+			const parsed = JSON.parse(saved);
+			this.selectedRange = {
+				start: parsed.start ? new Date(parsed.start) : null,
+				end: parsed.end ? new Date(parsed.end) : null
+			};
+		}
+
+		// Слухаємо події з PublicComponent
+		this.dateRangeListener = (event: any) => {
+			this.selectedRange = {
+				start: event.detail.start ? new Date(event.detail.start) : null,
+				end: event.detail.end ? new Date(event.detail.end) : null
+			};
+		};
+		window.addEventListener('dateRangeChanged', this.dateRangeListener);
 	}
 
 	ngOnDestroy() {
 		window.removeEventListener('budgetChanged', this.budgetListener);
 		window.removeEventListener('unitChanged', this.unitListener);
-		window.removeEventListener('dateRangeChanged', this.dateRangeListener);
+		if (this.dateRangeListener) {
+			window.removeEventListener(
+				'dateRangeChanged',
+				this.dateRangeListener
+			);
+		}
 	}
 
 	selectUnit(unitId: string) {
@@ -121,7 +143,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			if (!matchUnit) return false;
 
 			if (this.selectedRange.start && this.selectedRange.end && t._id) {
-				// Витягуємо дату з Mongo ObjectId
+				// Перетворюємо ObjectId у дату
 				const timestamp = parseInt(t._id.substring(0, 8), 16) * 1000;
 				const txDate = new Date(timestamp);
 
