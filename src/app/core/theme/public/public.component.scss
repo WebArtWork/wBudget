@@ -330,3 +330,22 @@ mat-form-field input {
 		cursor: pointer;
 	}
 }
+@media screen and (min-width: 1024px) {
+	mat-form-field {
+		min-width: auto; // прибираємо обмеження
+		max-width: 100%; // повна ширина
+		width: 100%; // займає всю ширину батька
+		flex: 1; // гнучке заповнення простору
+	}
+
+	.filter-dropdown {
+		min-width: auto; // прибираємо мінімальну ширину
+		max-width: 12%; // повна ширина
+		width: 100%;
+	}
+
+	.documents-header {
+		width: 100%; // весь рядок
+		padding: 0 10px; // трохи відступів
+	}
+}
