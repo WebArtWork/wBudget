@@ -10,12 +10,6 @@
 	<nav class="nav" (clickOutside)="showSidebar = false">
 		<ul class="nav__ul container" [class._active]="showSidebar">
 			<li class="nav__li">
-				<button id="saveExpense" [routerLink]="['/transactions']">
-					+
-				</button>
-			</li>
-
-			<li class="nav__li">
 				<a
 					routerLinkActive="_activeLink"
 					(click)="showSidebar = false"
