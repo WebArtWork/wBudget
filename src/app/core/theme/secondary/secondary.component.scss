@@ -21,7 +21,7 @@
 		margin: 0 auto;
 		width: 100%;
 		padding: 20px;
-		margin-top: 60px; // простір під верхній header
+		// простір під верхній header
 		transition: all 0.5s ease-in-out;
 
 		@media screen and (max-width: 991px) {
@@ -50,11 +50,23 @@ hr {
 	left: 0;
 	right: 0;
 	height: 60px;
+	min-height: 50px;
+	width: 100%;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	padding: 0 16px;
 	z-index: 1000;
+	overflow: hidden;
+
+	background: var(--c-basic);
+	box-shadow:
+		0 3px 5px -1px #0003,
+		0 6px 10px #00000024,
+		0 1px 18px #0000001f;
+	transition: all 0.5s ease-in-out;
+
+	@include mixins.flexBox(flex, null, space-between, center, null);
 	&__ul {
 		z-index: 1;
 		margin-top: 0;
@@ -293,5 +305,34 @@ hr {
 	margin-right: 10px;
 	.material-icons {
 		cursor: pointer;
+	}
+}
+.documents-header {
+	display: flex;
+	align-items: center;
+	position: relative;
+	z-index: 10;
+	background: #1c1a1a; // темно-сірий фон
+	padding: 10px 20px; // відступ зверху і з боків
+
+	/* Для мобільної версії */
+	.documents-header-left__arrow {
+		cursor: pointer;
+		flex: 0 0 auto;
+	}
+
+	.documents-header__title {
+		flex: 1;
+		text-align: center; // заголовок по центру
+		font-size: 18px;
+		font-weight: bold;
+		color: #e9e7e7; // світлий текст
+	}
+
+	@media screen and (min-width: 1024px) {
+		padding: 15px 40px; // більше відступу на десктопі
+		.documents-header__title {
+			text-align: center;
+		}
 	}
 }
