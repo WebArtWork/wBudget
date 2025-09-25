@@ -5,6 +5,9 @@ import { BudgettransactionService } from 'src/app/modules/budgettransaction/serv
 import { firstValueFrom } from 'rxjs';
 import { Budgetunit } from 'src/app/modules/budgetunit/interfaces/budgetunit.interface';
 import { Budgettransaction } from 'src/app/modules/budgettransaction/interfaces/budgettransaction.interface';
+import { ActivatedRoute } from '@angular/router';
+import { BudgetService } from 'src/app/modules/budget/services/budget.service';
+import { Budget } from 'src/app/modules/budget/interfaces/budget.interface';
 
 @Component({
 	templateUrl: './dashboard.component.html',
@@ -14,6 +17,9 @@ import { Budgettransaction } from 'src/app/modules/budgettransaction/interfaces/
 export class DashboardComponent implements OnInit, OnDestroy {
 	isMenuOpen = false;
 	units: (Budgetunit & { totalAmount?: number })[] = [];
+
+	budgets: Budget[] = [];
+	selectedBudgetId: string | null = null;
 
 	selectedBudget: string | null = null;
 	selectedUnit: string | null = null;
@@ -30,10 +36,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	constructor(
 		public userService: UserService,
 		private _budgetunitService: BudgetunitService,
-		private _budgettransactionService: BudgettransactionService
+		private _budgettransactionService: BudgettransactionService,
+		private budgetService: BudgetService,
+		private route: ActivatedRoute
 	) {}
 
-	ngOnInit() {
+	async ngOnInit() {
+		this.budgets = await this.budgetService.getAllBudgets();
+
+		// Слухаємо queryParams для вибраного бюджету
+		this.route.queryParams.subscribe(async (params) => {
+			const budgetId = params['budget'];
+			if (budgetId) {
+				this.selectedBudget = budgetId;
+
+				// Генеруємо подію для PublicComponent
+				window.dispatchEvent(
+					new CustomEvent('budgetChanged', { detail: budgetId })
+				);
+			}
+		});
 		// Слухаємо зміну бюджету
 		this.budgetListener = async (event: any) => {
 			const budgetId = event.detail;

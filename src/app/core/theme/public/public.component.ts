@@ -35,6 +35,7 @@ export class PublicComponent implements OnInit, OnDestroy {
 		end: new FormControl<Date | null>(null)
 	});
 
+	selectedBudgetName: string | null = null;
 	private _formService = inject(FormService);
 	private _transactionService = inject(BudgettransactionService);
 	private _budgetService = inject(BudgetService);
@@ -47,8 +48,29 @@ export class PublicComponent implements OnInit, OnDestroy {
 	async ngOnInit(): Promise<void> {
 		await this.loadBudgets();
 
-		// Відновлення вибраного бюджету
+		// Слухаємо подію, коли вибирають бюджет з іншої компоненти
+		this.budgetListener = (event: any) => {
+			const budgetId = event.detail;
+			if (budgetId && this.budgets.find((b) => b._id === budgetId)) {
+				this.onBudgetChange(budgetId);
+			}
+		};
+		window.addEventListener('budgetChanged', this.budgetListener);
+
+		// Відновлення з localStorage
 		const savedBudgetId = localStorage.getItem('selectedBudgetId');
+		if (
+			savedBudgetId &&
+			this.budgets.find((b) => b._id === savedBudgetId)
+		) {
+			this.selectedBudgetId = savedBudgetId;
+			await this.loadUnits(savedBudgetId);
+		}
+
+		await this.loadBudgets();
+
+		// Відновлення вибраного бюджету
+
 		if (
 			savedBudgetId &&
 			this.budgets.find((b) => b._id === savedBudgetId)
@@ -128,6 +150,9 @@ export class PublicComponent implements OnInit, OnDestroy {
 		window.dispatchEvent(
 			new CustomEvent('budgetChanged', { detail: budgetId })
 		);
+		this.selectedBudgetId = budgetId;
+		const selected = this.budgets.find((b) => b._id === budgetId);
+		this.selectedBudgetName = selected ? selected.name : null;
 	}
 
 	async loadUnits(budgetId: string) {

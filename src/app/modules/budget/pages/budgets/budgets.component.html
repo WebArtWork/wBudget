@@ -1,6 +1,36 @@
+<!-- Кнопка Create над картками -->
+<div class="budgets-header">
+	<button class="create-btn" (click)="handleButtonClick(config.buttons[0])">
+		<span class="material-icons">{{ config.buttons[0]?.icon }}</span> Create
+	</button>
+</div>
+
+<div class="budgets-cards">
+	<div
+		class="budget-card clickable-card"
+		*ngFor="let budget of documents"
+		(click)="goToDashboard(budget._id)"
+	>
+		<h3 class="budget-name">{{ budget.name }}</h3>
+		<p class="budget-amount">{{ budget.amount }} {{ budget.currency }}</p>
+
+		<div class="budget-actions" *ngIf="config?.buttons?.length">
+			<ng-container *ngFor="let btn of config.buttons.slice(1)">
+				<button
+					*ngIf="btn?.icon"
+					(click)="handleButtonClick(btn, budget); $event.stopPropagation()"
+				>
+					<span class="material-icons">{{ btn?.icon }}</span>
+				</button>
+			</ng-container>
+		</div>
+	</div>
+</div>
+
+<!-- Таблиця
 <wtable
 	title="Budgets"
 	[columns]="columns"
 	[config]="config"
 	[rows]="documents"
-></wtable>
+></wtable>-->

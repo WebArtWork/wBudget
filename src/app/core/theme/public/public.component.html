@@ -35,6 +35,7 @@
 			(modelChange)="onBudgetChange($event)"
 			placeholder=""
 		></wselect>
+
 		<!-- unit dropdown -->
 
 		<wselect
@@ -53,11 +54,15 @@
 	<nav class="nav" (clickOutside)="showSidebar = false">
 		<ul class="nav__ul container" [class._active]="showSidebar">
 			<li class="nav__li">
-				<button id="saveExpense" (click)="createTransaction()">
-					+
-				</button>
+				<a
+					routerLinkActive="_activeLink"
+					(click)="showSidebar = false"
+					routerLink="/profile"
+					class="nav__a"
+				>
+					<span class="material-icons">account_circle</span>
+				</a>
 			</li>
-
 			<li class="nav__li">
 				<a
 					routerLinkActive="_activeLink"
@@ -77,15 +82,21 @@
 			>
 				<span class="material-icons">account_balance_wallet</span>
 			</a>
+
+			<a
+				[routerLinkActiveOptions]="{ exact: true }"
+				routerLinkActive="_activeLink"
+				routerLink="/budgets"
+				class="nav__burger-link"
+				(click)="hideSidebar()"
+			>
+				{{ selectedBudgetName }}
+			</a>
+
 			<li class="nav__li">
-				<a
-					routerLinkActive="_activeLink"
-					(click)="showSidebar = false"
-					routerLink="/profile"
-					class="nav__a"
-				>
-					<span class="material-icons">account_circle</span>
-				</a>
+				<button id="saveExpense" (click)="createTransaction()">
+					+
+				</button>
 			</li>
 		</ul>
 	</nav>

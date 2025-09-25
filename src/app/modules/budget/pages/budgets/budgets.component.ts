@@ -8,6 +8,7 @@ import { CrudComponent } from 'wacom';
 import { budgetFormComponents } from '../../formcomponents/budget.formcomponents';
 import { Budget } from '../../interfaces/budget.interface';
 import { BudgetService } from '../../services/budget.service';
+import { Router } from '@angular/router';
 
 @Component({
 	imports: [CommonModule, TableModule],
@@ -20,17 +21,19 @@ export class BudgetsComponent extends CrudComponent<
 	FormInterface
 > {
 	budgets: Budget[] = [];
-	selectField: any;
 	override configType: 'local' | 'server' = 'local';
-
 	columns = ['name', 'description', 'amount', 'currency'];
-
 	config = this.getConfig();
+
+	override allowUrl(): boolean {
+		return false;
+	}
 
 	constructor(
 		_budgetService: BudgetService,
 		_translate: TranslateService,
-		_form: FormService
+		_form: FormService,
+		public router: Router
 	) {
 		super(
 			budgetFormComponents,
@@ -40,19 +43,114 @@ export class BudgetsComponent extends CrudComponent<
 			'Budget'
 		);
 
+		// Створення
+		this.config.buttons.unshift({
+			icon: 'add',
+			click: () => this.createBudget()
+		});
+
+		// Units
 		this.config.buttons.push({
 			icon: 'category',
-			hrefFunc: (doc: Budget): string => {
-				return doc._id ? '/units/' + doc._id : '/units';
-			}
+			hrefFunc: (doc: Budget) =>
+				doc._id ? '/units/' + doc._id : '/units'
 		});
+
+		// Edit
 		this.config.buttons.push({
-			icon: 'swap_horiz',
-			hrefFunc: (doc: Budget): string => {
-				return doc._id ? '/transactions/' + doc._id : '/transactions';
-			}
+			icon: 'edit',
+			click: (doc: Budget) => this.editBudget(doc)
+		});
+
+		// Delete
+		this.config.buttons.push({
+			icon: 'delete',
+			click: (doc: Budget) => this.deleteBudget(doc)
 		});
 
 		this.setDocuments();
+	}
+
+	handleButtonClick(btn: any, budget?: Budget) {
+		if (btn.hrefFunc) {
+			const url = budget ? btn.hrefFunc(budget) : btn.hrefFunc();
+			this.router.navigateByUrl(url);
+		} else if (btn.click && budget !== undefined) {
+			btn.click(budget);
+		} else if (btn.click) {
+			btn.click();
+		}
+	}
+
+	createBudget() {
+		const formComponents = JSON.parse(JSON.stringify(budgetFormComponents));
+		(this.formService as FormService).modal<Budget>(formComponents, [
+			{
+				label: 'Create',
+				click: (submitted: unknown, close: () => void) => {
+					const created = submitted as Budget;
+					this.service.create(created).subscribe({
+						next: (res) => {
+							this.setDocuments();
+							close();
+						},
+						error: (err) =>
+							console.error('Помилка створення бюджету:', err)
+					});
+				}
+			}
+		]);
+	}
+	editBudget(budget: Budget) {
+		if (!budget._id) return;
+
+		const formComponents = JSON.parse(JSON.stringify(budgetFormComponents));
+
+		formComponents.components.forEach((comp: any) => {
+			if (!comp.key) return;
+
+			const budgetValue = (budget as any)[comp.key];
+			if (budgetValue !== undefined && budgetValue !== null) {
+				// для wacom текстових полів підставляємо value
+				comp.value = budgetValue;
+			} else {
+				// якщо немає значення, залишаємо placeholder
+				comp.value = '';
+			}
+		});
+
+		(this.formService as FormService).modal<Budget>(formComponents, [
+			{
+				label: 'Save',
+				click: (submitted: unknown, close: () => void) => {
+					const updated = submitted as Budget;
+					updated._id = budget._id;
+					this.service.update(updated).subscribe({
+						next: () => {
+							this.setDocuments();
+							close();
+						},
+						error: (err) =>
+							console.error('Помилка редагування бюджету:', err)
+					});
+				}
+			}
+		]);
+	}
+
+	deleteBudget(budget: Budget) {
+		if (!budget._id) return;
+		if (confirm(`Видалити бюджет "${budget.name}"?`)) {
+			this.service.delete(budget).subscribe(() => {
+				this.documents = this.documents.filter(
+					(b) => b._id !== budget._id
+				);
+			});
+		}
+	}
+	goToDashboard(budgetId: string) {
+		this.router.navigate(['/dashboard'], {
+			queryParams: { budget: budgetId }
+		});
 	}
 }
