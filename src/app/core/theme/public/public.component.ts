@@ -15,6 +15,7 @@ import { ViewChild } from '@angular/core';
 import { MatDateRangePicker } from '@angular/material/datepicker';
 import { DateRange } from '@angular/material/datepicker';
 import { FormGroup, FormControl } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
 	selector: 'app-public',
@@ -49,24 +50,20 @@ export class PublicComponent implements OnInit, OnDestroy {
 		await this.loadBudgets();
 
 		this.budgetListener = (event: any) => {
-			const budgetId = event.detail;
-			if (budgetId && this.budgets.find((b) => b._id === budgetId)) {
-				this.onBudgetChange(budgetId);
+			const budget: Budget = event.detail;
+			if (budget && budget._id !== this.selectedBudgetId) {
+				this.selectedBudgetId = budget._id;
+				this.selectedBudgetName = budget.name;
+
+				this.selectedUnitId = null;
+				this.units = [];
+				this.loadUnits(budget._id);
 			}
 		};
+
 		window.addEventListener('budgetChanged', this.budgetListener);
 
 		const savedBudgetId = localStorage.getItem('selectedBudgetId');
-		if (
-			savedBudgetId &&
-			this.budgets.find((b) => b._id === savedBudgetId)
-		) {
-			this.selectedBudgetId = savedBudgetId;
-			await this.loadUnits(savedBudgetId);
-		}
-
-		await this.loadBudgets();
-
 		if (
 			savedBudgetId &&
 			this.budgets.find((b) => b._id === savedBudgetId)
@@ -79,22 +76,17 @@ export class PublicComponent implements OnInit, OnDestroy {
 				this.selectedUnitId = savedUnitId;
 			}
 
-			window.dispatchEvent(
-				new CustomEvent('budgetChanged', {
-					detail: this.selectedBudgetId
-				})
+			const selectedBudget = this.budgets.find(
+				(b) => b._id === savedBudgetId
 			);
-			if (this.selectedUnitId) {
-				window.dispatchEvent(
-					new CustomEvent('unitChanged', {
-						detail: this.selectedUnitId
-					})
-				);
-			}
+			this.selectedBudgetName = selectedBudget
+				? selectedBudget.name
+				: null;
 		}
-		const saved = localStorage.getItem('dateRange');
-		if (saved) {
-			const parsed = JSON.parse(saved);
+
+		const savedRange = localStorage.getItem('dateRange');
+		if (savedRange) {
+			const parsed = JSON.parse(savedRange);
 			this.range.setValue({
 				start: parsed.start ? new Date(parsed.start) : null,
 				end: parsed.end ? new Date(parsed.end) : null
@@ -134,20 +126,18 @@ export class PublicComponent implements OnInit, OnDestroy {
 
 	async onBudgetChange(budgetId: string) {
 		if (!budgetId) return;
+
 		this.selectedBudgetId = budgetId;
 		localStorage.setItem('selectedBudgetId', budgetId);
 
 		this.selectedUnitId = null;
 		localStorage.removeItem('selectedUnitId');
 		this.units = [];
+
 		await this.loadUnits(budgetId);
 
-		window.dispatchEvent(
-			new CustomEvent('budgetChanged', { detail: budgetId })
-		);
-		this.selectedBudgetId = budgetId;
-		const selected = this.budgets.find((b) => b._id === budgetId);
-		this.selectedBudgetName = selected ? selected.name : null;
+		const selectedBudget = this.budgets.find((b) => b._id === budgetId);
+		this.selectedBudgetName = selectedBudget ? selectedBudget.name : null;
 	}
 
 	async loadUnits(budgetId: string) {

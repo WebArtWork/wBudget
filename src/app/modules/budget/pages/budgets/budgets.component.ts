@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 
 @Component({
 	imports: [CommonModule, TableModule],
+	standalone: true,
 	templateUrl: './budgets.component.html',
 	styleUrls: ['./budgets.component.scss']
 })
@@ -142,9 +143,16 @@ export class BudgetsComponent extends CrudComponent<
 		}
 	}
 
-	goToDashboard(budgetId: string) {
+	goToDashboard(budget: Budget) {
+		localStorage.setItem('selectedBudgetId', budget._id);
+		localStorage.setItem('selectedBudgetName', budget.name);
+
 		this.router.navigate(['/dashboard'], {
-			queryParams: { budget: budgetId }
+			queryParams: { budget: budget._id }
 		});
+
+		window.dispatchEvent(
+			new CustomEvent('budgetChanged', { detail: budget })
+		);
 	}
 }

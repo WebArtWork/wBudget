@@ -8,7 +8,7 @@
 	<div
 		class="budget-card clickable-card"
 		*ngFor="let budget of documents"
-		(click)="goToDashboard(budget._id)"
+		(click)="goToDashboard(budget)"
 	>
 		<h3 class="budget-name">{{ budget.name }}</h3>
 		<p class="budget-amount">{{ budget.amount }} {{ budget.currency }}</p>

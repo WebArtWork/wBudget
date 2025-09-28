@@ -20,6 +20,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 	budgets: Budget[] = [];
 	selectedBudgetId: string | null = null;
+	selectedUnitId: string | null = null;
 
 	selectedBudget: string | null = null;
 	selectedUnit: string | null = null;
@@ -44,61 +45,77 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	async ngOnInit() {
 		this.budgets = await this.budgetService.getAllBudgets();
 
-		this.route.queryParams.subscribe(async (params) => {
-			const budgetId = params['budget'];
-			if (budgetId) {
-				this.selectedBudget = budgetId;
+		const budgetId = this.route.snapshot.queryParamMap.get('budget');
+		let budget: Budget | undefined;
 
+		if (budgetId) {
+			budget = this.budgets.find((b) => b._id === budgetId);
+		} else if (this.budgets.length > 0) {
+			budget = this.budgets[0];
+		}
+
+		if (budget) {
+			await this.loadBudgetData(budget);
+
+			window.dispatchEvent(
+				new CustomEvent('budgetChanged', { detail: budget })
+			);
+		}
+
+		this.route.queryParams.subscribe(async (params) => {
+			const newBudgetId = params['budget'];
+			if (!newBudgetId || newBudgetId === budget?._id) return;
+
+			const newBudget = this.budgets.find((b) => b._id === newBudgetId);
+			if (newBudget) {
+				await this.loadBudgetData(newBudget);
 				window.dispatchEvent(
-					new CustomEvent('budgetChanged', { detail: budgetId })
+					new CustomEvent('budgetChanged', { detail: newBudget })
 				);
 			}
 		});
 
 		this.budgetListener = async (event: any) => {
-			const budgetId = event.detail;
-			if (budgetId) {
-				this.selectedBudget = budgetId;
+			const budget: Budget = event.detail;
+			if (budget?._id) {
+				this.selectedBudget = budget._id;
 				this.selectedUnit = null;
 
 				this.units = await firstValueFrom(
-					this._budgetunitService.getUnitsByBudget(budgetId)
+					this._budgetunitService.getUnitsByBudget(budget._id)
 				);
 
-				this._budgettransactionService
-					.getTransactionsByBudget(budgetId)
-					.subscribe((transactions) => {
-						this.transactions = transactions.map((t: any) => {
-							if (!t.unitId && t.units?.length) {
-								t.unitId = t.units[0]?.unit || null;
-							}
-							return {
-								...t,
-								unitId: t.unitId ? String(t.unitId) : null,
-								isDeposit: !!t.isDeposit,
-								amount: Number(t.amount) || 0
-							};
-						});
+				this.transactions = await firstValueFrom(
+					this._budgettransactionService.getTransactionsByBudget(
+						budget._id
+					)
+				);
 
-						this.units = this.units.map((u) => ({
-							...u,
-							totalAmount: this.transactions
-								.filter(
-									(t) => String(t.unitId) === String(u._id)
-								)
-								.reduce(
-									(sum, t) =>
-										sum +
-										(t.isDeposit ? t.amount : -t.amount),
-									0
-								)
-						}));
-					});
-			} else {
-				this.units = [];
-				this.transactions = [];
-				this.selectedBudget = null;
-				this.selectedUnit = null;
+				this.units = this.units.map((u) => {
+					const totalAmount = this.transactions.reduce((sum, t) => {
+						if (!this.isTransactionInRange(t)) return sum;
+
+						if (t.unitId && String(t.unitId) === String(u._id)) {
+							return sum + (t.isDeposit ? t.amount : -t.amount);
+						}
+
+						if (t.units) {
+							const entry = t.units.find(
+								(x) => String(x.unit) === String(u._id)
+							);
+							if (entry)
+								return (
+									sum +
+									(t.isDeposit ? entry.amount : -entry.amount)
+								);
+						}
+
+						return sum;
+					}, 0);
+
+					return { ...u, totalAmount };
+				});
+				this.selectedUnitId = this.selectedUnit;
 			}
 		};
 		window.addEventListener('budgetChanged', this.budgetListener);
@@ -108,8 +125,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			this.selectedUnit = unitId || null;
 		};
 		window.addEventListener('unitChanged', this.unitListener);
+
 		this.dateRangeListener = (event: any) => {
-			this.selectedRange = event.detail;
+			this.selectedRange = {
+				start: event.detail.start ? new Date(event.detail.start) : null,
+				end: event.detail.end ? new Date(event.detail.end) : null
+			};
 		};
 		window.addEventListener('dateRangeChanged', this.dateRangeListener);
 
@@ -121,16 +142,54 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				end: parsed.end ? new Date(parsed.end) : null
 			};
 		}
-
-		this.dateRangeListener = (event: any) => {
-			this.selectedRange = {
-				start: event.detail.start ? new Date(event.detail.start) : null,
-				end: event.detail.end ? new Date(event.detail.end) : null
-			};
-		};
-		window.addEventListener('dateRangeChanged', this.dateRangeListener);
 	}
 
+	private async loadBudgetData(budget: Budget) {
+		this.selectedBudget = budget._id;
+		this.selectedUnit = null;
+
+		this.units = await firstValueFrom(
+			this._budgetunitService.getUnitsByBudget(budget._id)
+		);
+
+		this.transactions = await firstValueFrom(
+			this._budgettransactionService.getTransactionsByBudget(budget._id)
+		);
+
+		this.units = this.units.map((u) => {
+			const totalAmount = this.transactions.reduce((sum, t) => {
+				if (!this.isTransactionInRange(t)) return sum;
+
+				if (t.unitId && String(t.unitId) === String(u._id)) {
+					return sum + (t.isDeposit ? t.amount : -t.amount);
+				}
+
+				if (t.units) {
+					const entry = t.units.find(
+						(x) => String(x.unit) === String(u._id)
+					);
+					if (entry)
+						return (
+							sum + (t.isDeposit ? entry.amount : -entry.amount)
+						);
+				}
+
+				return sum;
+			}, 0);
+
+			return { ...u, totalAmount };
+		});
+
+		this.selectedUnitId = this.selectedUnit;
+	}
+
+	onUnitChange(unitId: string) {
+		this.selectedUnitId = unitId;
+		this.selectedUnit = unitId;
+		window.dispatchEvent(
+			new CustomEvent('unitChanged', { detail: unitId })
+		);
+	}
 	ngOnDestroy() {
 		window.removeEventListener('budgetChanged', this.budgetListener);
 		window.removeEventListener('unitChanged', this.unitListener);
@@ -159,17 +218,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		if (!this.selectedUnit) return [];
 
 		return this.transactions.filter((t) => {
-			if (String(t.unitId) !== String(this.selectedUnit)) return false;
-
-			if (this.selectedRange.start && this.selectedRange.end && t._id) {
-				const timestamp = parseInt(t._id.substring(0, 8), 16) * 1000;
-				const txDate = new Date(timestamp);
-
-				const endDate = this.getEndOfDay(this.selectedRange.end);
-				return txDate >= this.selectedRange.start && txDate <= endDate;
+			if (t.unitId && String(t.unitId) === String(this.selectedUnit)) {
+				return true;
 			}
-			return true;
+
+			if (
+				t.units &&
+				t.units.some(
+					(u) => String(u.unit) === String(this.selectedUnit)
+				)
+			) {
+				return true;
+			}
+
+			return false;
 		});
+	}
+	private isTransactionInRange(t: Budgettransaction): boolean {
+		if (this.selectedRange.start && this.selectedRange.end && t._id) {
+			const timestamp = parseInt(t._id.substring(0, 8), 16) * 1000;
+			const txDate = new Date(timestamp);
+			const endDate = this.getEndOfDay(this.selectedRange.end);
+			return txDate >= this.selectedRange.start! && txDate <= endDate;
+		}
+		return true;
 	}
 
 	getFilteredUnits(): (Budgetunit & { totalAmount: number })[] {
@@ -179,7 +251,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 		return this.units.map((u) => {
 			let txs = this.transactions.filter(
-				(t) => String(t.unitId) === String(u._id)
+				(t) =>
+					String(t.unitId) === String(u._id) ||
+					(t.units &&
+						t.units.some((x) => String(x.unit) === String(u._id)))
 			);
 
 			if (this.selectedRange.start && endDate) {
@@ -193,10 +268,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				});
 			}
 
-			const totalAmount = txs.reduce(
-				(sum, t) => sum + (t.isDeposit ? t.amount : -t.amount),
-				0
-			);
+			const totalAmount = txs.reduce((sum, t) => {
+				if (t.unitId && String(t.unitId) === String(u._id)) {
+					return sum + (t.isDeposit ? t.amount : -t.amount);
+				}
+				if (t.units) {
+					const entry = t.units.find(
+						(x) => String(x.unit) === String(u._id)
+					);
+					if (entry) {
+						return (
+							sum + (t.isDeposit ? entry.amount : -entry.amount)
+						);
+					}
+				}
+				return sum;
+			}, 0);
+
 			return { ...u, totalAmount };
 		});
 	}
@@ -209,28 +297,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		if (this.selectedUnit) {
 			return this.filteredTransactions
 				.filter((t) => t.isDeposit)
-				.reduce((sum, t) => sum + t.amount, 0);
+				.reduce((sum, t) => {
+					if (
+						t.unitId &&
+						String(t.unitId) === String(this.selectedUnit)
+					) {
+						return sum + t.amount;
+					}
+					if (t.units) {
+						const entry = t.units.find(
+							(x) => String(x.unit) === String(this.selectedUnit)
+						);
+						if (entry) return sum + entry.amount;
+					}
+					return sum;
+				}, 0);
 		} else {
-			return this.getFilteredUnits().reduce((sum, u) => {
-				const income = this.transactions
-					.filter(
-						(t) => String(t.unitId) === String(u._id) && t.isDeposit
-					)
-					.filter((t) => {
-						if (this.selectedRange.start && endDate) {
-							const timestamp =
-								parseInt(t._id.substring(0, 8), 16) * 1000;
-							const txDate = new Date(timestamp);
-							return (
-								txDate >= this.selectedRange.start! &&
-								txDate <= endDate
-							);
-						}
-						return true;
-					})
-					.reduce((s, t) => s + t.amount, 0);
-				return sum + income;
-			}, 0);
+			return this.transactions
+				.filter((t) => t.isDeposit)
+				.filter((t) => {
+					if (this.selectedRange.start && endDate) {
+						const timestamp =
+							parseInt(t._id.substring(0, 8), 16) * 1000;
+						const txDate = new Date(timestamp);
+						return (
+							txDate >= this.selectedRange.start! &&
+							txDate <= endDate
+						);
+					}
+					return true;
+				})
+				.reduce((sum, t) => {
+					if (t.unitId) return sum + t.amount;
+					if (t.units)
+						return sum + t.units.reduce((s, u) => s + u.amount, 0);
+					return sum;
+				}, 0);
 		}
 	}
 
@@ -242,35 +344,57 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		if (this.selectedUnit) {
 			return this.filteredTransactions
 				.filter((t) => !t.isDeposit)
-				.reduce((sum, t) => sum + t.amount, 0);
+				.reduce((sum, t) => {
+					if (
+						t.unitId &&
+						String(t.unitId) === String(this.selectedUnit)
+					) {
+						return sum + t.amount;
+					}
+					if (t.units) {
+						const entry = t.units.find(
+							(x) => String(x.unit) === String(this.selectedUnit)
+						);
+						if (entry) return sum + entry.amount;
+					}
+					return sum;
+				}, 0);
 		} else {
-			return this.getFilteredUnits().reduce((sum, u) => {
-				const expense = this.transactions
-					.filter(
-						(t) =>
-							String(t.unitId) === String(u._id) && !t.isDeposit
-					)
-					.filter((t) => {
-						if (this.selectedRange.start && endDate) {
-							const timestamp =
-								parseInt(t._id.substring(0, 8), 16) * 1000;
-							const txDate = new Date(timestamp);
-							return (
-								txDate >= this.selectedRange.start! &&
-								txDate <= endDate
-							);
-						}
-						return true;
-					})
-					.reduce((s, t) => s + t.amount, 0);
-				return sum + expense;
-			}, 0);
+			return this.transactions
+				.filter((t) => !t.isDeposit)
+				.filter((t) => {
+					if (this.selectedRange.start && endDate) {
+						const timestamp =
+							parseInt(t._id.substring(0, 8), 16) * 1000;
+						const txDate = new Date(timestamp);
+						return (
+							txDate >= this.selectedRange.start! &&
+							txDate <= endDate
+						);
+					}
+					return true;
+				})
+				.reduce((sum, t) => {
+					if (t.unitId) return sum + t.amount;
+					if (t.units)
+						return sum + t.units.reduce((s, u) => s + u.amount, 0);
+					return sum;
+				}, 0);
 		}
 	}
+
 	public getCircleTotal(): number {
 		if (this.selectedUnit) {
 			return this.transactions
-				.filter((t) => String(t.unitId) === String(this.selectedUnit))
+				.filter(
+					(t) =>
+						String(t.unitId) === String(this.selectedUnit) ||
+						(t.units &&
+							t.units.some(
+								(x) =>
+									String(x.unit) === String(this.selectedUnit)
+							))
+				)
 				.filter((t) => {
 					if (this.selectedRange.start && this.selectedRange.end) {
 						const start = this.selectedRange.start;
@@ -283,15 +407,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
 					}
 					return true;
 				})
-				.reduce(
-					(sum, t) => sum + (t.isDeposit ? t.amount : -t.amount),
-					0
-				);
+				.reduce((sum, t) => {
+					if (
+						t.unitId &&
+						String(t.unitId) === String(this.selectedUnit)
+					) {
+						return sum + (t.isDeposit ? t.amount : -t.amount);
+					}
+					if (t.units) {
+						const entry = t.units.find(
+							(x) => String(x.unit) === String(this.selectedUnit)
+						);
+						if (entry)
+							return (
+								sum +
+								(t.isDeposit ? entry.amount : -entry.amount)
+							);
+					}
+					return sum;
+				}, 0);
 		} else {
 			return this.units
 				.map((u) => {
 					let txs = this.transactions.filter(
-						(t) => String(t.unitId) === String(u._id)
+						(t) =>
+							String(t.unitId) === String(u._id) ||
+							(t.units &&
+								t.units.some(
+									(x) => String(x.unit) === String(u._id)
+								))
 					);
 
 					if (this.selectedRange.start && this.selectedRange.end) {
@@ -306,10 +450,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
 						});
 					}
 
-					return txs.reduce(
-						(sum, t) => sum + (t.isDeposit ? t.amount : -t.amount),
-						0
-					);
+					return txs.reduce((sum, t) => {
+						if (t.unitId && String(t.unitId) === String(u._id)) {
+							return sum + (t.isDeposit ? t.amount : -t.amount);
+						}
+						if (t.units) {
+							const entry = t.units.find(
+								(x) => String(x.unit) === String(u._id)
+							);
+							if (entry) {
+								return (
+									sum +
+									(t.isDeposit ? entry.amount : -entry.amount)
+								);
+							}
+						}
+						return sum;
+					}, 0);
 				})
 				.reduce((sum, amount) => sum + amount, 0);
 		}

@@ -20,10 +20,6 @@
 			background: none;
 			box-shadow: none;
 		}
-
-		&:hover {
-			background-color: #256eff;
-		}
 	}
 }
 
@@ -43,10 +39,6 @@
 		background: none !important;
 		box-shadow: none !important;
 	}
-
-	&:hover {
-		background: #3a3a3a;
-	}
 }
 
 .units-cards {
@@ -64,11 +56,6 @@
 	transition: transform 0.2s ease-in-out;
 	cursor: pointer;
 	position: relative;
-
-	&:hover {
-		transform: translateY(-3px);
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
-	}
 
 	.unit-name {
 		font-size: 18px;
