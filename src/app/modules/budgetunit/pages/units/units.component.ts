@@ -21,23 +21,18 @@ export class UnitsComponent extends CrudComponent<
 	FormInterface
 > {
 	override configType: 'local' | 'server' = 'local';
-
-	override preCreate(doc: Budgetunit): void {
-		delete (doc as any).__creating;
-
-		doc.budget = this.budget;
-	}
-
-	columns = ['name', 'cost', 'budget'];
-
+	columns = ['name', 'cost'];
 	config = this.getConfig();
-
 	budget = this._router.url.replace('/units/', '');
 
+	override allowUrl(): boolean {
+		return false;
+	}
+
 	constructor(
-		_budgetunitService: BudgetunitService,
-		_translate: TranslateService,
-		_form: FormService,
+		private _budgetunitService: BudgetunitService,
+		private _translate: TranslateService,
+		private _form: FormService,
 		private _router: Router
 	) {
 		super(
@@ -48,10 +43,100 @@ export class UnitsComponent extends CrudComponent<
 			'Budgetunit'
 		);
 
-		_budgetunitService.get({ query: 'budget=' + this.budget }).subscribe({
-			next: () => {
-				this.setDocuments();
-			}
+		this.config.buttons.unshift({
+			icon: 'add',
+			click: () => this.createUnit()
 		});
+
+		this.config.buttons.push({
+			icon: 'edit',
+			click: (doc: Budgetunit) => this.editUnit(doc)
+		});
+
+		this.config.buttons.push({
+			icon: 'delete',
+			click: (doc: Budgetunit) => this.deleteUnit(doc)
+		});
+
+		this._budgetunitService
+			.get({ query: 'budget=' + this.budget })
+			.subscribe({
+				next: () => this.setDocuments()
+			});
+	}
+
+	handleButtonClick(btn: any, unit?: Budgetunit) {
+		if (btn.click && unit !== undefined) {
+			btn.click(unit);
+		} else if (btn.click) {
+			btn.click();
+		}
+	}
+
+	createUnit() {
+		const formComponents = JSON.parse(
+			JSON.stringify(budgetunitFormComponents)
+		);
+		(this.formService as FormService).modal<Budgetunit>(formComponents, [
+			{
+				label: 'Create',
+				click: (submitted: unknown, close: () => void) => {
+					const created = submitted as Budgetunit;
+					created.budget = this.budget;
+
+					this.service.create(created).subscribe({
+						next: () => {
+							this.setDocuments();
+							close();
+						},
+						error: (err) =>
+							console.error('Error creating unit:', err)
+					});
+				}
+			}
+		]);
+	}
+
+	editUnit(unit: Budgetunit) {
+		if (!unit._id) return;
+
+		const formComponents = JSON.parse(
+			JSON.stringify(budgetunitFormComponents)
+		);
+		formComponents.components.forEach((comp: any) => {
+			if (!comp.key) return;
+			const value = (unit as any)[comp.key];
+			comp.value = value !== undefined ? value : '';
+		});
+
+		(this.formService as FormService).modal<Budgetunit>(formComponents, [
+			{
+				label: 'Save',
+				click: (submitted: unknown, close: () => void) => {
+					const updated = submitted as Budgetunit;
+					updated._id = unit._id;
+
+					this.service.update(updated).subscribe({
+						next: () => {
+							this.setDocuments();
+							close();
+						},
+						error: (err) =>
+							console.error('Error updating unit:', err)
+					});
+				}
+			}
+		]);
+	}
+
+	deleteUnit(unit: Budgetunit) {
+		if (!unit._id) return;
+		if (confirm(`Delete unit "${unit.name}"?`)) {
+			this.service.delete(unit).subscribe(() => {
+				this.documents = this.documents.filter(
+					(u) => u._id !== unit._id
+				);
+			});
+		}
 	}
 }
