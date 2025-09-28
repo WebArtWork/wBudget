@@ -48,7 +48,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 	async ngOnInit(): Promise<void> {
 		await this.loadBudgets();
 
-		// Слухаємо подію, коли вибирають бюджет з іншої компоненти
 		this.budgetListener = (event: any) => {
 			const budgetId = event.detail;
 			if (budgetId && this.budgets.find((b) => b._id === budgetId)) {
@@ -57,7 +56,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 		};
 		window.addEventListener('budgetChanged', this.budgetListener);
 
-		// Відновлення з localStorage
 		const savedBudgetId = localStorage.getItem('selectedBudgetId');
 		if (
 			savedBudgetId &&
@@ -68,8 +66,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 		}
 
 		await this.loadBudgets();
-
-		// Відновлення вибраного бюджету
 
 		if (
 			savedBudgetId &&
@@ -105,7 +101,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 			});
 		}
 
-		// Слухаємо зміни та зберігаємо у localStorage + кидаємо подію
 		this.range.valueChanges.subscribe((val) => {
 			localStorage.setItem('dateRange', JSON.stringify(val));
 			window.dispatchEvent(
@@ -133,7 +128,7 @@ export class PublicComponent implements OnInit, OnDestroy {
 			this.budgets = await this._budgetService.getAllBudgets();
 			console.log('budgets:', this.budgets);
 		} catch (err) {
-			console.error('Помилка завантаження бюджетів:', err);
+			console.error('Error loading budgets:', err);
 		}
 	}
 
@@ -143,7 +138,7 @@ export class PublicComponent implements OnInit, OnDestroy {
 		localStorage.setItem('selectedBudgetId', budgetId);
 
 		this.selectedUnitId = null;
-		localStorage.removeItem('selectedUnitId'); // скидаємо юніт, бо бюджет змінився
+		localStorage.removeItem('selectedUnitId');
 		this.units = [];
 		await this.loadUnits(budgetId);
 
@@ -160,9 +155,9 @@ export class PublicComponent implements OnInit, OnDestroy {
 			this.units = await firstValueFrom(
 				this._budgetunitService.getUnitsByBudget(budgetId)
 			);
-			console.log('Юніти завантажені для бюджету', budgetId, this.units);
+			console.log('Units loaded for budget', budgetId, this.units);
 		} catch (err) {
-			console.error('Помилка завантаження юнітів:', err);
+			console.error('Error loading units:', err);
 		}
 	}
 
@@ -171,7 +166,7 @@ export class PublicComponent implements OnInit, OnDestroy {
 		localStorage.setItem('selectedUnitId', unitId);
 
 		const unit = this.units.find((u) => u._id === unitId);
-		console.log('Вибраний юніт:', unit?.name);
+		console.log('Selected unit:', unit?.name);
 
 		window.dispatchEvent(
 			new CustomEvent('unitChanged', { detail: unitId })
@@ -195,7 +190,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 			JSON.stringify(budgettransactionFormComponents)
 		);
 
-		// Налаштування юніту
 		const unitSelect = formComponents.components.find(
 			(c: any) => c.key === 'unitId' && c.name === 'Select'
 		);
@@ -211,7 +205,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 			if (disabledField) disabledField.value = true;
 		}
 
-		// Налаштування бюджету
 		const budgetField = formComponents.components.find(
 			(c: any) => c.key === 'budget'
 		);
@@ -239,32 +232,29 @@ export class PublicComponent implements OnInit, OnDestroy {
 			if (disabledField) disabledField.value = true;
 		}
 
-		// Модалка з create через subscribe
 		this._formService.modal<Budgettransaction>(formComponents, [
 			{
 				label: 'Create',
 				click: (submitted: unknown, close: () => void) => {
 					const created = submitted as Budgettransaction;
 
-					// preCreate-like логіка
 					created.budget = selectedBudget;
 					created.units = [
 						{ unit: selectedUnit, amount: created.amount }
 					];
 					created.isDeposit = !!created.isDeposit;
 
-					// Виклик сервісу через subscribe
 					this._transactionService
 						.createTransaction(created)
 						.subscribe({
 							next: (res: Budgettransaction) => {
-								console.log('Транзакція створена:', res);
+								console.log('Transaction created:', res);
 								this.setDocuments();
 								close();
 							},
 							error: (err: any) =>
 								console.error(
-									'Помилка створення транзакції:',
+									'Error creating transaction:',
 									err
 								)
 						});
@@ -273,7 +263,5 @@ export class PublicComponent implements OnInit, OnDestroy {
 		]);
 	}
 
-	setDocuments() {
-		// Оновлення контенту сторінки після створення транзакції
-	}
+	setDocuments() {}
 }

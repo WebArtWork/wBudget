@@ -43,26 +43,22 @@ export class BudgetsComponent extends CrudComponent<
 			'Budget'
 		);
 
-		// Створення
 		this.config.buttons.unshift({
 			icon: 'add',
 			click: () => this.createBudget()
 		});
 
-		// Units
 		this.config.buttons.push({
 			icon: 'category',
 			hrefFunc: (doc: Budget) =>
 				doc._id ? '/units/' + doc._id : '/units'
 		});
 
-		// Edit
 		this.config.buttons.push({
 			icon: 'edit',
 			click: (doc: Budget) => this.editBudget(doc)
 		});
 
-		// Delete
 		this.config.buttons.push({
 			icon: 'delete',
 			click: (doc: Budget) => this.deleteBudget(doc)
@@ -90,17 +86,18 @@ export class BudgetsComponent extends CrudComponent<
 				click: (submitted: unknown, close: () => void) => {
 					const created = submitted as Budget;
 					this.service.create(created).subscribe({
-						next: (res) => {
+						next: () => {
 							this.setDocuments();
 							close();
 						},
 						error: (err) =>
-							console.error('Помилка створення бюджету:', err)
+							console.error('Error creating budget:', err)
 					});
 				}
 			}
 		]);
 	}
+
 	editBudget(budget: Budget) {
 		if (!budget._id) return;
 
@@ -108,15 +105,11 @@ export class BudgetsComponent extends CrudComponent<
 
 		formComponents.components.forEach((comp: any) => {
 			if (!comp.key) return;
-
 			const budgetValue = (budget as any)[comp.key];
-			if (budgetValue !== undefined && budgetValue !== null) {
-				// для wacom текстових полів підставляємо value
-				comp.value = budgetValue;
-			} else {
-				// якщо немає значення, залишаємо placeholder
-				comp.value = '';
-			}
+			comp.value =
+				budgetValue !== undefined && budgetValue !== null
+					? budgetValue
+					: '';
 		});
 
 		(this.formService as FormService).modal<Budget>(formComponents, [
@@ -131,7 +124,7 @@ export class BudgetsComponent extends CrudComponent<
 							close();
 						},
 						error: (err) =>
-							console.error('Помилка редагування бюджету:', err)
+							console.error('Error updating budget:', err)
 					});
 				}
 			}
@@ -140,7 +133,7 @@ export class BudgetsComponent extends CrudComponent<
 
 	deleteBudget(budget: Budget) {
 		if (!budget._id) return;
-		if (confirm(`Видалити бюджет "${budget.name}"?`)) {
+		if (confirm(`Delete budget "${budget.name}"?`)) {
 			this.service.delete(budget).subscribe(() => {
 				this.documents = this.documents.filter(
 					(b) => b._id !== budget._id
@@ -148,6 +141,7 @@ export class BudgetsComponent extends CrudComponent<
 			});
 		}
 	}
+
 	goToDashboard(budgetId: string) {
 		this.router.navigate(['/dashboard'], {
 			queryParams: { budget: budgetId }

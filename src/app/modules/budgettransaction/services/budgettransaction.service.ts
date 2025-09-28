@@ -13,7 +13,6 @@ export class BudgettransactionService extends CrudService<Budgettransaction> {
 	budgettransactionsByAuthor: Record<string, Budgettransaction[]> = {};
 
 	constructor(private http: HttpClient) {
-		// <- інжектуємо HttpClient
 		super({ name: 'budgettransaction' });
 		this.get();
 		this.filteredDocuments(this.budgettransactionsByAuthor);
@@ -27,6 +26,6 @@ export class BudgettransactionService extends CrudService<Budgettransaction> {
 		return this.get({ query: 'unitId=' + unitId });
 	}
 	createTransaction(transaction: Budgettransaction) {
-		return this.create(transaction); // повертає Observable<Budgettransaction>
+		return this.create(transaction);
 	}
 }

@@ -44,31 +44,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	async ngOnInit() {
 		this.budgets = await this.budgetService.getAllBudgets();
 
-		// Слухаємо queryParams для вибраного бюджету
 		this.route.queryParams.subscribe(async (params) => {
 			const budgetId = params['budget'];
 			if (budgetId) {
 				this.selectedBudget = budgetId;
 
-				// Генеруємо подію для PublicComponent
 				window.dispatchEvent(
 					new CustomEvent('budgetChanged', { detail: budgetId })
 				);
 			}
 		});
-		// Слухаємо зміну бюджету
+
 		this.budgetListener = async (event: any) => {
 			const budgetId = event.detail;
 			if (budgetId) {
 				this.selectedBudget = budgetId;
 				this.selectedUnit = null;
 
-				// Підвантажуємо юніти
 				this.units = await firstValueFrom(
 					this._budgetunitService.getUnitsByBudget(budgetId)
 				);
 
-				// Підвантажуємо всі транзакції для бюджету
 				this._budgettransactionService
 					.getTransactionsByBudget(budgetId)
 					.subscribe((transactions) => {
@@ -84,7 +80,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 							};
 						});
 
-						// Обчислюємо суму транзакцій для кожного юніта
 						this.units = this.units.map((u) => ({
 							...u,
 							totalAmount: this.transactions
@@ -108,18 +103,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		};
 		window.addEventListener('budgetChanged', this.budgetListener);
 
-		// Слухаємо зміну юніта
 		this.unitListener = (event: any) => {
 			const unitId = event.detail;
 			this.selectedUnit = unitId || null;
-			// Відображати транзакції тільки для вибраного юніта
 		};
 		window.addEventListener('unitChanged', this.unitListener);
 		this.dateRangeListener = (event: any) => {
 			this.selectedRange = event.detail;
 		};
 		window.addEventListener('dateRangeChanged', this.dateRangeListener);
-		// Відновлення вибраного діапазону після перезавантаження
+
 		const saved = localStorage.getItem('dateRange');
 		if (saved) {
 			const parsed = JSON.parse(saved);
@@ -129,7 +122,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			};
 		}
 
-		// Слухаємо події з PublicComponent
 		this.dateRangeListener = (event: any) => {
 			this.selectedRange = {
 				start: event.detail.start ? new Date(event.detail.start) : null,
@@ -277,14 +269,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	}
 	public getCircleTotal(): number {
 		if (this.selectedUnit) {
-			// Фільтруємо транзакції тільки для вибраного юніта
 			return this.transactions
 				.filter((t) => String(t.unitId) === String(this.selectedUnit))
 				.filter((t) => {
 					if (this.selectedRange.start && this.selectedRange.end) {
 						const start = this.selectedRange.start;
 						const end = new Date(this.selectedRange.end);
-						end.setHours(23, 59, 59, 999); // включно до кінця дня
+						end.setHours(23, 59, 59, 999);
 						const timestamp =
 							parseInt(t._id.substring(0, 8), 16) * 1000;
 						const txDate = new Date(timestamp);
@@ -297,7 +288,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 					0
 				);
 		} else {
-			// Для всіх юнітів: беремо їхні totalAmount з урахуванням дат
 			return this.units
 				.map((u) => {
 					let txs = this.transactions.filter(
@@ -307,7 +297,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 					if (this.selectedRange.start && this.selectedRange.end) {
 						const start = this.selectedRange.start;
 						const end = new Date(this.selectedRange.end);
-						end.setHours(23, 59, 59, 999); // включно до кінця дня
+						end.setHours(23, 59, 59, 999);
 						txs = txs.filter((t) => {
 							const timestamp =
 								parseInt(t._id.substring(0, 8), 16) * 1000;
@@ -329,13 +319,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		const categories: { [key: string]: number } = {};
 
 		if (this.selectedUnit) {
-			// Для транзакцій вибраного юніта
 			this.filteredTransactions.forEach((t) => {
 				const category = t.note || 'Без категорії';
 				categories[category] = (categories[category] || 0) + t.amount;
 			});
 		} else {
-			// Для всіх юнітів беремо тільки ті, де totalAmount > 0
 			this.getFilteredUnits().forEach((u) => {
 				if ((u.totalAmount || 0) > 0) {
 					categories[u.name] = u.totalAmount!;
@@ -377,7 +365,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		const gradients = entries.map(([_, value], i) => {
 			const percent = (value / total) * 100;
 			const end = start + percent;
-			const color = colors[i % colors.length]; // кожна категорія свій колір
+			const color = colors[i % colors.length];
 			const g = `${color} ${start}% ${end}%`;
 			start = end;
 			return g;

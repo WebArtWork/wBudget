@@ -2,7 +2,6 @@
 	<div class="documents-container">
 		<div class="documents-list">
 			<div class="documents-main">
-				<!-- Кругова діаграма і загальна сума -->
 				<div class="circle-block">
 					<div class="documents__title"></div>
 					<div class="circle-chart" [ngStyle]="circleChartStyle">
@@ -17,8 +16,6 @@
 				</div>
 
 				<div class="documents-main-content">
-					<!-- Якщо обраний бюджет, але ще не обрано юніт -->
-
 					<div *ngIf="!selectedUnit" class="categories">
 						<h3>Units</h3>
 						<div
@@ -36,7 +33,6 @@
 						</div>
 					</div>
 
-					<!-- Транзакції обраного юніта -->
 					<div *ngIf="selectedUnit">
 						<div
 							*ngIf="filteredTransactions.length > 0"

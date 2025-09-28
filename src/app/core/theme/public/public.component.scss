@@ -21,7 +21,7 @@
 		margin: 0 auto;
 		width: 100%;
 
-		margin-top: 30px; // простір під верхній header
+		margin-top: 30px;
 		transition: all 0.5s ease-in-out;
 	}
 }
@@ -36,11 +36,11 @@ hr {
 	margin: 5px 0;
 }
 /*  calendar STYLE  */
-/* Для календаря */
+
 .documents-header {
 	display: flex;
 	align-items: center;
-	gap: 8px; /* відстань між елементами */
+	gap: 8px;
 	padding: 4px 8px;
 	background: var(--c-basic);
 	box-shadow:
@@ -50,7 +50,6 @@ hr {
 	transition: all 0.5s ease-in-out;
 }
 
-/* Ліва стрілка */
 .documents-header-left__arrow {
 	flex: 0 0 auto;
 	cursor: pointer;
@@ -60,8 +59,8 @@ hr {
 }
 mat-form-field {
 	font-size: 13px;
-	min-width: 70px; /* мінімальна ширина */
-	max-width: 70px; /* обмеження, щоб не було занадто широким */
+	min-width: 70px;
+	max-width: 70px;
 	flex: 1;
 }
 
@@ -75,13 +74,10 @@ mat-form-field input {
 	padding: 4px;
 }
 
-/* Селект */
 .filter-dropdown {
-	min-width: 100px; /* мінімальна ширина */
-	max-width: 140px; /* можна підлаштувати */
+	min-width: 100px;
+	max-width: 140px;
 }
-
-/* Якщо в wselect є внутрішній select */
 
 /*  NAV STYLE  */
 .nav {
@@ -348,20 +344,20 @@ mat-form-field input {
 }
 @media screen and (min-width: 1024px) {
 	mat-form-field {
-		min-width: auto; // прибираємо обмеження
-		max-width: 100%; // повна ширина
-		width: 100%; // займає всю ширину батька
-		flex: 1; // гнучке заповнення простору
+		min-width: auto;
+		max-width: 100%;
+		width: 100%;
+		flex: 1;
 	}
 
 	.filter-dropdown {
-		min-width: auto; // прибираємо мінімальну ширину
-		max-width: 12%; // повна ширина
+		min-width: auto;
+		max-width: 12%;
 		width: 100%;
 	}
 
 	.documents-header {
-		width: 100%; // весь рядок
-		padding: 0 10px; // трохи відступів
+		width: 100%;
+		padding: 0 10px;
 	}
 }

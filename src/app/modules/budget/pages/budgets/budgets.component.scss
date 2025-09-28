@@ -1,12 +1,11 @@
-/* Header з кнопкою Create */
 .budgets-header {
 	display: flex;
-	justify-content: flex-end; // тепер кнопка праворуч
+	justify-content: flex-end;
 	margin-right: 15px;
 
 	.create-btn {
-		background-color: #1e8de2; // блакитний фон
-		color: #fff; // текст білий
+		background-color: #1e8de2;
+		color: #fff;
 		border: none;
 		border-radius: 6px;
 		padding: 8px 16px;
@@ -17,8 +16,8 @@
 		gap: 5px;
 
 		span.material-icons {
-			color: #fff; // іконка біла
-			background: none; // без фону
+			color: #fff;
+			background: none;
 			box-shadow: none;
 		}
 
@@ -28,10 +27,9 @@
 	}
 }
 
-/* Прозорі кнопки дій */
 .action-btn {
-	background: transparent !important; // прозорий фон
-	color: #fff; // білий текст та іконка
+	background: transparent !important;
+	color: #fff;
 	border: none;
 	padding: 6px 10px;
 	border-radius: 6px;
@@ -41,17 +39,16 @@
 	justify-content: center;
 
 	span.material-icons {
-		color: #fff; // іконка біла
+		color: #fff;
 		background: none !important;
 		box-shadow: none !important;
 	}
 
 	&:hover {
-		background: #3a3a3a; // фон при наведенні
+		background: #3a3a3a;
 	}
 }
 
-/* Контейнер для карток */
 .budgets-cards {
 	display: flex;
 	flex-direction: column;
@@ -59,7 +56,6 @@
 	margin-top: 20px;
 }
 
-/* Картка бюджету */
 .budget-card {
 	background: #373535;
 	border-radius: 8px;
@@ -67,7 +63,7 @@
 	box-shadow: 0 2px 5px rgba(20, 19, 19, 0.5);
 	transition: transform 0.2s ease-in-out;
 	cursor: pointer;
-	position: relative; // для абсолютного позиціонування кнопок
+	position: relative;
 
 	&:hover {
 		transform: translateY(-3px);
@@ -84,15 +80,15 @@
 	.budget-amount {
 		font-size: 16px;
 		color: #fff;
-		margin: 0 0 35px 0; // залишаємо місце для кнопок
+		margin: 0 0 35px 0;
 	}
 
 	.budget-actions {
-		position: absolute; /* кнопки внизу */
-		bottom: 10px; /* від нижнього краю */
-		right: 10px; /* від правого краю */
+		position: absolute;
+		bottom: 10px;
+		right: 10px;
 		display: flex;
-		gap: 4px; /* маленька відстань між кнопками */
+		gap: 4px;
 
 		.action-btn {
 			background: transparent !important;
