@@ -1,7 +1,7 @@
 <!-- Кнопка Create над картками -->
 <div class="budgets-header">
 	<button class="create-btn" (click)="handleButtonClick(config.buttons[0])">
-		<span class="material-icons">{{ config.buttons[0]?.icon }}</span> Create
+		<span class="material-icons">{{ config.buttons[0]?.icon }}</span>
 	</button>
 </div>
 
@@ -17,6 +17,7 @@
 		<div class="budget-actions" *ngIf="config?.buttons?.length">
 			<ng-container *ngFor="let btn of config.buttons.slice(1)">
 				<button
+					class="action-btn"
 					*ngIf="btn?.icon"
 					(click)="handleButtonClick(btn, budget); $event.stopPropagation()"
 				>

@@ -1,3 +1,57 @@
+/* Header з кнопкою Create */
+.budgets-header {
+	display: flex;
+	justify-content: flex-end; // тепер кнопка праворуч
+	margin-right: 15px;
+
+	.create-btn {
+		background-color: #1e8de2; // блакитний фон
+		color: #fff; // текст білий
+		border: none;
+		border-radius: 6px;
+		padding: 8px 16px;
+		font-size: 16px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 5px;
+
+		span.material-icons {
+			color: #fff; // іконка біла
+			background: none; // без фону
+			box-shadow: none;
+		}
+
+		&:hover {
+			background-color: #256eff;
+		}
+	}
+}
+
+/* Прозорі кнопки дій */
+.action-btn {
+	background: transparent !important; // прозорий фон
+	color: #fff; // білий текст та іконка
+	border: none;
+	padding: 6px 10px;
+	border-radius: 6px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	span.material-icons {
+		color: #fff; // іконка біла
+		background: none !important;
+		box-shadow: none !important;
+	}
+
+	&:hover {
+		background: #3a3a3a; // фон при наведенні
+	}
+}
+
+/* Контейнер для карток */
 .budgets-cards {
 	display: flex;
 	flex-direction: column;
@@ -5,29 +59,61 @@
 	margin-top: 20px;
 }
 
+/* Картка бюджету */
 .budget-card {
-	background: #fff;
+	background: #373535;
 	border-radius: 8px;
 	padding: 15px 20px;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 2px 5px rgba(20, 19, 19, 0.5);
 	transition: transform 0.2s ease-in-out;
 	cursor: pointer;
+	position: relative; // для абсолютного позиціонування кнопок
 
 	&:hover {
 		transform: translateY(-3px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
 	}
 
 	.budget-name {
 		font-size: 18px;
 		font-weight: bold;
 		margin: 0 0 5px;
-		color: #282525;
+		color: #fff;
 	}
 
 	.budget-amount {
 		font-size: 16px;
-		color: #282525;
-		margin: 0;
+		color: #fff;
+		margin: 0 0 35px 0; // залишаємо місце для кнопок
+	}
+
+	.budget-actions {
+		position: absolute; /* кнопки внизу */
+		bottom: 10px; /* від нижнього краю */
+		right: 10px; /* від правого краю */
+		display: flex;
+		gap: 4px; /* маленька відстань між кнопками */
+
+		.action-btn {
+			background: transparent !important;
+			color: #fff;
+			border: none;
+			border-radius: 6px;
+			padding: 6px 10px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			span.material-icons {
+				color: #fff;
+				background: none !important;
+				box-shadow: none !important;
+			}
+
+			&:hover {
+				background: #3a3a3a;
+			}
+		}
 	}
 }
