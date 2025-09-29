@@ -71,11 +71,6 @@ export class PublicComponent implements OnInit, OnDestroy {
 			this.selectedBudgetId = savedBudgetId;
 			await this.loadUnits(savedBudgetId);
 
-			const savedUnitId = localStorage.getItem('selectedUnitId');
-			if (savedUnitId && this.units.find((u) => u._id === savedUnitId)) {
-				this.selectedUnitId = savedUnitId;
-			}
-
 			const selectedBudget = this.budgets.find(
 				(b) => b._id === savedBudgetId
 			);

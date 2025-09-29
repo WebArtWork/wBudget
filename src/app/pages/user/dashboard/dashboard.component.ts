@@ -80,6 +80,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			if (budget?._id) {
 				this.selectedBudget = budget._id;
 				this.selectedUnit = null;
+				this.selectedUnitId = null;
 
 				this.units = await firstValueFrom(
 					this._budgetunitService.getUnitsByBudget(budget._id)
@@ -179,11 +180,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 			return { ...u, totalAmount };
 		});
-
-		this.selectedUnitId = this.selectedUnit;
 	}
 
-	onUnitChange(unitId: string) {
+	onUnitChange(unitId: string | null) {
 		this.selectedUnitId = unitId;
 		this.selectedUnit = unitId;
 		window.dispatchEvent(
@@ -201,8 +200,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	selectUnit(unitId: string) {
+	selectUnit(unitId: string | null) {
 		this.selectedUnit = unitId;
+		this.selectedUnitId = unitId;
 		window.dispatchEvent(
 			new CustomEvent('unitChanged', { detail: unitId })
 		);

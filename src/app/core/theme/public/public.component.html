@@ -10,12 +10,12 @@
 					<input
 						matStartDate
 						formControlName="start"
-						placeholder="Початкова дата"
+						placeholder="Start data"
 					/>
 					<input
 						matEndDate
 						formControlName="end"
-						placeholder="Кінцева дата"
+						placeholder="Finish data"
 					/>
 				</mat-date-range-input>
 				<mat-datepicker-toggle
@@ -44,8 +44,8 @@
 			[select]="selectedUnitId"
 			valueKey="_id"
 			labelKey="name"
+			placeholder="Select Unit"
 			(modelChange)="onUnitChange($event)"
-			placeholder=""
 		></wselect>
 
 		<!--<div class="documents-header__title">wBudget</div>-->

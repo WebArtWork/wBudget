@@ -194,7 +194,7 @@ export class SignComponent {
 
 			this.userService.get();
 
-			this._router.navigateByUrl('/profile');
+			this._router.navigateByUrl('/dashboard');
 		} else {
 			this._alert.error({
 				text: 'Something went wrong'

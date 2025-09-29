@@ -9,17 +9,7 @@
 
 	<nav class="nav" (clickOutside)="showSidebar = false">
 		<ul class="nav__ul container" [class._active]="showSidebar">
-			<li class="nav__li">
-				<a
-					routerLinkActive="_activeLink"
-					(click)="showSidebar = false"
-					routerLink="/dashboard"
-					class="nav__a"
-				>
-					<span class="material-icons">dashboard</span>
-				</a>
-			</li>
-			<a
+			<!--<a
 				[routerLinkActiveOptions]="{ exact: true }"
 				routerLinkActive="_activeLink"
 				routerLink="/budgets"
@@ -27,7 +17,7 @@
 				(click)="hideSidebar()"
 			>
 				<span class="material-icons">account_balance_wallet</span>
-			</a>
+			</a>-->
 			<li class="nav__li">
 				<a
 					routerLinkActive="_activeLink"
@@ -36,6 +26,16 @@
 					class="nav__a"
 				>
 					<span class="material-icons">account_circle</span>
+				</a>
+			</li>
+			<li class="nav__li">
+				<a
+					routerLinkActive="_activeLink"
+					(click)="showSidebar = false"
+					routerLink="/dashboard"
+					class="nav__a"
+				>
+					<span class="material-icons">dashboard</span>
 				</a>
 			</li>
 		</ul>

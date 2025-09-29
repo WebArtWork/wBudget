@@ -75,8 +75,9 @@ mat-form-field input {
 }
 
 .filter-dropdown {
-	min-width: 100px;
-	max-width: 140px;
+	min-width: 150px; // мінімальна ширина
+	max-width: 200px; // максимальна ширина
+	width: 180px;
 }
 
 /*  NAV STYLE  */
@@ -357,7 +358,7 @@ mat-form-field input {
 
 	.filter-dropdown {
 		min-width: auto;
-		max-width: 12%;
+		max-width: 15%;
 		width: 100%;
 	}
 
