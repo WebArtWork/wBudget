@@ -21,7 +21,7 @@
 		margin: 0 auto;
 		width: 100%;
 		padding: 20px;
-		// простір під верхній header
+
 		transition: all 0.5s ease-in-out;
 
 		@media screen and (max-width: 991px) {
@@ -296,7 +296,11 @@ hr {
 		}
 	}
 }
+.budget-name {
+	color: #fff;
 
+	font-size: 18px;
+}
 .theme-switch {
 	position: absolute;
 	right: 10px;
@@ -312,10 +316,9 @@ hr {
 	align-items: center;
 	position: relative;
 	z-index: 10;
-	background: #1c1a1a; // темно-сірий фон
-	padding: 10px 20px; // відступ зверху і з боків
+	background: #1c1a1a;
+	padding: 10px 20px;
 
-	/* Для мобільної версії */
 	.documents-header-left__arrow {
 		cursor: pointer;
 		flex: 0 0 auto;
@@ -323,14 +326,14 @@ hr {
 
 	.documents-header__title {
 		flex: 1;
-		text-align: center; // заголовок по центру
+		text-align: center;
 		font-size: 18px;
 		font-weight: bold;
-		color: #e9e7e7; // світлий текст
+		color: #e9e7e7;
 	}
 
 	@media screen and (min-width: 1024px) {
-		padding: 15px 40px; // більше відступу на десктопі
+		padding: 15px 40px;
 		.documents-header__title {
 			text-align: center;
 		}

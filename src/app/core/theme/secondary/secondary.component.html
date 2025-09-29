@@ -38,6 +38,15 @@
 					<span class="material-icons">dashboard</span>
 				</a>
 			</li>
+			<a
+				[routerLinkActiveOptions]="{ exact: true }"
+				routerLinkActive="_activeLink"
+				routerLink="/budgets"
+				class="budget-name"
+				(click)="hideSidebar()"
+			>
+				Budget
+			</a>
 		</ul>
 	</nav>
 

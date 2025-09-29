@@ -44,17 +44,21 @@
 								class="category"
 								*ngFor="let transaction of filteredTransactions"
 							>
-								<span
-									class="legend-color"
-									[style.background]="getColorForTransaction(transaction)"
-								></span>
-								<span class="isDeposit">
-									{{ transaction.isDeposit ? 'Income' :
-									'Expense' }}
-								</span>
-								<span class="note"
-									>{{ transaction.note || '' }}</span
-								>
+								<div class="left">
+									<span
+										class="legend-color"
+										[style.background]="getColorForTransaction(transaction)"
+									></span>
+									<span class="isDeposit"
+										>{{ transaction.isDeposit ? 'Income' :
+										'Expense' }}</span
+									>
+								</div>
+								<div class="right">
+									<span class="note"
+										>{{ transaction.note || '' }}</span
+									>
+								</div>
 								<span class="amount"
 									>{{ transaction.amount }} ₴</span
 								>

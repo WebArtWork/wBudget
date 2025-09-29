@@ -33,7 +33,7 @@
 .transaction-card {
 	background: #373535;
 	border-radius: 8px;
-	padding: 15px 20px; // відступи як у unit-card
+	padding: 15px 20px;
 	min-height: 150px;
 	box-shadow: 0 2px 5px rgba(20, 19, 19, 0.5);
 	transition: transform 0.2s ease-in-out;
@@ -49,14 +49,14 @@
 		gap: 5px;
 
 		.transaction-note {
-			font-size: 18px; // як unit-name
+			font-size: 18px;
 			font-weight: bold;
 			color: #fff;
 			margin: 0 0 5px 0;
 		}
 
 		.transaction-amount {
-			font-size: 16px; // як unit-cost
+			font-size: 16px;
 			color: #fff;
 			margin: 0 0 35px 0;
 		}
