@@ -24,6 +24,7 @@ interface SelectItem {
 
 @Component({
 	imports: [CommonModule, TableModule],
+
 	templateUrl: './transactions.component.html',
 	styleUrls: ['./transactions.component.scss']
 })
@@ -41,6 +42,10 @@ export class TransactionsComponent
 	budget = this._router.url.replace('/transactions/', '');
 	private allUnits: Budgetunit[] = [];
 
+	override allowUrl(): boolean {
+		return false;
+	}
+
 	constructor(
 		private _budgettransactionService: BudgettransactionService,
 		private _unitService: BudgetunitService,
@@ -56,6 +61,22 @@ export class TransactionsComponent
 			_budgettransactionService,
 			'Budgettransaction'
 		);
+
+		// Додаємо кнопки Create, Edit, Delete
+		this.config.buttons.unshift({
+			icon: 'add',
+			click: () => this.createTransaction()
+		});
+
+		this.config.buttons.push({
+			icon: 'edit',
+			click: (doc: Budgettransaction) => this.editTransaction(doc)
+		});
+
+		this.config.buttons.push({
+			icon: 'delete',
+			click: (doc: Budgettransaction) => this.deleteTransaction(doc)
+		});
 	}
 
 	async ngOnInit(): Promise<void> {
@@ -140,7 +161,6 @@ export class TransactionsComponent
 	async loadUnits(): Promise<void> {
 		const units: Budgetunit[] = budgettransactionFormComponents
 			.components[3].fields[0].value as unknown as Budgetunit[];
-
 		units.splice(0, units.length);
 
 		this._unitService
@@ -226,5 +246,93 @@ export class TransactionsComponent
 		}
 
 		this.form?.updateFields?.([budgetSelect]);
+	}
+
+	// Методи для кнопок Create/Edit/Delete
+	handleButtonClick(btn: any, transaction?: Budgettransaction) {
+		if (btn.click && transaction !== undefined) {
+			btn.click(transaction);
+		} else if (btn.click) {
+			btn.click();
+		}
+	}
+
+	createTransaction() {
+		const formComponents = JSON.parse(
+			JSON.stringify(budgettransactionFormComponents)
+		);
+
+		(this.formService as FormService).modal<Budgettransaction>(
+			formComponents,
+			[
+				{
+					label: 'Create',
+					click: (submitted: unknown, close: () => void) => {
+						const created = submitted as Budgettransaction;
+						created.budget = this.budget;
+
+						this.service.create(created).subscribe({
+							next: () => {
+								this.documents.push(created);
+								this.setDocuments();
+								close();
+							},
+							error: (err) =>
+								console.error(
+									'Error creating transaction:',
+									err
+								)
+						});
+					}
+				}
+			]
+		);
+	}
+
+	editTransaction(transaction: Budgettransaction) {
+		const formComponents = JSON.parse(
+			JSON.stringify(budgettransactionFormComponents)
+		);
+
+		(this.formService as FormService).modal<Budgettransaction>(
+			formComponents,
+			[
+				{
+					label: 'Update',
+					click: (submitted: unknown, close: () => void) => {
+						const updated = submitted as Budgettransaction;
+
+						this.service.update(updated).subscribe({
+							next: () => {
+								const index = this.documents.findIndex(
+									(t) => t._id === updated._id
+								);
+								if (index > -1) this.documents[index] = updated;
+								this.setDocuments();
+								close();
+							},
+							error: (err) =>
+								console.error(
+									'Error updating transaction:',
+									err
+								)
+						});
+					}
+				}
+			],
+			transaction
+		);
+	}
+
+	deleteTransaction(transaction: Budgettransaction) {
+		if (!transaction._id) return;
+		if (confirm(`Delete transaction "${transaction.note}"?`)) {
+			this.service.delete(transaction).subscribe(() => {
+				this.documents = this.documents.filter(
+					(t) => t._id !== transaction._id
+				);
+				this.setDocuments();
+			});
+		}
 	}
 }

@@ -98,35 +98,31 @@ export class UnitsComponent extends CrudComponent<
 	}
 
 	editUnit(unit: Budgetunit) {
-		if (!unit._id) return;
-
 		const formComponents = JSON.parse(
 			JSON.stringify(budgetunitFormComponents)
 		);
-		formComponents.components.forEach((comp: any) => {
-			if (!comp.key) return;
-			const value = (unit as any)[comp.key];
-			comp.value = value !== undefined ? value : '';
-		});
 
-		(this.formService as FormService).modal<Budgetunit>(formComponents, [
-			{
-				label: 'Save',
-				click: (submitted: unknown, close: () => void) => {
-					const updated = submitted as Budgetunit;
-					updated._id = unit._id;
+		(this.formService as FormService).modal<Budgetunit>(
+			formComponents,
+			[
+				{
+					label: 'Update',
+					click: (submitted: unknown, close: () => void) => {
+						const updated = submitted as Budgetunit;
 
-					this.service.update(updated).subscribe({
-						next: () => {
-							this.setDocuments();
-							close();
-						},
-						error: (err) =>
-							console.error('Error updating unit:', err)
-					});
+						this.service.update(updated).subscribe({
+							next: () => {
+								this.setDocuments();
+								close();
+							},
+							error: (err) =>
+								console.error('Error updating unit:', err)
+						});
+					}
 				}
-			}
-		]);
+			],
+			unit
+		);
 	}
 
 	deleteUnit(unit: Budgetunit) {

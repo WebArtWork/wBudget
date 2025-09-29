@@ -54,6 +54,11 @@ export class BudgetsComponent extends CrudComponent<
 			hrefFunc: (doc: Budget) =>
 				doc._id ? '/units/' + doc._id : '/units'
 		});
+		this.config.buttons.push({
+			icon: 'swap_horiz',
+			hrefFunc: (doc: Budget) =>
+				doc._id ? '/transactions/' + doc._id : '/transactions'
+		});
 
 		this.config.buttons.push({
 			icon: 'edit',
@@ -100,36 +105,29 @@ export class BudgetsComponent extends CrudComponent<
 	}
 
 	editBudget(budget: Budget) {
-		if (!budget._id) return;
-
 		const formComponents = JSON.parse(JSON.stringify(budgetFormComponents));
 
-		formComponents.components.forEach((comp: any) => {
-			if (!comp.key) return;
-			const budgetValue = (budget as any)[comp.key];
-			comp.value =
-				budgetValue !== undefined && budgetValue !== null
-					? budgetValue
-					: '';
-		});
+		(this.formService as FormService).modal<Budget>(
+			formComponents,
+			[
+				{
+					label: 'Update',
+					click: (submitted: unknown, close: () => void) => {
+						const updated = submitted as Budget;
 
-		(this.formService as FormService).modal<Budget>(formComponents, [
-			{
-				label: 'Save',
-				click: (submitted: unknown, close: () => void) => {
-					const updated = submitted as Budget;
-					updated._id = budget._id;
-					this.service.update(updated).subscribe({
-						next: () => {
-							this.setDocuments();
-							close();
-						},
-						error: (err) =>
-							console.error('Error updating budget:', err)
-					});
+						this.service.update(updated).subscribe({
+							next: () => {
+								this.setDocuments();
+								close();
+							},
+							error: (err) =>
+								console.error('Error updating budget:', err)
+						});
+					}
 				}
-			}
-		]);
+			],
+			budget
+		);
 	}
 
 	deleteBudget(budget: Budget) {

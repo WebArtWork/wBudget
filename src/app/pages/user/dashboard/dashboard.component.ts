@@ -235,7 +235,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 			if (!matchesUnit) return false;
 
-			// Перевірка по даті
 			if (this.selectedRange.start && this.selectedRange.end && t._id) {
 				const timestamp = parseInt(t._id.substring(0, 8), 16) * 1000;
 				const txDate = new Date(timestamp);
