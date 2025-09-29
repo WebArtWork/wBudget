@@ -77,48 +77,50 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 		this.budgetListener = async (event: any) => {
 			const budget: Budget = event.detail;
-			if (budget?._id) {
-				this.selectedBudget = budget._id;
-				this.selectedUnit = null;
-				this.selectedUnitId = null;
+			if (!budget?._id) return;
 
-				this.units = await firstValueFrom(
-					this._budgetunitService.getUnitsByBudget(budget._id)
-				);
+			this.selectedBudget = budget._id;
 
-				this.transactions = await firstValueFrom(
-					this._budgettransactionService.getTransactionsByBudget(
-						budget._id
-					)
-				);
+			// Підтягуємо юніти та транзакції
+			this.units = await firstValueFrom(
+				this._budgetunitService.getUnitsByBudget(budget._id)
+			);
+			this.transactions = await firstValueFrom(
+				this._budgettransactionService.getTransactionsByBudget(
+					budget._id
+				)
+			);
 
-				this.units = this.units.map((u) => {
-					const totalAmount = this.transactions.reduce((sum, t) => {
-						if (!this.isTransactionInRange(t)) return sum;
+			// Рахуємо totalAmount для кожного юніта
+			this.units = this.units.map((u) => {
+				const totalAmount = this.transactions.reduce((sum, t) => {
+					if (!this.isTransactionInRange(t)) return sum;
 
-						if (t.unitId && String(t.unitId) === String(u._id)) {
-							return sum + (t.isDeposit ? t.amount : -t.amount);
-						}
+					if (t.unitId && String(t.unitId) === String(u._id)) {
+						return sum + (t.isDeposit ? t.amount : -t.amount);
+					}
 
-						if (t.units) {
-							const entry = t.units.find(
-								(x) => String(x.unit) === String(u._id)
+					if (t.units) {
+						const entry = t.units.find(
+							(x) => String(x.unit) === String(u._id)
+						);
+						if (entry)
+							return (
+								sum +
+								(t.isDeposit ? entry.amount : -entry.amount)
 							);
-							if (entry)
-								return (
-									sum +
-									(t.isDeposit ? entry.amount : -entry.amount)
-								);
-						}
+					}
 
-						return sum;
-					}, 0);
+					return sum;
+				}, 0);
+				return { ...u, totalAmount };
+			});
 
-					return { ...u, totalAmount };
-				});
-				this.selectedUnitId = this.selectedUnit;
-			}
+			// НЕ обираємо юніт автоматично
+			this.selectedUnit = null;
+			this.selectedUnitId = null;
 		};
+
 		window.addEventListener('budgetChanged', this.budgetListener);
 
 		this.unitListener = (event: any) => {
@@ -146,17 +148,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	}
 
 	private async loadBudgetData(budget: Budget) {
+		// Встановлюємо обраний бюджет
 		this.selectedBudget = budget._id;
-		this.selectedUnit = null;
 
+		// Не скидаємо selectedUnit — користувач обирає сам
+		// this.selectedUnit = null;
+
+		// Підтягуємо юніти
 		this.units = await firstValueFrom(
 			this._budgetunitService.getUnitsByBudget(budget._id)
 		);
 
+		// Підтягуємо транзакції
 		this.transactions = await firstValueFrom(
 			this._budgettransactionService.getTransactionsByBudget(budget._id)
 		);
 
+		// Рахуємо totalAmount для кожного юніта (для графіка)
 		this.units = this.units.map((u) => {
 			const totalAmount = this.transactions.reduce((sum, t) => {
 				if (!this.isTransactionInRange(t)) return sum;
@@ -218,22 +226,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		if (!this.selectedUnit) return [];
 
 		return this.transactions.filter((t) => {
-			if (t.unitId && String(t.unitId) === String(this.selectedUnit)) {
-				return true;
+			const matchesUnit =
+				(t.unitId && String(t.unitId) === String(this.selectedUnit)) ||
+				(t.units &&
+					t.units.some(
+						(u) => String(u.unit) === String(this.selectedUnit)
+					));
+
+			if (!matchesUnit) return false;
+
+			// Перевірка по даті
+			if (this.selectedRange.start && this.selectedRange.end && t._id) {
+				const timestamp = parseInt(t._id.substring(0, 8), 16) * 1000;
+				const txDate = new Date(timestamp);
+				const endDate = this.getEndOfDay(this.selectedRange.end);
+				return txDate >= this.selectedRange.start && txDate <= endDate;
 			}
 
-			if (
-				t.units &&
-				t.units.some(
-					(u) => String(u.unit) === String(this.selectedUnit)
-				)
-			) {
-				return true;
-			}
-
-			return false;
+			return true;
 		});
 	}
+
 	private isTransactionInRange(t: Budgettransaction): boolean {
 		if (this.selectedRange.start && this.selectedRange.end && t._id) {
 			const timestamp = parseInt(t._id.substring(0, 8), 16) * 1000;
@@ -245,10 +258,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	}
 
 	getFilteredUnits(): (Budgetunit & { totalAmount: number })[] {
-		const endDate = this.selectedRange.end
-			? this.getEndOfDay(this.selectedRange.end)
-			: null;
-
 		return this.units.map((u) => {
 			let txs = this.transactions.filter(
 				(t) =>
@@ -257,30 +266,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
 						t.units.some((x) => String(x.unit) === String(u._id)))
 			);
 
-			if (this.selectedRange.start && endDate) {
+			if (this.selectedRange.start && this.selectedRange.end) {
+				const start = this.selectedRange.start;
+				const end = this.getEndOfDay(this.selectedRange.end);
 				txs = txs.filter((t) => {
 					const timestamp =
 						parseInt(t._id.substring(0, 8), 16) * 1000;
 					const txDate = new Date(timestamp);
-					return (
-						txDate >= this.selectedRange.start! && txDate <= endDate
-					);
+					return txDate >= start && txDate <= end;
 				});
 			}
 
 			const totalAmount = txs.reduce((sum, t) => {
-				if (t.unitId && String(t.unitId) === String(u._id)) {
+				if (t.unitId && String(t.unitId) === String(u._id))
 					return sum + (t.isDeposit ? t.amount : -t.amount);
-				}
 				if (t.units) {
 					const entry = t.units.find(
 						(x) => String(x.unit) === String(u._id)
 					);
-					if (entry) {
+					if (entry)
 						return (
 							sum + (t.isDeposit ? entry.amount : -entry.amount)
 						);
-					}
 				}
 				return sum;
 			}, 0);
