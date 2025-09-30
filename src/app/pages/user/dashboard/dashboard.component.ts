@@ -45,17 +45,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	async ngOnInit() {
 		this.budgets = await this.budgetService.getAllBudgets();
 
-		const budgetId = this.route.snapshot.queryParamMap.get('budget');
+		const savedBudgetId = localStorage.getItem('selectedBudgetId');
 		let budget: Budget | undefined;
 
-		if (budgetId) {
-			budget = this.budgets.find((b) => b._id === budgetId);
-		} else if (this.budgets.length > 0) {
-			budget = this.budgets[0];
+		if (savedBudgetId) {
+			budget = this.budgets.find((b) => b._id === savedBudgetId);
+		} else {
+			const budgetId = this.route.snapshot.queryParamMap.get('budget');
+			if (budgetId) {
+				budget = this.budgets.find((b) => b._id === budgetId);
+			}
 		}
 
 		if (budget) {
+			this.selectedBudgetId = budget._id;
+			this.selectedBudget = budget.name;
+			localStorage.setItem('selectedBudgetId', budget._id);
+			localStorage.setItem('selectedBudgetName', budget.name);
+
 			await this.loadBudgetData(budget);
+
 			window.dispatchEvent(
 				new CustomEvent('budgetChanged', { detail: budget })
 			);

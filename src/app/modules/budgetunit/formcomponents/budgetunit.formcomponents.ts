@@ -31,22 +31,6 @@ export const budgetunitFormComponents = {
 					value: 'Cost'
 				}
 			]
-		},
-
-		{
-			name: 'Select',
-			key: 'budget',
-			focused: false,
-			fields: [
-				{
-					name: 'Placeholder',
-					value: 'Select budget '
-				},
-				{
-					name: 'Items',
-					value: []
-				}
-			]
 		}
 	]
 };

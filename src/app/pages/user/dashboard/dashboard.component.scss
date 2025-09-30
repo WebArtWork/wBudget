@@ -193,6 +193,11 @@
 	min-width: 80px;
 	text-align: right;
 	color: #cfd1d4;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 200px;
+	display: block;
 }
 
 .amount {

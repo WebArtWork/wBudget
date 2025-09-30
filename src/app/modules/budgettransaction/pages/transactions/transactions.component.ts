@@ -141,23 +141,6 @@ export class TransactionsComponent
 		doc.isDeposit = !!isDepositField?.value;
 	}
 
-	postCreate(doc: Budgettransaction): void {
-		const unit = this.allUnits.find(
-			(u: Budgetunit) => u._id === doc.unitId
-		);
-		doc.unitName = unit ? unit.name : doc.unitId;
-
-		const budgetObj = this._budgetService.budgets?.find(
-			(b: Budget) => b._id === doc.budget
-		);
-		doc.budgetName = budgetObj ? budgetObj.name : doc.budget;
-
-		this._budgettransactionService.budgettransactions.push(doc);
-		this.documents.push(doc);
-		this.setDocuments();
-		this.markSelectedUnits();
-	}
-
 	async loadUnits(): Promise<void> {
 		const units: Budgetunit[] = budgettransactionFormComponents
 			.components[3].fields[0].value as unknown as Budgetunit[];
@@ -262,6 +245,34 @@ export class TransactionsComponent
 			JSON.stringify(budgettransactionFormComponents)
 		);
 
+		// Проставляємо budget
+		const budgetSelect = formComponents.components.find(
+			(c: any) => c.key === 'budget' && c.name === 'Select'
+		);
+		if (budgetSelect) {
+			const itemsField = budgetSelect.fields.find(
+				(f: any) => f.name === 'Items'
+			);
+			if (itemsField) {
+				const selectedBudgetObj = this._budgetService.budgets?.find(
+					(b: Budget) => b._id === this.budget
+				);
+				itemsField.value = selectedBudgetObj
+					? [
+							{
+								name: selectedBudgetObj.name,
+								value: selectedBudgetObj._id,
+								selected: true
+							}
+						]
+					: [];
+			}
+			const disabledField = budgetSelect.fields.find(
+				(f: any) => f.name === 'Disabled'
+			);
+			if (disabledField) disabledField.value = true;
+		}
+
 		(this.formService as FormService).modal<Budgettransaction>(
 			formComponents,
 			[
@@ -271,10 +282,39 @@ export class TransactionsComponent
 						const created = submitted as Budgettransaction;
 						created.budget = this.budget;
 
+						if (created.unitId && created.amount) {
+							created.units = [
+								{ unit: created.unitId, amount: created.amount }
+							];
+						}
+
+						created.isDeposit = !!created.isDeposit;
+
+						const unit = this.allUnits.find(
+							(u) => u._id === created.unitId
+						);
+						created.unitName = unit ? unit.name : created.unitId;
+
+						const budgetObj = this._budgetService.budgets?.find(
+							(b) => b._id === created.budget
+						);
+						created.budgetName = budgetObj
+							? budgetObj.name
+							: created.budget;
+
 						this.service.create(created).subscribe({
-							next: () => {
-								this.documents.push(created);
+							next: (res: Budgettransaction) => {
+								this._budgettransactionService.budgettransactions =
+									[
+										...this._budgettransactionService
+											.budgettransactions,
+										res
+									];
+								this.documents = [...this.documents, res];
+
 								this.setDocuments();
+								this.markSelectedUnits();
+
 								close();
 							},
 							error: (err) =>

@@ -47,37 +47,40 @@ export class PublicComponent implements OnInit, OnDestroy {
 	private budgetListener: any;
 
 	async ngOnInit(): Promise<void> {
-		await this.loadBudgets();
+		await this.loadBudgets(); // спочатку завантажуємо всі бюджети
+
+		// Відновлюємо збережений бюджет
+		const savedBudgetId = localStorage.getItem('selectedBudgetId');
+		if (savedBudgetId) {
+			const selectedBudget = this.budgets.find(
+				(b) => b._id === savedBudgetId
+			);
+			if (selectedBudget) {
+				this.selectedBudgetId = savedBudgetId;
+				this.selectedBudgetName = selectedBudget.name;
+				await this.loadUnits(savedBudgetId);
+			}
+		}
 
 		this.budgetListener = (event: any) => {
 			const budget: Budget = event.detail;
-			if (budget && budget._id !== this.selectedBudgetId) {
-				this.selectedBudgetId = budget._id;
-				this.selectedBudgetName = budget.name;
 
-				this.selectedUnitId = null;
-				this.units = [];
-				this.loadUnits(budget._id);
+			if (
+				!this.selectedBudgetId ||
+				(budget && budget._id !== this.selectedBudgetId)
+			) {
+				if (event.detail.userAction) {
+					this.selectedBudgetId = budget._id;
+					this.selectedBudgetName = budget.name;
+
+					this.selectedUnitId = null;
+					this.units = [];
+					this.loadUnits(budget._id);
+				}
 			}
 		};
 
 		window.addEventListener('budgetChanged', this.budgetListener);
-
-		const savedBudgetId = localStorage.getItem('selectedBudgetId');
-		if (
-			savedBudgetId &&
-			this.budgets.find((b) => b._id === savedBudgetId)
-		) {
-			this.selectedBudgetId = savedBudgetId;
-			await this.loadUnits(savedBudgetId);
-
-			const selectedBudget = this.budgets.find(
-				(b) => b._id === savedBudgetId
-			);
-			this.selectedBudgetName = selectedBudget
-				? selectedBudget.name
-				: null;
-		}
 
 		const savedRange = localStorage.getItem('dateRange');
 		if (savedRange) {

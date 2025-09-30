@@ -25,6 +25,14 @@ export class SecondaryComponent {
 		private _platform: Platform,
 		private router: Router
 	) {}
+	ngOnInit(): void {
+		const savedBudgetId = localStorage.getItem('selectedBudgetId');
+		const savedBudgetName = localStorage.getItem('selectedBudgetName');
+
+		if (savedBudgetId) {
+			this.selectedBudgetName = savedBudgetName || null;
+		}
+	}
 
 	back(): void {
 		window.history.back();
