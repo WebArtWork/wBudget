@@ -40,44 +40,27 @@ hr {
 .documents-header {
 	display: flex;
 	align-items: center;
-	gap: 8px;
-	padding: 4px 8px;
+	height: 70px;
+	gap: 16px;
 	background: var(--c-basic);
 	box-shadow:
 		0 3px 5px -1px #0003,
 		0 6px 10px #00000024,
 		0 1px 18px #0000001f;
-	transition: all 0.5s ease-in-out;
-}
 
-.documents-header-left__arrow {
-	flex: 0 0 auto;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	margin-right: 8px;
-}
-mat-form-field {
-	font-size: 13px;
-	min-width: 70px;
-	max-width: 70px;
-	flex: 1;
-}
+	> form,
+	> .filter-dropdown {
+		flex: 0 0 50%; // по 50%
+		max-width: 50%; // не більше 50%
+		width: 100%; // контент всередині займає всю ширину
 
-mat-form-field .mat-form-field-flex {
-	padding: 0 6px;
-	min-height: 34px;
-}
+		padding-right: 16px;
+	}
 
-mat-form-field input {
-	font-size: 13px;
-	padding: 4px;
-}
-
-.filter-dropdown {
-	min-width: 150px; // мінімальна ширина
-	max-width: 200px; // максимальна ширина
-	width: 180px;
+	form mat-form-field,
+	.filter-dropdown {
+		width: 100%;
+	}
 }
 
 /*  NAV STYLE  */
@@ -92,7 +75,7 @@ mat-form-field input {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 0 16px;
+	padding: 0 8px;
 	z-index: 1000;
 	overflow: hidden;
 
@@ -102,12 +85,37 @@ mat-form-field input {
 		0 6px 10px #00000024,
 		0 1px 18px #0000001f;
 	transition: all 0.5s ease-in-out;
+	.nav__ul {
+		display: flex;
+		align-items: center;
+		width: 100%;
 
+		.nav__li--left {
+			margin-right: auto;
+		}
+		.nav__li--right {
+			margin-left: auto;
+		}
+		.nav__li--center {
+			flex: 0 1 auto;
+			text-align: center;
+
+			.budget-name {
+				color: #fff;
+				font-size: 18px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				max-width: 200px;
+				display: block;
+			}
+		}
+	}
 	&__ul {
 		z-index: 1;
 		margin-top: 0;
 		margin-bottom: 0;
-		padding: 0 20px;
+
 		transition: all 0.5s ease-in-out;
 		@include mixins.flexBox(flex, null, null, center, null);
 		width: 100%;
@@ -333,11 +341,6 @@ mat-form-field input {
 	}
 }
 
-.budget-name {
-	color: #fff;
-
-	font-size: 18px;
-}
 .theme-switch {
 	position: absolute;
 	right: 10px;

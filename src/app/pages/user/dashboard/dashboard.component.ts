@@ -56,7 +56,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 		if (budget) {
 			await this.loadBudgetData(budget);
-
 			window.dispatchEvent(
 				new CustomEvent('budgetChanged', { detail: budget })
 			);
@@ -91,41 +90,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				)
 			);
 
-			// Рахуємо totalAmount для кожного юніта
-			this.units = this.units.map((u) => {
-				const totalAmount = this.transactions.reduce((sum, t) => {
-					if (!this.isTransactionInRange(t)) return sum;
-
-					if (t.unitId && String(t.unitId) === String(u._id)) {
-						return sum + (t.isDeposit ? t.amount : -t.amount);
-					}
-
-					if (t.units) {
-						const entry = t.units.find(
-							(x) => String(x.unit) === String(u._id)
-						);
-						if (entry)
-							return (
-								sum +
-								(t.isDeposit ? entry.amount : -entry.amount)
-							);
-					}
-
-					return sum;
-				}, 0);
-				return { ...u, totalAmount };
-			});
+			// Перерахунок totalAmount
+			this.updateUnitsTotals();
 
 			// НЕ обираємо юніт автоматично
 			this.selectedUnit = null;
 			this.selectedUnitId = null;
 		};
-
 		window.addEventListener('budgetChanged', this.budgetListener);
 
 		this.unitListener = (event: any) => {
 			const unitId = event.detail;
 			this.selectedUnit = unitId || null;
+			this.selectedUnitId = unitId || null;
 		};
 		window.addEventListener('unitChanged', this.unitListener);
 
@@ -134,6 +111,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				start: event.detail.start ? new Date(event.detail.start) : null,
 				end: event.detail.end ? new Date(event.detail.end) : null
 			};
+			// Перерахунок totalAmount після зміни діапазону
+			this.updateUnitsTotals();
 		};
 		window.addEventListener('dateRangeChanged', this.dateRangeListener);
 
@@ -151,9 +130,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		// Встановлюємо обраний бюджет
 		this.selectedBudget = budget._id;
 
-		// Не скидаємо selectedUnit — користувач обирає сам
-		// this.selectedUnit = null;
-
 		// Підтягуємо юніти
 		this.units = await firstValueFrom(
 			this._budgetunitService.getUnitsByBudget(budget._id)
@@ -164,6 +140,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			this._budgettransactionService.getTransactionsByBudget(budget._id)
 		);
 
+		// Перерахунок totalAmount
+		this.updateUnitsTotals();
 		// Рахуємо totalAmount для кожного юніта (для графіка)
 		this.units = this.units.map((u) => {
 			const totalAmount = this.transactions.reduce((sum, t) => {
@@ -188,6 +166,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 			return { ...u, totalAmount };
 		});
+	}
+	private updateUnitsTotals() {
+		this.units = this.units.map((u) => {
+			const totalAmount = this.transactions.reduce((sum, t) => {
+				if (!this.isTransactionInRange(t)) return sum;
+
+				if (t.unitId && String(t.unitId) === String(u._id)) {
+					return sum + (t.isDeposit ? t.amount : -t.amount);
+				}
+
+				if (t.units) {
+					const entry = t.units.find(
+						(x) => String(x.unit) === String(u._id)
+					);
+					if (entry)
+						return (
+							sum + (t.isDeposit ? entry.amount : -entry.amount)
+						);
+				}
+
+				return sum;
+			}, 0);
+			return { ...u, totalAmount };
+		});
+		this.units = [...this.units]; // Angular change detection
 	}
 
 	onUnitChange(unitId: string | null) {

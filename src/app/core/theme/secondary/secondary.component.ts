@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { UserService } from 'src/app/modules/user/services/user.service';
 import { Platform } from '@angular/cdk/platform';
+import { Router } from '@angular/router';
 
 @Component({
 	selector: 'app-secondary',
@@ -10,6 +11,7 @@ import { Platform } from '@angular/cdk/platform';
 })
 export class SecondaryComponent {
 	showSidebar = false;
+	selectedBudgetName: string | null = null;
 
 	hideSidebar(): void {
 		if (!this._platform.ANDROID && !this._platform.IOS) {
@@ -20,9 +22,22 @@ export class SecondaryComponent {
 	constructor(
 		public us: UserService,
 		public userService: UserService,
-		private _platform: Platform
+		private _platform: Platform,
+		private router: Router
 	) {}
+
 	back(): void {
 		window.history.back();
+	}
+	goToBudgetOrDashboard(): void {
+		if (this.router.url === '/budgets') {
+			this.router.navigate(['/dashboard']);
+		} else {
+			this.router.navigate(['/budgets']);
+		}
+		this.hideSidebar();
+	}
+	createTransaction(): void {
+		alert('Please select a budget');
 	}
 }

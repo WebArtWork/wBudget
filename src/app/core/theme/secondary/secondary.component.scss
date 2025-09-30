@@ -55,7 +55,7 @@ hr {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 0 16px;
+	padding: 0 8px;
 	z-index: 1000;
 	overflow: hidden;
 
@@ -66,12 +66,39 @@ hr {
 		0 1px 18px #0000001f;
 	transition: all 0.5s ease-in-out;
 
+	.nav__ul {
+		display: flex;
+		align-items: center;
+		width: 100%;
+
+		.nav__li--left {
+			margin-right: auto;
+		}
+		.nav__li--right {
+			margin-left: auto;
+		}
+		.nav__li--center {
+			flex: 0 1 auto;
+			text-align: center;
+
+			.budget-name {
+				color: #fff;
+				font-size: 18px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				max-width: 200px;
+				display: block;
+			}
+		}
+	}
+
 	@include mixins.flexBox(flex, null, space-between, center, null);
 	&__ul {
 		z-index: 1;
 		margin-top: 0;
 		margin-bottom: 0;
-		padding: 0 20px;
+
 		transition: all 0.5s ease-in-out;
 		@include mixins.flexBox(flex, null, null, center, null);
 		width: 100%;
@@ -313,16 +340,12 @@ hr {
 }
 .documents-header {
 	display: flex;
+	height: 60px;
 	align-items: center;
 	position: relative;
 	z-index: 10;
 	background: #1c1a1a;
 	padding: 10px 20px;
-
-	.documents-header-left__arrow {
-		cursor: pointer;
-		flex: 0 0 auto;
-	}
 
 	.documents-header__title {
 		flex: 1;

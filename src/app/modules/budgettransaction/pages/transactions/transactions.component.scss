@@ -42,18 +42,24 @@
 	position: relative;
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
+	align-items: flex-start;
 
 	.transaction-left {
 		display: flex;
 		flex-direction: column;
 		gap: 5px;
+		max-width: 70%;
 
 		.transaction-note {
 			font-size: 18px;
 			font-weight: bold;
 			color: #fff;
 			margin: 0 0 5px 0;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			max-width: 100%;
+			display: block;
 		}
 
 		.transaction-amount {
@@ -67,19 +73,27 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-end;
-		gap: 5px;
+		gap: 3px;
+		max-width: 30%;
+		position: absolute;
+		top: 50px;
+		right: 20px;
 
 		.transaction-unit,
 		.transaction-budget {
 			font-size: 14px;
 			color: #ccc;
 			margin: 0;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			max-width: 120px;
+			display: block;
 		}
 	}
 
 	.transaction-actions {
 		position: absolute;
-		top: 100px;
 		bottom: 10px;
 		right: 10px;
 		display: flex;

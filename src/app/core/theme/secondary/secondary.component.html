@@ -1,9 +1,5 @@
 <div class="wrapper" id="wrapper">
 	<div class="documents-header">
-		<div class="documents-header-left__arrow" (click)="back()">
-			<span class="material-icons">arrow_back_ios</span>
-		</div>
-
 		<div class="documents-header__title">wBudget</div>
 	</div>
 
@@ -17,17 +13,7 @@
 				(click)="hideSidebar()"
 			>
 				<span class="material-icons">account_balance_wallet</span>
-			</a>-->
-			<li class="nav__li">
-				<a
-					routerLinkActive="_activeLink"
-					(click)="showSidebar = false"
-					routerLink="/profile"
-					class="nav__a"
-				>
-					<span class="material-icons">account_circle</span>
-				</a>
-			</li>
+			</a>
 			<li class="nav__li">
 				<a
 					routerLinkActive="_activeLink"
@@ -37,16 +23,31 @@
 				>
 					<span class="material-icons">dashboard</span>
 				</a>
+			</li>-->
+
+			<!-- Ліва частина -->
+			<li class="nav__li nav__li--left account">
+				<a
+					routerLinkActive="_activeLink"
+					(click)="showSidebar = false"
+					routerLink="/profile"
+					class="nav__a"
+				>
+					<span class="material-icons">account_circle</span>
+				</a>
 			</li>
-			<a
-				[routerLinkActiveOptions]="{ exact: true }"
-				routerLinkActive="_activeLink"
-				routerLink="/budgets"
-				class="budget-name"
-				(click)="hideSidebar()"
-			>
-				Budget
-			</a>
+
+			<!-- Центрована група -->
+			<li class="nav__li nav__li--center">
+				<a class="budget-name" (click)="goToBudgetOrDashboard()">
+					{{ selectedBudgetName || 'Budget' }}
+				</a>
+			</li>
+			<li class="nav__li nav__li--right button-addtransaction">
+				<button id="saveExpense" (click)="createTransaction()">
+					+
+				</button>
+			</li>
 		</ul>
 	</nav>
 

@@ -1,8 +1,5 @@
 <div class="wrapper" id="wrapper">
 	<div class="documents-header">
-		<div class="documents-header-left__arrow" (click)="back()">
-			<span class="material-icons">arrow_back_ios</span>
-		</div>
 		<!-- Calendar -->
 		<form [formGroup]="range">
 			<mat-form-field appearance="fill">
@@ -53,7 +50,7 @@
 
 	<nav class="nav" (clickOutside)="showSidebar = false">
 		<ul class="nav__ul container" [class._active]="showSidebar">
-			<li class="nav__li">
+			<li class="nav__li nav__li--left account">
 				<a
 					routerLinkActive="_activeLink"
 					(click)="showSidebar = false"
@@ -63,7 +60,7 @@
 					<span class="material-icons">account_circle</span>
 				</a>
 			</li>
-			<li class="nav__li">
+			<!--<li class="nav__li">
 				<a
 					routerLinkActive="_activeLink"
 					(click)="showSidebar = false"
@@ -73,7 +70,7 @@
 					<span class="material-icons">dashboard</span>
 				</a>
 			</li>
-			<!--<a
+			<a
 				[routerLinkActiveOptions]="{ exact: true }"
 				routerLinkActive="_activeLink"
 				routerLink="/budgets"
@@ -82,18 +79,18 @@
 			>
 				<span class="material-icons">account_balance_wallet</span>
 			</a>-->
-
-			<a
-				[routerLinkActiveOptions]="{ exact: true }"
-				routerLinkActive="_activeLink"
-				routerLink="/budgets"
-				class="budget-name"
-				(click)="hideSidebar()"
-			>
-				{{ selectedBudgetName }}
-			</a>
-
-			<li class="nav__li">
+			<li class="nav__li nav__li--center">
+				<a
+					[routerLinkActiveOptions]="{ exact: true }"
+					routerLinkActive="_activeLink"
+					routerLink="/budgets"
+					class="budget-name"
+					(click)="hideSidebar()"
+				>
+					{{ selectedBudgetName }}
+				</a>
+			</li>
+			<li class="nav__li nav__li--right button-addtransaction">
 				<button id="saveExpense" (click)="createTransaction()">
 					+
 				</button>
