@@ -340,6 +340,30 @@ export class TransactionsComponent
 					click: (submitted: unknown, close: () => void) => {
 						const updated = submitted as Budgettransaction;
 
+						// Ініціалізуємо масив units, якщо його немає
+						if (!updated.units) {
+							updated.units = [];
+						}
+
+						// Перевіряємо, що unitId визначений
+						if (!updated.units) updated.units = [];
+
+						const existingIndex = updated.units.findIndex(
+							(u) => u.unit === updated.unitId
+						);
+
+						if (existingIndex > -1) {
+							// Оновлюємо amount для вже існуючого юніту
+							updated.units[existingIndex].amount =
+								+updated.amount;
+						} else {
+							// Якщо юніт змінився, додаємо новий
+							updated.units.push({
+								unit: updated.unitId!,
+								amount: +updated.amount
+							});
+						}
+
 						this.service.update(updated).subscribe({
 							next: () => {
 								const index = this.documents.findIndex(

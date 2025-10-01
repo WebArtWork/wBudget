@@ -2,22 +2,40 @@
 	<div class="documents-container">
 		<div class="documents-list">
 			<div class="documents-main">
-				<div class="circle-block">
-					<div class="documents__title"></div>
+				<!-- 1. Баланс -->
+				<div class="balance-block">
+					<h2 class="balance-title">
+						Balance: {{ getCircleTotal() }}₴
+					</h2>
+
+					<div class="summary">
+						<span
+							id="incomeTotal"
+							[class.active]="selectedType === 'income'"
+							(click)="selectType('income')"
+						>
+							Income
+						</span>
+						<span
+							id="expenseTotal"
+							[class.active]="selectedType === 'expense'"
+							(click)="selectType('expense')"
+						>
+							Expense
+						</span>
+					</div>
 					<div class="circle-chart" [ngStyle]="circleChartStyle">
 						<div class="circle-chart-inner">
 							{{ getCircleTotal() }}₴
 						</div>
 					</div>
-					<div class="summary">
-						<span id="incomeTotal">{{ getIncomeTotal() }} ₴</span>
-						<span id="expenseTotal">{{ getExpenseTotal() }} ₴</span>
-					</div>
 				</div>
 
+				<!-- 3. Категорії / Транзакції -->
 				<div class="documents-main-content">
+					<!-- Список юнітів -->
 					<div *ngIf="!selectedUnit" class="categories">
-						<h3>Units</h3>
+						<h3></h3>
 						<div
 							*ngFor="let unit of getFilteredUnits()"
 							class="category"
@@ -27,19 +45,19 @@
 								[style.background]="getColorForUnit(unit)"
 							></span>
 							<span class="note">{{ unit.name }}</span>
-							<span class="amount"
-								>{{ unit.totalAmount || 0 }} ₴</span
+							<span class="amount">
+								{{ unit.totalAmount! >= 0 ? '+' : '' }}{{
+								unit.totalAmount }}₴</span
 							>
 						</div>
 					</div>
 
+					<!-- Транзакції по юніту -->
 					<div *ngIf="selectedUnit">
 						<div
 							*ngIf="filteredTransactions.length > 0"
 							class="categories"
 						>
-							<h3>Transactions</h3>
-
 							<div
 								class="category"
 								*ngFor="let transaction of filteredTransactions"

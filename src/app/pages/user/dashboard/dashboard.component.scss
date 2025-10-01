@@ -1,21 +1,67 @@
 .documents-wrapper {
 	min-height: 100vh;
-
 	font-family: Arial, sans-serif;
+	background-color: #2b2b2b;
+	padding-bottom: 30px;
 }
-.circle-block {
-	margin-top: 15px;
+
+/* === БЛОК БАЛАНСУ === */
+.balance-block {
+	background-color: #373535;
+	color: #ecebeb;
+	width: 100%;
+	padding: 15px 20px 60px 20px;
+	margin: 0px;
+	border-radius: 0 0 20px 20px; /* закруглені верхні кути */
+	text-align: center;
+	position: relative;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
-.documents-container {
-	max-width: 420px;
-	margin: auto;
-	padding: 15px;
+
+.balance-title {
+	font-size: 25px;
+
+	margin-bottom: 20px;
 }
+
+.summary {
+	display: flex;
+	justify-content: space-between;
+	position: absolute;
+	bottom: 20px;
+	left: 20px;
+	right: 20px;
+}
+
+.summary span {
+	cursor: pointer;
+	font-weight: bold;
+	padding: 5px 10px;
+	border-bottom: 2px solid transparent; /* за замовчуванням */
+	transition: border-color 0.2s;
+}
+
+.summary span:hover {
+	border-color: rgba(
+		255,
+		255,
+		255,
+		0.3
+	); /* легке підкреслення при наведенні */
+}
+
+.summary span.active {
+	border-color: #ecebeb; /* біла підкреслююча лінія для активного */
+}
+
+/* === КОЛО === */
+
 .circle-chart {
-	width: 300px !important;
-	height: 300px !important;
+	width: 250px;
+	height: 250px;
+	margin: 0 auto;
 	border-radius: 50%;
-	margin: 20px auto;
+	background: #2f2e2e;
 	position: relative;
 }
 
@@ -23,241 +69,70 @@
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	width: 150px;
-	height: 150px;
-	background: #2f2e2e;
+	width: 120px;
+	height: 120px;
+	background: #373535;
 	border-radius: 50%;
 	transform: translate(-50%, -50%);
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	color: rgb(214, 203, 203);
+	color: #ecebeb;
 	font-weight: bold;
-}
-
-.legend-color {
-	display: inline-block;
-	width: 12px;
-	height: 12px;
-	border-radius: 3px;
-}
-
-.documents-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 15px;
-}
-
-.documents-header-left {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-}
-
-.documents-header-left__arrow {
-	cursor: pointer;
-}
-
-.documents-header-left__avatar img {
-	width: 36px;
-	height: 36px;
-	border-radius: 50%;
-}
-
-.documents-header__title {
 	font-size: 18px;
-	font-weight: bold;
 }
 
-.burger-wrap {
-	cursor: pointer;
-}
-.burger {
-	width: 24px;
-	height: 2px;
-
-	position: relative;
-}
-.burger::before,
-.burger::after {
-	content: '';
-	position: absolute;
-	left: 0;
-	width: 24px;
-	height: 2px;
-}
-.burger::before {
-	top: -6px;
-}
-.burger::after {
-	top: 6px;
-}
-.burger--close {
-	background: transparent;
-}
-.burger--close::before {
-	transform: rotate(45deg);
-	top: 0;
-}
-.burger--close::after {
-	transform: rotate(-45deg);
-	top: 0;
-}
-
-.documents-main {
-	border-radius: 16px;
-}
-
-.documents__description {
-	margin-top: 15px;
-	text-align: center;
-	font-size: 14px;
-}
-
-.filters {
-	display: flex;
-	justify-content: space-around;
-	margin-bottom: 15px;
-}
-
-.filter {
-	cursor: pointer;
-	color: #bbb;
-	font-weight: bold;
-	padding: 6px 10px;
-	transition: 0.2s;
-}
-
-.filter.active {
-	color: #ff5050;
-	border-bottom: 2px solid #ff5050;
-}
-
-.summary {
-	display: flex;
-	justify-content: space-between;
-	padding: 10px;
-
-	border-radius: 10px;
-	margin-bottom: 15px;
-}
-#incomeTotal {
-	color: rgb(17, 176, 17);
-	font-weight: bold;
-}
-#expenseTotal {
-	color: #ec3734;
-	font-weight: bold;
-}
+/* === ЮНІТИ / ТРАНЗАКЦІЇ === */
 .documents-main-content {
-	padding: 20px;
-	font-family: Arial, sans-serif;
-	color: #e0e0e0;
-}
-
-.documents-main-content h3 {
-	margin-bottom: 12px;
-	font-size: 20px;
-	color: #cfd1d4;
-}
-
-.categories {
-	background-color: #373535;
-	border-radius: 12px;
-	padding: 12px;
-	margin-bottom: 20px;
+	padding: 10px 0;
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
-	max-height: 400px;
-	overflow-y: auto;
+	gap: 15px;
+	width: 90%;
+	margin: 0 auto;
 }
 
+/* Кожен юніт / транзакція окремий блок */
 .category {
+	background-color: #373535;
+	border-radius: 12px;
+	padding: 15px 20px;
+	margin-top: 10px;
 	display: flex;
-	align-items: center;
 	justify-content: space-between;
-	padding: 10px;
+	align-items: center;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .legend-color {
-	width: 16px;
-	height: 16px;
+	width: 14px;
+	height: 14px;
 	border-radius: 50%;
 	display: inline-block;
+	margin-right: 10px;
 }
 
 .note {
-	font-weight: bold;
-	min-width: 80px;
-	text-align: right;
-	color: #cfd1d4;
+	flex: 1;
+	font-size: 15px;
+	color: #ecebeb;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	max-width: 200px;
-	display: block;
 }
 
 .amount {
 	font-weight: bold;
 	min-width: 80px;
 	text-align: right;
-	color: #cfd1d4;
 }
 
-#saveExpense {
-	background: #e53935;
-	color: #fff;
-	border: none;
-	border-radius: 50%;
-	width: 50px;
-	height: 50px;
-	font-size: 28px;
-	cursor: pointer;
-	margin-top: 15px;
-	transition: 0.2s;
-}
-
-#saveExpense:hover {
-	background: #ff5050;
-}
-
-@media screen and (min-width: 1024px) {
-	.documents-container {
-		max-width: 100%;
-		padding: 20px;
-	}
-
-	.documents-main {
-		display: flex;
-		gap: 00px;
-		padding: 20px;
-	}
-
+/* Адаптив для великих екранів */
+@media screen and (min-width: 768px) {
 	.circle-block {
-		flex: 0 0 auto;
-		margin: 0;
-		margin-left: 100px;
+		width: 400px;
 	}
-
-	.circle-chart {
-		width: 400px !important;
-		height: 400px !important;
-		margin: 0;
-	}
-
 	.documents-main-content {
-		flex: 1;
-		max-height: 80vh;
-		overflow-y: auto;
-		padding: 0;
-		margin-left: 200px;
-	}
-
-	.categories {
-		width: 100%;
-		max-height: 100%;
+		width: 400px;
 	}
 }
