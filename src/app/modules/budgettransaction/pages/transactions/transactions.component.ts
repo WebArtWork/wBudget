@@ -231,7 +231,6 @@ export class TransactionsComponent
 		this.form?.updateFields?.([budgetSelect]);
 	}
 
-	// Методи для кнопок Create/Edit/Delete
 	handleButtonClick(btn: any, transaction?: Budgettransaction) {
 		if (btn.click && transaction !== undefined) {
 			btn.click(transaction);
@@ -245,7 +244,6 @@ export class TransactionsComponent
 			JSON.stringify(budgettransactionFormComponents)
 		);
 
-		// Проставляємо budget
 		const budgetSelect = formComponents.components.find(
 			(c: any) => c.key === 'budget' && c.name === 'Select'
 		);

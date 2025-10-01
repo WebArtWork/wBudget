@@ -16,13 +16,41 @@ import { MatDateRangePicker } from '@angular/material/datepicker';
 import { DateRange } from '@angular/material/datepicker';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import {
+	MAT_DATE_FORMATS,
+	DateAdapter,
+	NativeDateAdapter
+} from '@angular/material/core';
+
+export class MyDateAdapter extends NativeDateAdapter {
+	override format(date: Date, displayFormat: Object): string {
+		const day = date.getDate().toString().padStart(2, '0');
+		const month = (date.getMonth() + 1).toString().padStart(2, '0');
+		return `${day}.${month}`;
+	}
+}
 
 @Component({
 	selector: 'app-public',
 	standalone: false,
 	templateUrl: './public.component.html',
 	styleUrls: ['./public.component.scss'],
-	encapsulation: ViewEncapsulation.None
+	encapsulation: ViewEncapsulation.None,
+	providers: [
+		{ provide: DateAdapter, useClass: MyDateAdapter },
+		{
+			provide: MAT_DATE_FORMATS,
+			useValue: {
+				parse: { dateInput: 'dd.MM' },
+				display: {
+					dateInput: 'dd.MM',
+					monthYearLabel: 'MMM',
+					dateA11yLabel: 'LL',
+					monthYearA11yLabel: 'MMMM'
+				}
+			}
+		}
+	]
 })
 export class PublicComponent implements OnInit, OnDestroy {
 	@ViewChild('picker') picker!: MatDateRangePicker<Date>;
@@ -47,9 +75,8 @@ export class PublicComponent implements OnInit, OnDestroy {
 	private budgetListener: any;
 
 	async ngOnInit(): Promise<void> {
-		await this.loadBudgets(); // спочатку завантажуємо всі бюджети
+		await this.loadBudgets();
 
-		// Відновлюємо збережений бюджет
 		const savedBudgetId = localStorage.getItem('selectedBudgetId');
 		if (savedBudgetId) {
 			const selectedBudget = this.budgets.find(
@@ -61,7 +88,10 @@ export class PublicComponent implements OnInit, OnDestroy {
 				await this.loadUnits(savedBudgetId);
 			}
 		}
-
+		const savedUnitId = localStorage.getItem('selectedUnitId');
+		if (savedUnitId && this.units.find((u) => u._id === savedUnitId)) {
+			this.selectedUnitId = savedUnitId;
+		}
 		this.budgetListener = (event: any) => {
 			const budget: Budget = event.detail;
 
@@ -250,6 +280,5 @@ export class PublicComponent implements OnInit, OnDestroy {
 			}
 		]);
 	}
-
 	setDocuments() {}
 }
