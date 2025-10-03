@@ -41,7 +41,7 @@ export class TransactionsComponent
 	config = this.getConfig();
 	budget = this._router.url.replace('/transactions/', '');
 	private allUnits: Budgetunit[] = [];
-
+	selectedBudget: Budget | null = null;
 	override allowUrl(): boolean {
 		return false;
 	}
@@ -62,7 +62,6 @@ export class TransactionsComponent
 			'Budgettransaction'
 		);
 
-		// Додаємо кнопки Create, Edit, Delete
 		this.config.buttons.unshift({
 			icon: 'add',
 			click: () => this.createTransaction()
@@ -80,6 +79,12 @@ export class TransactionsComponent
 	}
 
 	async ngOnInit(): Promise<void> {
+		const budgetId = localStorage.getItem('selectedBudgetId');
+		if (budgetId) {
+			const budgets = await this._budgetService.getAllBudgets();
+			this.selectedBudget =
+				budgets.find((b: Budget) => b._id === budgetId) || null;
+		}
 		await this.loadBudgets();
 		await this.loadUnits();
 		await this.loadTransactions();

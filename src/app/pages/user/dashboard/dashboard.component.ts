@@ -25,7 +25,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	selectedBudgetId: string | null = null;
 	selectedUnitId: string | null = null;
 
-	selectedBudget: string | null = null;
+	selectedBudget: Budget | null = null;
 	selectedUnit: string | null = null;
 
 	transactions: Budgettransaction[] = [];
@@ -62,7 +62,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 		if (budget) {
 			this.selectedBudgetId = budget._id;
-			this.selectedBudget = budget.name;
+			this.selectedBudget = budget;
 			localStorage.setItem('selectedBudgetId', budget._id);
 			localStorage.setItem('selectedBudgetName', budget.name);
 
@@ -90,7 +90,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			const budget: Budget = event.detail;
 			if (!budget?._id) return;
 
-			this.selectedBudget = budget._id;
+			this.selectedBudget = budget;
 
 			// Підтягуємо юніти та транзакції
 			this.units = await firstValueFrom(
@@ -140,7 +140,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 	private async loadBudgetData(budget: Budget) {
 		// Встановлюємо обраний бюджет
-		this.selectedBudget = budget._id;
+		this.selectedBudget = budget;
 
 		// Підтягуємо юніти
 		this.units = await firstValueFrom(

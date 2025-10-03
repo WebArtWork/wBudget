@@ -6,4 +6,5 @@ export interface Budget extends CrudDocument {
 	description: string;
 	amount: Number;
 	currency: String;
+	balance?: number;
 }

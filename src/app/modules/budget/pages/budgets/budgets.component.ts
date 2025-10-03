@@ -8,7 +8,9 @@ import { CrudComponent } from 'wacom';
 import { budgetFormComponents } from '../../formcomponents/budget.formcomponents';
 import { Budget } from '../../interfaces/budget.interface';
 import { BudgetService } from '../../services/budget.service';
+import { BudgettransactionService } from 'src/app/modules/budgettransaction/services/budgettransaction.service';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
 	imports: [CommonModule, TableModule],
@@ -31,10 +33,11 @@ export class BudgetsComponent extends CrudComponent<
 	}
 
 	constructor(
-		_budgetService: BudgetService,
-		_translate: TranslateService,
-		_form: FormService,
-		public router: Router
+		private _budgetService: BudgetService,
+		private _translate: TranslateService,
+		private _form: FormService,
+		public router: Router,
+		private _budgettransactionService: BudgettransactionService
 	) {
 		super(
 			budgetFormComponents,
@@ -59,12 +62,10 @@ export class BudgetsComponent extends CrudComponent<
 			hrefFunc: (doc: Budget) =>
 				doc._id ? '/transactions/' + doc._id : '/transactions'
 		});
-
 		this.config.buttons.push({
 			icon: 'edit',
 			click: (doc: Budget) => this.editBudget(doc)
 		});
-
 		this.config.buttons.push({
 			icon: 'delete',
 			click: (doc: Budget) => this.deleteBudget(doc)
@@ -84,16 +85,77 @@ export class BudgetsComponent extends CrudComponent<
 		}
 	}
 
+	override async setDocuments() {
+		this.documents = await this._budgetService.getAllBudgets();
+
+		// Підвантажуємо всі транзакції одразу
+		const allTransactionsMap: { [budgetId: string]: any[] } = {};
+
+		for (const budget of this.documents) {
+			allTransactionsMap[budget._id] = await firstValueFrom(
+				this._budgettransactionService.getTransactionsByBudget(
+					budget._id
+				)
+			);
+		}
+
+		// Тепер рахуємо баланс для всіх бюджетів
+		for (const budget of this.documents) {
+			const txs = allTransactionsMap[budget._id];
+			const balance = txs.reduce((sum, t) => {
+				const sign = t.isDeposit ? 1 : -1;
+
+				if (t.unitId) return sum + sign * t.amount;
+				if (t.units && Array.isArray(t.units)) {
+					const sumUnits = (t.units as { amount?: number }[]).reduce(
+						(s: number, u) => s + (u.amount || 0),
+						0
+					);
+					return sum + sign * sumUnits;
+				}
+
+				return sum + sign * t.amount;
+			}, 0);
+
+			budget.balance = balance;
+		}
+	}
+
+	async calculateBudgetBalance(budget: Budget): Promise<number> {
+		if (!budget._id) return 0;
+
+		const transactions = await firstValueFrom(
+			this._budgettransactionService.getTransactionsByBudget(budget._id)
+		);
+
+		const balance = transactions.reduce((sum: number, t: any) => {
+			const sign = t.isDeposit ? 1 : -1;
+
+			if (t.unitId) return sum + sign * t.amount;
+			if (t.units && Array.isArray(t.units)) {
+				const sumUnits = (t.units as { amount?: number }[]).reduce(
+					(s: number, u) => s + (u.amount || 0),
+					0
+				);
+				return sum + sign * sumUnits;
+			}
+
+			return sum + sign * t.amount;
+		}, 0);
+
+		return balance;
+	}
+
 	createBudget() {
 		const formComponents = JSON.parse(JSON.stringify(budgetFormComponents));
-		(this.formService as FormService).modal<Budget>(formComponents, [
+		(this._form as FormService).modal<Budget>(formComponents, [
 			{
 				label: 'Create',
 				click: (submitted: unknown, close: () => void) => {
 					const created = submitted as Budget;
-					this.service.create(created).subscribe({
-						next: () => {
-							this.setDocuments();
+					this._budgetService.create(created).subscribe({
+						next: async () => {
+							await this.setDocuments();
 							close();
 						},
 						error: (err) =>
@@ -106,18 +168,16 @@ export class BudgetsComponent extends CrudComponent<
 
 	editBudget(budget: Budget) {
 		const formComponents = JSON.parse(JSON.stringify(budgetFormComponents));
-
-		(this.formService as FormService).modal<Budget>(
+		(this._form as FormService).modal<Budget>(
 			formComponents,
 			[
 				{
 					label: 'Update',
-					click: (submitted: unknown, close: () => void) => {
+					click: async (submitted: unknown, close: () => void) => {
 						const updated = submitted as Budget;
-
-						this.service.update(updated).subscribe({
-							next: () => {
-								this.setDocuments();
+						this._budgetService.update(updated).subscribe({
+							next: async () => {
+								await this.setDocuments();
 								close();
 							},
 							error: (err) =>
@@ -133,7 +193,7 @@ export class BudgetsComponent extends CrudComponent<
 	deleteBudget(budget: Budget) {
 		if (!budget._id) return;
 		if (confirm(`Delete budget "${budget.name}"?`)) {
-			this.service.delete(budget).subscribe(() => {
+			this._budgetService.delete(budget).subscribe(() => {
 				this.documents = this.documents.filter(
 					(b) => b._id !== budget._id
 				);

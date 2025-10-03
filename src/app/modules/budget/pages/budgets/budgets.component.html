@@ -11,7 +11,7 @@
 		(click)="goToDashboard(budget)"
 	>
 		<h3 class="budget-name">{{ budget.name }}</h3>
-		<p class="budget-amount">{{ budget.amount }} {{ budget.currency }}</p>
+		<p class="budget-amount">{{ budget.balance }} {{ budget.currency }}</p>
 
 		<div class="budget-actions" *ngIf="config?.buttons?.length">
 			<ng-container *ngFor="let btn of config.buttons.slice(1)">

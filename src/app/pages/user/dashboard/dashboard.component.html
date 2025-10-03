@@ -2,10 +2,10 @@
 	<div class="documents-container">
 		<div class="documents-list">
 			<div class="documents-main">
-				<!-- 1. Баланс -->
 				<div class="balance-block">
 					<h2 class="balance-title">
-						Balance: {{ getBudgetBalance() }}₴
+						Balance: {{ getBudgetBalance() }}{{
+						selectedBudget?.currency }}
 					</h2>
 
 					<div class="summary">
@@ -26,14 +26,12 @@
 					</div>
 					<div class="circle-chart" [ngStyle]="circleChartStyle">
 						<div class="circle-chart-inner">
-							{{ getCircleTotal() }}₴
+							{{ getCircleTotal() }}{{ selectedBudget?.currency }}
 						</div>
 					</div>
 				</div>
 
-				<!-- 3. Категорії / Транзакції -->
 				<div class="documents-main-content">
-					<!-- Список юнітів -->
 					<div *ngIf="!selectedUnit" class="categories">
 						<h3></h3>
 						<div
@@ -47,12 +45,12 @@
 							<span class="note">{{ unit.name }}</span>
 							<span class="amount">
 								{{ unit.totalAmount! >= 0 ? '+' : '' }}{{
-								unit.totalAmount }}₴</span
+								unit.totalAmount }}{{ selectedBudget?.currency
+								}}</span
 							>
 						</div>
 					</div>
 
-					<!-- Транзакції по юніту -->
 					<div *ngIf="selectedUnit">
 						<div
 							*ngIf="filteredTransactions.length > 0"
@@ -73,7 +71,8 @@
 
 								<span class="amount">
 									{{ transaction.isDeposit ? '+' : '-' }}{{
-									transaction.amount }}₴
+									transaction.amount }}{{
+									selectedBudget?.currency }}
 								</span>
 							</div>
 						</div>

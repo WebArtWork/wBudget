@@ -13,6 +13,7 @@
 			<h3 class="transaction-note">{{ transaction.note }}</h3>
 			<p class="transaction-amount">
 				{{ transaction.isDeposit ? '+' : '-' }}{{ transaction.amount }}
+				{{ selectedBudget?.currency }}
 			</p>
 		</div>
 		<div class="transaction-right">
