@@ -16,7 +16,9 @@ import { Budget } from 'src/app/modules/budget/interfaces/budget.interface';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 	isMenuOpen = false;
-	selectedType: 'income' | 'expense' | null = null;
+	selectedType: 'income' | 'expense' | null = 'income';
+	public budgetBalance: number = 0;
+
 	units: (Budgetunit & { totalAmount?: number })[] = [];
 
 	budgets: Budget[] = [];
@@ -177,7 +179,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			return { ...u, totalAmount };
 		});
 	}
-	private updateUnitsTotals() {
+	public updateUnitsTotals() {
 		this.units = this.units.map((u) => {
 			const totalAmount = this.transactions
 				.filter((t) => this.isTransactionInRange(t))
@@ -419,32 +421,74 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	getExpenseTotal() {
 		return this.getTotalByType('expense');
 	}
+	public getBudgetBalance(): number {
+		const txs = this.transactions.filter((t) =>
+			this.isTransactionInRange(t)
+		);
 
-	public getCircleTotal(): number {
+		const balance = txs.reduce((sum, t) => {
+			const sign = t.isDeposit ? 1 : -1;
+
+			// якщо транзакція прив'язана до одного юніта — беремо її amount
+			if (t.unitId) {
+				return sum + sign * t.amount;
+			}
+
+			// якщо транзакція розподілена по кількох юнітах — сумуємо їхні entry.amount
+			if (t.units && Array.isArray(t.units)) {
+				const sumUnits = t.units.reduce(
+					(s: number, u: any) => s + (u.amount || 0),
+					0
+				);
+				return sum + sign * sumUnits;
+			}
+
+			// інакше беремо amount (на рівні бюджету)
+			return sum + sign * t.amount;
+		}, 0);
+
+		this.budgetBalance = balance;
+		return balance;
+	}
+
+	public getCircleTotal(): string {
+		let total: number;
+
+		// Якщо вибраний юніт
 		if (this.selectedUnit) {
-			return this.transactions
-				.filter(
-					(t) =>
-						String(t.unitId) === String(this.selectedUnit) ||
-						(t.units &&
-							t.units.some(
+			const txs = this.transactions.filter(
+				(t) =>
+					String(t.unitId) === String(this.selectedUnit) ||
+					(t.units &&
+						t.units.some(
+							(x) => String(x.unit) === String(this.selectedUnit)
+						))
+			);
+
+			if (this.selectedType) {
+				const isDeposit = this.selectedType === 'income';
+				total = txs
+					.filter((t) => t.isDeposit === isDeposit)
+					.reduce((sum, t) => {
+						if (
+							t.unitId &&
+							String(t.unitId) === String(this.selectedUnit)
+						) {
+							return sum + t.amount;
+						}
+						if (t.units) {
+							const entry = t.units.find(
 								(x) =>
 									String(x.unit) === String(this.selectedUnit)
-							))
-				)
-				.filter((t) => {
-					if (this.selectedRange.start && this.selectedRange.end) {
-						const start = this.selectedRange.start;
-						const end = new Date(this.selectedRange.end);
-						end.setHours(23, 59, 59, 999);
-						const timestamp =
-							parseInt(t._id.substring(0, 8), 16) * 1000;
-						const txDate = new Date(timestamp);
-						return txDate >= start && txDate <= end;
-					}
-					return true;
-				})
-				.reduce((sum, t) => {
+							);
+							if (entry) return sum + entry.amount;
+						}
+						return sum;
+					}, 0);
+
+				total = isDeposit ? total : -total;
+			} else {
+				total = txs.reduce((sum, t) => {
 					if (
 						t.unitId &&
 						String(t.unitId) === String(this.selectedUnit)
@@ -455,58 +499,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
 						const entry = t.units.find(
 							(x) => String(x.unit) === String(this.selectedUnit)
 						);
-						if (entry)
+						if (entry) {
 							return (
 								sum +
 								(t.isDeposit ? entry.amount : -entry.amount)
 							);
+						}
 					}
 					return sum;
 				}, 0);
+			}
 		} else {
-			return this.units
-				.map((u) => {
-					let txs = this.transactions.filter(
-						(t) =>
-							String(t.unitId) === String(u._id) ||
-							(t.units &&
-								t.units.some(
-									(x) => String(x.unit) === String(u._id)
-								))
-					);
-
-					if (this.selectedRange.start && this.selectedRange.end) {
-						const start = this.selectedRange.start;
-						const end = new Date(this.selectedRange.end);
-						end.setHours(23, 59, 59, 999);
-						txs = txs.filter((t) => {
-							const timestamp =
-								parseInt(t._id.substring(0, 8), 16) * 1000;
-							const txDate = new Date(timestamp);
-							return txDate >= start && txDate <= end;
-						});
-					}
-
-					return txs.reduce((sum, t) => {
-						if (t.unitId && String(t.unitId) === String(u._id)) {
-							return sum + (t.isDeposit ? t.amount : -t.amount);
-						}
-						if (t.units) {
-							const entry = t.units.find(
-								(x) => String(x.unit) === String(u._id)
-							);
-							if (entry) {
-								return (
-									sum +
-									(t.isDeposit ? entry.amount : -entry.amount)
-								);
-							}
-						}
-						return sum;
-					}, 0);
-				})
-				.reduce((sum, amount) => sum + amount, 0);
+			if (this.selectedType) {
+				total = this.getTotalByType(this.selectedType);
+				total = this.selectedType === 'income' ? total : -total;
+			} else {
+				total = this.getIncomeTotal() - this.getExpenseTotal();
+			}
 		}
+
+		// повертаємо зі знаком
+		return total > 0 ? `+${total}` : `${total}`;
 	}
 
 	getCategoriesData() {
@@ -519,8 +532,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			});
 		} else {
 			this.getFilteredUnits().forEach((u) => {
-				if ((u.totalAmount || 0) > 0) {
-					categories[u.name] = u.totalAmount!;
+				if ((u.totalAmount || 0) !== 0) {
+					categories[u.name] = Math.abs(u.totalAmount!);
 				}
 			});
 		}
@@ -537,12 +550,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		let total = 0;
 
 		this.getFilteredUnits().forEach((u) => {
-			if (
-				!this.selectedType ||
-				(this.selectedType === 'income'
-					? u.totalAmount! >= 0
-					: u.totalAmount! < 0)
-			) {
+			// фільтр за типом
+			if (!this.selectedType) {
+				categories[u.name] = Math.abs(u.totalAmount!);
+				total += Math.abs(u.totalAmount!);
+			} else if (this.selectedType === 'income' && u.totalAmount! > 0) {
+				categories[u.name] = u.totalAmount!;
+				total += u.totalAmount!;
+			} else if (this.selectedType === 'expense' && u.totalAmount! < 0) {
 				categories[u.name] = Math.abs(u.totalAmount!);
 				total += Math.abs(u.totalAmount!);
 			}

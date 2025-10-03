@@ -244,33 +244,6 @@ export class TransactionsComponent
 			JSON.stringify(budgettransactionFormComponents)
 		);
 
-		const budgetSelect = formComponents.components.find(
-			(c: any) => c.key === 'budget' && c.name === 'Select'
-		);
-		if (budgetSelect) {
-			const itemsField = budgetSelect.fields.find(
-				(f: any) => f.name === 'Items'
-			);
-			if (itemsField) {
-				const selectedBudgetObj = this._budgetService.budgets?.find(
-					(b: Budget) => b._id === this.budget
-				);
-				itemsField.value = selectedBudgetObj
-					? [
-							{
-								name: selectedBudgetObj.name,
-								value: selectedBudgetObj._id,
-								selected: true
-							}
-						]
-					: [];
-			}
-			const disabledField = budgetSelect.fields.find(
-				(f: any) => f.name === 'Disabled'
-			);
-			if (disabledField) disabledField.value = true;
-		}
-
 		(this.formService as FormService).modal<Budgettransaction>(
 			formComponents,
 			[
@@ -280,12 +253,20 @@ export class TransactionsComponent
 						const created = submitted as Budgettransaction;
 						created.budget = this.budget;
 
-						if (created.unitId && created.amount) {
-							created.units = [
-								{ unit: created.unitId, amount: created.amount }
-							];
+						if (
+							!created.unitId ||
+							!created.amount ||
+							created.amount <= 0
+						) {
+							alert(
+								'Please select a unit and enter an amount greater than 0.'
+							);
+							return;
 						}
 
+						created.units = [
+							{ unit: created.unitId, amount: created.amount }
+						];
 						created.isDeposit = !!created.isDeposit;
 
 						const unit = this.allUnits.find(
@@ -309,10 +290,8 @@ export class TransactionsComponent
 										res
 									];
 								this.documents = [...this.documents, res];
-
 								this.setDocuments();
 								this.markSelectedUnits();
-
 								close();
 							},
 							error: (err) =>
@@ -336,48 +315,56 @@ export class TransactionsComponent
 			formComponents,
 			[
 				{
-					label: 'Update',
+					label: 'Edit',
 					click: (submitted: unknown, close: () => void) => {
-						const updated = submitted as Budgettransaction;
+						const edited = submitted as Budgettransaction;
+						edited._id = transaction._id;
+						edited.budget = this.budget;
 
-						// Ініціалізуємо масив units, якщо його немає
-						if (!updated.units) {
-							updated.units = [];
+						if (
+							!edited.unitId ||
+							!edited.amount ||
+							edited.amount <= 0
+						) {
+							alert(
+								'Please select a unit and enter an amount greater than 0.'
+							);
+							return;
 						}
 
-						// Перевіряємо, що unitId визначений
-						if (!updated.units) updated.units = [];
+						edited.units = [
+							{ unit: edited.unitId, amount: edited.amount }
+						];
+						edited.isDeposit = !!edited.isDeposit;
 
-						const existingIndex = updated.units.findIndex(
-							(u) => u.unit === updated.unitId
+						const unit = this.allUnits.find(
+							(u) => u._id === edited.unitId
 						);
+						edited.unitName = unit ? unit.name : edited.unitId;
 
-						if (existingIndex > -1) {
-							// Оновлюємо amount для вже існуючого юніту
-							updated.units[existingIndex].amount =
-								+updated.amount;
-						} else {
-							// Якщо юніт змінився, додаємо новий
-							updated.units.push({
-								unit: updated.unitId!,
-								amount: +updated.amount
-							});
-						}
+						const budgetObj = this._budgetService.budgets?.find(
+							(b) => b._id === edited.budget
+						);
+						edited.budgetName = budgetObj
+							? budgetObj.name
+							: edited.budget;
 
-						this.service.update(updated).subscribe({
-							next: () => {
-								const index = this.documents.findIndex(
-									(t) => t._id === updated._id
+						this.service.update(edited).subscribe({
+							next: (res: Budgettransaction) => {
+								this._budgettransactionService.budgettransactions =
+									this._budgettransactionService.budgettransactions.map(
+										(t) => (t._id === res._id ? res : t)
+									);
+								this.documents = this.documents.map((d) =>
+									d._id === res._id ? res : d
 								);
-								if (index > -1) this.documents[index] = updated;
+
 								this.setDocuments();
+								this.markSelectedUnits();
 								close();
 							},
 							error: (err) =>
-								console.error(
-									'Error updating transaction:',
-									err
-								)
+								console.error('Error editing transaction:', err)
 						});
 					}
 				}
