@@ -139,6 +139,9 @@ export class PublicComponent implements OnInit, OnDestroy {
 	back(): void {
 		window.history.back();
 	}
+	clearDates(): void {
+		this.range.reset();
+	}
 
 	async loadBudgets(): Promise<void> {
 		try {

@@ -92,7 +92,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 			this.selectedBudget = budget;
 
-			// Підтягуємо юніти та транзакції
 			this.units = await firstValueFrom(
 				this._budgetunitService.getUnitsByBudget(budget._id)
 			);
@@ -102,10 +101,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				)
 			);
 
-			// Перерахунок totalAmount
 			this.updateUnitsTotals();
 
-			// НЕ обираємо юніт автоматично
 			this.selectedUnit = null;
 			this.selectedUnitId = null;
 		};
@@ -123,7 +120,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				start: event.detail.start ? new Date(event.detail.start) : null,
 				end: event.detail.end ? new Date(event.detail.end) : null
 			};
-			// Перерахунок totalAmount після зміни діапазону
+
 			this.updateUnitsTotals();
 		};
 		window.addEventListener('dateRangeChanged', this.dateRangeListener);
@@ -139,22 +136,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	}
 
 	private async loadBudgetData(budget: Budget) {
-		// Встановлюємо обраний бюджет
 		this.selectedBudget = budget;
 
-		// Підтягуємо юніти
 		this.units = await firstValueFrom(
 			this._budgetunitService.getUnitsByBudget(budget._id)
 		);
 
-		// Підтягуємо транзакції
 		this.transactions = await firstValueFrom(
 			this._budgettransactionService.getTransactionsByBudget(budget._id)
 		);
 
-		// Перерахунок totalAmount
 		this.updateUnitsTotals();
-		// Рахуємо totalAmount для кожного юніта (для графіка)
+
 		this.units = this.units.map((u) => {
 			const totalAmount = this.transactions.reduce((sum, t) => {
 				if (!this.isTransactionInRange(t)) return sum;
@@ -212,11 +205,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 	selectType(type: 'income' | 'expense') {
 		if (this.selectedType === type) {
-			this.selectedType = null; // зняти фільтр
+			this.selectedType = null;
 		} else {
 			this.selectedType = type;
 		}
-		this.updateUnitsTotals(); // оновлюємо totalAmount після зміни типу
+		this.updateUnitsTotals();
 	}
 
 	onUnitChange(unitId: string | null) {
@@ -256,7 +249,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	})[] {
 		return this.transactions
 			.filter((t) => {
-				// Фільтр по юніту
 				if (!this.selectedUnit) return true;
 				return (
 					(t.unitId &&
@@ -268,14 +260,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				);
 			})
 			.filter((t) => {
-				// Фільтр по типу доход/розхід
 				if (!this.selectedType) return true;
 				return this.selectedType === 'income'
 					? t.isDeposit
 					: !t.isDeposit;
 			})
 			.filter((t) => {
-				// Фільтр по даті
 				if (
 					this.selectedRange.start &&
 					this.selectedRange.end &&
@@ -292,7 +282,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				return true;
 			})
 			.map((t) => {
-				// Обчислюємо displayAmount
 				let amount = t.amount;
 
 				if (this.selectedUnit) {
@@ -309,7 +298,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 							amount = t.isDeposit ? entry.amount : -entry.amount;
 					}
 				} else {
-					// Якщо юніт не обраний, враховуємо isDeposit
 					if (!t.unitId && !t.units) {
 						amount = t.isDeposit ? t.amount : -t.amount;
 					}
@@ -429,12 +417,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		const balance = txs.reduce((sum, t) => {
 			const sign = t.isDeposit ? 1 : -1;
 
-			// якщо транзакція прив'язана до одного юніта — беремо її amount
 			if (t.unitId) {
 				return sum + sign * t.amount;
 			}
 
-			// якщо транзакція розподілена по кількох юнітах — сумуємо їхні entry.amount
 			if (t.units && Array.isArray(t.units)) {
 				const sumUnits = t.units.reduce(
 					(s: number, u: any) => s + (u.amount || 0),
@@ -443,7 +429,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				return sum + sign * sumUnits;
 			}
 
-			// інакше беремо amount (на рівні бюджету)
 			return sum + sign * t.amount;
 		}, 0);
 
@@ -454,7 +439,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	public getCircleTotal(): string {
 		let total: number;
 
-		// Якщо вибраний юніт
 		if (this.selectedUnit) {
 			const txs = this.transactions.filter(
 				(t) =>
@@ -518,7 +502,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			}
 		}
 
-		// повертаємо зі знаком
 		return total > 0 ? `+${total}` : `${total}`;
 	}
 
@@ -550,7 +533,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		let total = 0;
 
 		this.getFilteredUnits().forEach((u) => {
-			// фільтр за типом
 			if (!this.selectedType) {
 				categories[u.name] = Math.abs(u.totalAmount!);
 				total += Math.abs(u.totalAmount!);

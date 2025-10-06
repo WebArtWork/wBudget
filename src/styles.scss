@@ -1,81 +1,113 @@
 @use 'scss';
-/* Фон всього календаря */
+
 .mat-datepicker-content {
 	background-color: #2c2c2c !important;
 	border-radius: 8px;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Фон полів вводу дат */
-.mat-form-field-wrapper {
-	background-color: #f5f5f5;
-	border-radius: 4px;
-	padding: 0 8px;
-}
-
-/* Початок проміжку */
-.mat-calendar-body-range-start {
-	background-color: #0f3257 !important;
-	color: white !important;
-	border-radius: 50% 0 0 50%; /* округлення лівого краю */
-	z-index: 2;
-}
-
-/* Кінець проміжку */
-.mat-calendar-body-range-end {
-	background-color: #0f3257 !important;
-	color: white !important;
-	border-radius: 0 50% 50% 0; /* округлення правого краю */
-	z-index: 2;
-}
-
-/* Дати всередині проміжку */
-.mat-calendar-body-in-range:not(.mat-calendar-body-range-start):not(
-		.mat-calendar-body-range-end
-	) {
-	background-color: #0f3257; /* напівпрозорий синій */
-	color: white !important;
-	border-radius: 0; /* без округлення всередині */
-	z-index: 1;
-}
-
-/* Вибрана дата при ховері */
-.mat-calendar-body-cell:hover:not(.mat-calendar-body-selected) {
-	background-color: #0f3257;
-}
-/* Дати */
 .mat-calendar-body-cell {
 	color: white;
 }
-.mat-datepicker-toggle {
-	display: inline-flex;
+
+.mat-calendar-body-range-start {
+	background-color: #0f3257 !important;
+	color: white !important;
+	border-radius: 50% 0 0 50%;
+	z-index: 2;
+}
+
+.mat-calendar-body-range-end {
+	background-color: #0f3257 !important;
+	color: white !important;
+	border-radius: 0 50% 50% 0;
+	z-index: 2;
+}
+
+.mat-calendar-body-in-range:not(.mat-calendar-body-range-start):not(
+		.mat-calendar-body-range-end
+	) {
+	background-color: #0f3257;
+	color: white !important;
+	border-radius: 0;
+	z-index: 1;
+}
+
+.mat-calendar-body-cell:hover:not(.mat-calendar-body-selected) {
+	background-color: #0f3257;
+}
+
+.date-range-field {
+	display: flex;
 	align-items: center;
-	justify-content: center;
-	width: 50px; /* фіксована ширина, щоб не стрибало */
-	height: 50px; /* фіксована висота */
-	border-radius: 12px;
+	gap: 4px;
+	width: 100%;
 
-	cursor: pointer;
-}
-/* Прибираємо нижню лінію та padding для всіх mat-date-range-input */
-.mat-date-range-input {
-	padding: 0 !important;
-	min-height: 0 !important;
+	.button-calendar {
+		flex: 0 0 auto;
+		width: 24px;
+		height: 24px;
+		font-size: 16px;
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding-right: 15px;
+	}
+
+	.range-input {
+		flex: 1 1 auto;
+		display: flex;
+		gap: 2px;
+
+		input {
+			flex: 1;
+			min-width: 0;
+			font-size: 13px !important;
+			padding: 4px;
+			height: 32px;
+			color: #e3dbdb;
+		}
+
+		.mat-form-field-wrapper {
+			display: flex !important;
+			align-items: center;
+			padding: 0;
+			background: transparent;
+			width: 100%;
+		}
+	}
+
+	mat-datepicker-toggle {
+		flex: 0 0 auto;
+		width: 24px;
+		height: 24px;
+		display: flex !important;
+		align-items: center;
+		justify-content: center;
+		font-size: 16px;
+		border-radius: 8px;
+		cursor: pointer;
+	}
 }
 
-.mat-date-range-input .mat-form-field-underline,
-.mat-date-range-input .mat-form-field-infix,
-.mat-date-range-input .mat-form-field-wrapper {
-	display: none !important;
-}
+@media (max-width: 480px) {
+	.date-range-field {
+		gap: 2px;
 
-/* Щоб кнопка календаря була нормальної форми */
-.mat-datepicker-toggle {
-	display: inline-flex !important;
-	align-items: center;
-	justify-content: center;
-	width: 50px !important;
-	height: 50px !important;
-	border-radius: 12px !important;
-	cursor: pointer;
+		.button-calendar,
+		mat-datepicker-toggle {
+			width: 20px;
+			height: 20px;
+			font-size: 14px;
+		}
+
+		.range-input input {
+			font-size: 10px;
+			height: 28px;
+			padding: 2px 4px !important;
+		}
+	}
 }

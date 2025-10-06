@@ -2,24 +2,35 @@
 	<div class="documents-header">
 		<!-- Calendar -->
 		<form [formGroup]="range">
-			<mat-form-field appearance="fill">
-				<mat-date-range-input [rangePicker]="picker">
-					<input
-						matStartDate
-						formControlName="start"
-						placeholder="Start data"
-					/>
-					<input
-						matEndDate
-						formControlName="end"
-						placeholder="Finish data"
-					/>
-				</mat-date-range-input>
-				<mat-datepicker-toggle
-					matSuffix
-					[for]="picker"
-				></mat-datepicker-toggle>
-				<mat-date-range-picker #picker></mat-date-range-picker>
+			<mat-form-field appearance="fill" class="date-range-wrapper">
+				<div class="date-range-field">
+					<mat-date-range-input
+						[rangePicker]="picker"
+						class="range-input"
+					>
+						<input
+							matStartDate
+							formControlName="start"
+							placeholder=" "
+						/>
+						<input
+							matEndDate
+							formControlName="end"
+							placeholder=""
+						/>
+					</mat-date-range-input>
+					<button
+						class="button-calendar"
+						type="button"
+						(click)="clearDates()"
+					>
+						<span class="material-icons">close</span>
+					</button>
+					<mat-datepicker-toggle
+						[for]="picker"
+					></mat-datepicker-toggle>
+					<mat-date-range-picker #picker></mat-date-range-picker>
+				</div>
 			</mat-form-field>
 		</form>
 		<!-- Budget dropdown

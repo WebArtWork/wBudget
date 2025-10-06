@@ -5,14 +5,13 @@
 	padding-bottom: 30px;
 }
 
-/* === БЛОК БАЛАНСУ === */
 .balance-block {
 	background-color: #373535;
 	color: #ecebeb;
 	width: 100%;
 	padding: 15px 20px 60px 20px;
 	margin: 0px;
-	border-radius: 0 0 20px 20px; /* закруглені верхні кути */
+	border-radius: 0 0 20px 20px;
 	text-align: center;
 	position: relative;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -37,24 +36,17 @@
 	cursor: pointer;
 	font-weight: bold;
 	padding: 5px 10px;
-	border-bottom: 2px solid transparent; /* за замовчуванням */
+	border-bottom: 2px solid transparent;
 	transition: border-color 0.2s;
 }
 
 .summary span:hover {
-	border-color: rgba(
-		255,
-		255,
-		255,
-		0.3
-	); /* легке підкреслення при наведенні */
+	border-color: rgba(255, 255, 255, 0.3);
 }
 
 .summary span.active {
-	border-color: #ecebeb; /* біла підкреслююча лінія для активного */
+	border-color: #ecebeb;
 }
-
-/* === КОЛО === */
 
 .circle-chart {
 	width: 250px;
@@ -82,7 +74,6 @@
 	font-size: 18px;
 }
 
-/* === ЮНІТИ / ТРАНЗАКЦІЇ === */
 .documents-main-content {
 	padding: 10px 0;
 	display: flex;
@@ -92,7 +83,6 @@
 	margin: 0 auto;
 }
 
-/* Кожен юніт / транзакція окремий блок */
 .category {
 	background-color: #373535;
 	border-radius: 12px;
@@ -127,7 +117,6 @@
 	text-align: right;
 }
 
-/* Адаптив для великих екранів */
 @media screen and (min-width: 768px) {
 	.circle-block {
 		width: 400px;
