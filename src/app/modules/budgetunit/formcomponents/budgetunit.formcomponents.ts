@@ -9,26 +9,11 @@ export const budgetunitFormComponents = {
 			fields: [
 				{
 					name: 'Placeholder',
-					value: 'Enter a category name'
+					value: 'Fill a category name'
 				},
 				{
 					name: 'Label',
 					value: 'Title'
-				}
-			]
-		},
-		{
-			name: 'Number',
-			key: 'cost',
-			focused: true,
-			fields: [
-				{
-					name: 'Placeholder',
-					value: 'Enter a cost'
-				},
-				{
-					name: 'Label',
-					value: 'Cost'
 				}
 			]
 		}

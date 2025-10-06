@@ -1,32 +1,38 @@
 <div class="sign-wrapper">
-	<div class="sign-wrapper__wrap">
-		<div
-			class="sign-wrapper__img"
-			(click)="userService.setMode(userService.mode === 'dark' ? 'white' : 'dark')"
-		>
-			<img [src]="logo" alt="Logo" *ngIf="logo" />
-			<icon-spider *ngIf="!logo"></icon-spider>
-		</div>
-		<div class="sign-wrapper__form">
-			<div class="sign-wrapper__card">
-				<span
-					(click)="userService.setMode('dark')"
-					class="material-icons sign-wrapper__icon"
-					*ngIf="userService.mode !== 'dark'"
-				>
-					dark_mode
-				</span>
+  <div class="sign-wrapper__wrap">
+    <div
+      class="sign-wrapper__img"
+      (click)="userService.setMode(userService.mode === 'dark' ? 'white' : 'dark')"
+      >
+      @if (logo) {
+        <img [src]="logo" alt="Logo" />
+      }
+      @if (!logo) {
+        <icon-spider></icon-spider>
+      }
+    </div>
+    <div class="sign-wrapper__form">
+      <div class="sign-wrapper__card">
+        @if (userService.mode !== 'dark') {
+          <span
+            (click)="userService.setMode('dark')"
+            class="material-icons sign-wrapper__icon"
+            >
+            dark_mode
+          </span>
+        }
 
-				<span
-					(click)="userService.setMode('white')"
-					class="material-icons sign-wrapper__icon"
-					*ngIf="userService.mode === 'dark'"
-				>
-					light_mode
-				</span>
-				<wform (wSubmit)="submit()" [submition]="user" [config]="form">
-				</wform>
-			</div>
-		</div>
-	</div>
+        @if (userService.mode === 'dark') {
+          <span
+            (click)="userService.setMode('white')"
+            class="material-icons sign-wrapper__icon"
+            >
+            light_mode
+          </span>
+        }
+        <wform (wSubmit)="submit()" [submition]="user" [config]="form">
+        </wform>
+      </div>
+    </div>
+  </div>
 </div>

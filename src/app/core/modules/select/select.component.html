@@ -1,8 +1,8 @@
 <div class="w-select" style="color: black">
 	<!-- Label for the select field -->
-	<div class="w-select__label" *ngIf="label">
-		{{ 'Select.' + label | translate }}
-	</div>
+	@if (label) {
+	<div class="w-select__label">{{ 'Select.' + label | translate }}</div>
+	}
 
 	<!-- Select body containing the selected item(s) and dropdown -->
 	<div
@@ -42,19 +42,22 @@
 					</clipPath>
 				</defs>
 			</svg>
-			<!-- Display the selected items -->
+
 			<ng-container
 				[ngTemplateOutlet]="t_view ? t_view : defaultView"
 			></ng-container>
 			<ng-template #defaultView>
 				<div class="w-select__text">
-					<div class="text-overflow" *ngIf="multiple">
-						<div *ngIf="!_values.length">
-							{{'Select.' + placeholder | translate }}
-						</div>
-						<span *ngFor="let id of _values; index as i">
-							<span *ngIf="i">, </span>
-							<span *ngIf="_items[id] && _items[id] !== 0"
+					@if (multiple) {
+					<div class="text-overflow">
+						@if (!_values.length) {
+						<div>{{'Select.' + placeholder | translate }}</div>
+						} @for (id of _values; track id; let i = $index) {
+						<span>
+							@if (i) {
+							<span>, </span>
+							} @if (_items[id] && _items[id] !== 0) {
+							<span
 								>{{ 'Select.' + _items[id][name] | translate }}
 								<i
 									(click)="_values.splice(i, 1); modelChange.emit(_values)"
@@ -62,23 +65,25 @@
 									>close</i
 								>
 							</span>
+							}
 						</span>
+						}
 					</div>
-					<div class="text-overflow" *ngIf="!multiple">
+					} @if (!multiple) {
+					<div class="text-overflow">
 						{{'Select.' + (_selected || placeholder) | translate }}
 					</div>
+					}
 				</div>
 			</ng-template>
 		</div>
 
 		<!-- Clearable icon -->
-		<div
-			(click)="clear(); _selected = ''"
-			*ngIf="clearable && _selected"
-			class="w-select__arrow"
-		>
+		@if (clearable && _selected) {
+		<div (click)="clear(); _selected = ''" class="w-select__arrow">
 			<span class="material-icons">close</span>
 		</div>
+		}
 
 		<!-- Dropdown arrow -->
 		<div
@@ -101,13 +106,11 @@
 		</div>
 
 		<!-- Dropdown menu -->
-		<div
-			[class._search]="searchable"
-			class="w-select__popup"
-			*ngIf="selectShow"
-		>
+		@if (selectShow) {
+		<div [class._search]="searchable" class="w-select__popup">
 			<!-- Search input -->
-			<div *ngIf="searchable">
+			@if (searchable) {
+			<div>
 				<ng-container
 					[ngTemplateOutlet]="t_search ? t_search : defaultSearch"
 				></ng-container>
@@ -136,23 +139,22 @@
 					</div>
 				</ng-template>
 			</div>
-
+			}
 			<!-- Items list -->
 			<div class="popup-block">
+				@for (_item of (items | search: search: searchableBy + '
+				__search'); track _item) {
 				<ng-container
-					*ngFor="let _item of (items | search: search: searchableBy + ' __search')"
 					[ngTemplateOutlet]="t_item ? t_item : defaultItem"
 					[ngTemplateOutletContext]="{ item: _item }"
 				></ng-container>
-				<div
-					*ngIf="!(items | search: search: searchableBy + ' __search')?.length"
-					class="popup-block__empty-search"
-					translate
-				>
+				} @if (!(items | search: search: searchableBy + '
+				__search')?.length) {
+				<div class="popup-block__empty-search" translate>
 					Select.Nothing was found
 				</div>
+				}
 			</div>
-
 			<ng-template #defaultItem let-item="item">
 				<div
 					[class.disabled]="this._values.indexOf(item.value) !== -1"
@@ -168,5 +170,6 @@
 				</div>
 			</ng-template>
 		</div>
+		}
 	</div>
 </div>

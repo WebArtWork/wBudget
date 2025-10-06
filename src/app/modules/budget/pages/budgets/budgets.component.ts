@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { FormService } from 'src/app/core/modules/form/form.service';
 import { FormInterface } from 'src/app/core/modules/form/interfaces/form.interface';
@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
-	imports: [CommonModule, TableModule],
+	imports: [TableModule],
 	standalone: true,
 	templateUrl: './budgets.component.html',
 	styleUrls: ['./budgets.component.scss']

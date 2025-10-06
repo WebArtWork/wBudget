@@ -16,7 +16,7 @@ import { Budget } from 'src/app/modules/budget/interfaces/budget.interface';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 	isMenuOpen = false;
-	selectedType: 'income' | 'expense' | null = 'income';
+	selectedType: 'income' | 'expense' | null = null;
 	public budgetBalance: number = 0;
 
 	units: (Budgetunit & { totalAmount?: number })[] = [];
@@ -35,6 +35,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	};
 
 	private budgetListener: any;
+	private transactionListener: any;
 	private unitListener: any;
 	private dateRangeListener: any;
 	constructor(
@@ -114,6 +115,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			this.selectedUnitId = unitId || null;
 		};
 		window.addEventListener('unitChanged', this.unitListener);
+
+		this.transactionListener = (event: any) => {
+			const newTransaction: Budgettransaction = event.detail;
+
+			if (newTransaction.budget === this.selectedBudgetId) {
+				this.transactions = [...this.transactions, newTransaction];
+				this.updateUnitsTotals();
+			}
+		};
+
+		window.addEventListener('transactionCreated', this.transactionListener);
 
 		this.dateRangeListener = (event: any) => {
 			this.selectedRange = {
@@ -222,6 +234,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	ngOnDestroy() {
 		window.removeEventListener('budgetChanged', this.budgetListener);
 		window.removeEventListener('unitChanged', this.unitListener);
+		window.removeEventListener(
+			'transactionCreated',
+			this.transactionListener
+		);
+
 		if (this.dateRangeListener) {
 			window.removeEventListener(
 				'dateRangeChanged',

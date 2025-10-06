@@ -215,14 +215,20 @@ export class PublicComponent implements OnInit, OnDestroy {
 			const itemsField = unitSelect.fields.find(
 				(f: any) => f.name === 'Items'
 			);
-			if (itemsField)
-				itemsField.value = [{ name: unitName, value: selectedUnit }];
-			const disabledField = unitSelect.fields.find(
-				(f: any) => f.name === 'Disabled'
-			);
-			if (disabledField) disabledField.value = true;
-		}
 
+			if (selectedUnit) {
+				if (itemsField)
+					itemsField.value = [
+						{ name: unitName, value: selectedUnit }
+					];
+				const disabledField = unitSelect.fields.find(
+					(f: any) => f.name === 'Disabled'
+				);
+				if (disabledField) disabledField.value = true;
+			} else {
+				itemsField.value = this.units;
+			}
+		}
 		const budgetField = formComponents.components.find(
 			(c: any) => c.key === 'budget'
 		);
@@ -258,8 +264,9 @@ export class PublicComponent implements OnInit, OnDestroy {
 
 					created.budget = selectedBudget;
 					created.units = [
-						{ unit: selectedUnit, amount: created.amount }
+						{ unit: created.unitId!, amount: created.amount }
 					];
+
 					created.isDeposit = !!created.isDeposit;
 
 					this._transactionService

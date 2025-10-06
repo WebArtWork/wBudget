@@ -4,8 +4,10 @@
 			<div class="documents-main">
 				<div class="balance-block">
 					<h2 class="balance-title">
-						Balance: {{ getBudgetBalance() }}{{
-						selectedBudget?.currency }}
+						Balance: {{ getBudgetBalance() }}
+						<span class="currency"
+							>{{ selectedBudget?.currency }}</span
+						>
 					</h2>
 
 					<div class="summary">
@@ -26,35 +28,40 @@
 					</div>
 					<div class="circle-chart" [ngStyle]="circleChartStyle">
 						<div class="circle-chart-inner">
-							{{ getCircleTotal() }}{{ selectedBudget?.currency }}
+							{{ getCircleTotal() }}
+							<span class="currency"
+								>{{ selectedBudget?.currency }}</span
+							>
 						</div>
 					</div>
 				</div>
 
 				<div class="documents-main-content">
-					<div *ngIf="!selectedUnit" class="categories">
+					<div class="categories" *ngIf="!selectedUnit">
 						<h3></h3>
 						<div
-							*ngFor="let unit of getFilteredUnits()"
 							class="category"
+							*ngFor="let unit of getFilteredUnits()"
 						>
 							<span
 								class="legend-color"
 								[style.background]="getColorForUnit(unit)"
 							></span>
 							<span class="note">{{ unit.name }}</span>
-							<span class="amount">
-								{{ unit.totalAmount! >= 0 ? '+' : '' }}{{
-								unit.totalAmount }}{{ selectedBudget?.currency
-								}}</span
+							<span class="amount"
+								>{{ unit.totalAmount! >= 0 ? '+' : '' }}{{
+								unit.totalAmount }}
+								<span class="currency"
+									>{{ selectedBudget?.currency }}</span
+								></span
 							>
 						</div>
 					</div>
 
 					<div *ngIf="selectedUnit">
 						<div
-							*ngIf="filteredTransactions.length > 0"
 							class="categories"
+							*ngIf="filteredTransactions.length > 0"
 						>
 							<div
 								class="category"
@@ -64,16 +71,16 @@
 									class="legend-color"
 									[style.background]="getColorForTransaction(transaction)"
 								></span>
-
 								<span class="note"
 									>{{ transaction.note || '' }}</span
 								>
-
-								<span class="amount">
-									{{ transaction.isDeposit ? '+' : '-' }}{{
-									transaction.amount }}{{
-									selectedBudget?.currency }}
-								</span>
+								<span class="amount"
+									>{{ transaction.isDeposit ? '+' : '-' }}{{
+									transaction.amount }}
+									<span class="currency"
+										>{{ selectedBudget?.currency }}</span
+									></span
+								>
 							</div>
 						</div>
 					</div>

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { FormService } from 'src/app/core/modules/form/form.service';
 import { FormInterface } from 'src/app/core/modules/form/interfaces/form.interface';
@@ -23,7 +23,7 @@ interface SelectItem {
 }
 
 @Component({
-	imports: [CommonModule, TableModule],
+	imports: [TableModule],
 
 	templateUrl: './transactions.component.html',
 	styleUrls: ['./transactions.component.scss']

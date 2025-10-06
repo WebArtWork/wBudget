@@ -11,17 +11,18 @@
 						<input
 							matStartDate
 							formControlName="start"
-							placeholder=" "
+							placeholder="Select"
 						/>
 						<input
 							matEndDate
 							formControlName="end"
-							placeholder=""
+							placeholder="date"
 						/>
 					</mat-date-range-input>
 					<button
 						class="button-calendar"
 						type="button"
+						*ngIf="range.value.start && range.value.end"
 						(click)="clearDates()"
 					>
 						<span class="material-icons">close</span>

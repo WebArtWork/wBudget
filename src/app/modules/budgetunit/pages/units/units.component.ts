@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormService } from 'src/app/core/modules/form/form.service';
@@ -11,7 +11,7 @@ import { Budgetunit } from '../../interfaces/budgetunit.interface';
 import { BudgetunitService } from '../../services/budgetunit.service';
 
 @Component({
-	imports: [CommonModule, TableModule],
+	imports: [TableModule],
 	templateUrl: './units.component.html',
 	styleUrls: ['./units.component.scss']
 })

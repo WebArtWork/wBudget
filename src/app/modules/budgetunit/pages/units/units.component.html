@@ -5,26 +5,28 @@
 </div>
 
 <div class="units-cards">
-	<div class="unit-card clickable-card" *ngFor="let unit of documents">
+	@for (unit of documents; track unit) {
+	<div class="unit-card clickable-card">
 		<h3 class="unit-name">{{ unit.name }}</h3>
 		<p class="unit-cost">{{ unit.cost }}</p>
-
-		<div class="unit-actions" *ngIf="config?.buttons?.length">
-			<ng-container *ngFor="let btn of config.buttons.slice(1)">
-				<button
-					class="action-btn"
-					*ngIf="btn?.icon"
-					(click)="handleButtonClick(btn, unit); $event.stopPropagation()"
-				>
-					<span class="material-icons">{{ btn?.icon }}</span>
-				</button>
-			</ng-container>
+		@if (config.buttons.length) {
+		<div class="unit-actions">
+			@for (btn of config.buttons.slice(1); track btn) { @if (btn?.icon) {
+			<button
+				class="action-btn"
+				(click)="handleButtonClick(btn, unit); $event.stopPropagation()"
+			>
+				<span class="material-icons">{{ btn?.icon }}</span>
+			</button>
+			} }
 		</div>
+		}
 	</div>
+	}
 </div>
 <!--<wtable
-	title="Units"
-	[columns]="columns"
-	[config]="config"
-	[rows]="documents"
+title="Units"
+[columns]="columns"
+[config]="config"
+[rows]="documents"
 /> -->

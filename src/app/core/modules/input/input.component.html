@@ -1,12 +1,9 @@
 <!-- General Input -->
-<label
-	*ngIf="type !== 'radio' && type !== 'checkbox' && type !== 'textarea'"
-	class="w-forms"
-	[for]="name"
->
-	<span class="w-forms__title" *ngIf="label"
-		>{{ 'Input.' + label | translate }}</span
-	>
+@if (type !== 'radio' && type !== 'checkbox' && type !== 'textarea') {
+<label class="w-forms" [for]="name">
+	@if (label) {
+	<span class="w-forms__title">{{ 'Input.' + label | translate }}</span>
+	}
 	<div style="position: relative">
 		<input
 			[placeholder]="'Input.' + (placeholder || 'Enter text...') | translate"
@@ -22,112 +19,108 @@
 			[name]="name"
 			#inputEl
 		/>
+		@if (clearable) {
 		<i
 			style="position: absolute; right: 7px; bottom: 8px"
 			(click)="value = null; onSubmit(); focus()"
 			class="material-icons"
-			*ngIf="clearable"
 			>close</i
 		>
+		}
 	</div>
 	<!-- Error Message Display -->
-	<div *ngIf="error" class="error-message">
+	@if (error) {
+	<div class="error-message">
 		{{ 'Input.' + (label || placeholder) + ' is invalid.' | translate }}
 	</div>
+	}
 	<ng-content></ng-content>
 </label>
+}
 
 <!-- Textarea -->
-<ng-container *ngIf="type === 'textarea'">
-	<label class="w-forms" [for]="name">
-		<span class="w-forms__title">{{ label }}</span>
-		<textarea
-			[placeholder]="'Input.' + (placeholder || 'Enter text...') | translate"
-			(ngModelChange)="value = $event; onChange()"
-			(keyup.enter)="onSubmit()"
-			class="w-forms__textarea"
-			(blur)="wBlur.emit()"
-			[disabled]="disabled"
-			[class.error]="error"
-			[ngModel]="value"
-			[ngClass]="wClass"
-			[name]="name"
-			#inputEl
-		></textarea>
-		<!-- Error Message Display -->
-		<div *ngIf="error" class="error-message">
-			{{ 'Input.' + (label || placeholder) + ' is invalid.' | translate }}
-		</div>
-	</label>
-</ng-container>
+@if (type === 'textarea') {
+<label class="w-forms" [for]="name">
+	<span class="w-forms__title">{{ label }}</span>
+	<textarea
+		[placeholder]="'Input.' + (placeholder || 'Enter text...') | translate"
+		(ngModelChange)="value = $event; onChange()"
+		(keyup.enter)="onSubmit()"
+		class="w-forms__textarea"
+		(blur)="wBlur.emit()"
+		[disabled]="disabled"
+		[class.error]="error"
+		[ngModel]="value"
+		[ngClass]="wClass"
+		[name]="name"
+		#inputEl
+	></textarea>
+	<!-- Error Message Display -->
+	@if (error) {
+	<div class="error-message">
+		{{ 'Input.' + (label || placeholder) + ' is invalid.' | translate }}
+	</div>
+	}
+</label>
+}
 
 <!-- Radio Buttons -->
-<ng-container *ngIf="type === 'radio'">
-	<label
-		[class.disabled]="disabled"
-		*ngFor="let item of items"
-		class="check-label"
-	>
-		<span class="form-label">{{'Input.' + item | translate }}</span>
-
-		<input
-			(ngModelChange)="value = $event; onChange()"
-			class="w-input__checkbox"
-			[disabled]="disabled"
-			[class.error]="error"
-			[ngModel]="value"
-			[ngClass]="wClass"
-			[value]="item"
-			[name]="name"
-			type="radio"
-			#inputEl
-		/>
-
-		<span class="mark mark--radio"></span>
-		<ng-content></ng-content>
-	</label>
-</ng-container>
+@if (type === 'radio') { @for (item of items; track item) {
+<label [class.disabled]="disabled" class="check-label">
+	<span class="form-label">{{'Input.' + item | translate }}</span>
+	<input
+		(ngModelChange)="value = $event; onChange()"
+		class="w-input__checkbox"
+		[disabled]="disabled"
+		[class.error]="error"
+		[ngModel]="value"
+		[ngClass]="wClass"
+		[value]="item"
+		[name]="name"
+		type="radio"
+		#inputEl
+	/>
+	<span class="mark mark--radio"></span>
+	<ng-content></ng-content>
+</label>
+} }
 
 <!-- Checkboxes -->
-<ng-container *ngIf="type === 'checkbox'">
-	<ng-container *ngIf="items?.length">
-		<label
-			*ngFor="let item of items; index as i"
-			[class.disabled]="disabled"
-			class="check-label"
-		>
-			<span class="form-label">{{'Input.' + item | translate }}</span>
-			<input
-				(ngModelChange)="setCheckboxValue($event, i); onChange()"
-				class="w-input__checkbox"
-				[disabled]="disabled"
-				[class.error]="error"
-				[ngClass]="wClass"
-				type="checkbox"
-				[name]="name+i"
-				#inputEl
-				ngModel
-			/>
-			<span class="mark"></span>
-		</label>
-	</ng-container>
-	<ng-container *ngIf="!items?.length">
-		<label class="check-label" [class.disabled]="disabled">
-			<span class="check-text form-label" *ngIf="label"
-				>{{ 'Input.' + label | translate }}</span
-			>
-			<input
-				(ngModelChange)="value = $event; onChange()"
-				class="w-input__checkbox"
-				[disabled]="disabled"
-				[class.error]="error"
-				[ngModel]="value"
-				[ngClass]="wClass"
-				type="checkbox"
-				[name]="name"
-				#inputEl
-			/>
-			<span class="mark"></span>
-		</label>
-	</ng-container>
-</ng-container>
+@if (type === 'checkbox') { @if (items.length) { @for (item of items; track
+item; let i = $index) {
+<label [class.disabled]="disabled" class="check-label">
+	<span class="form-label">{{'Input.' + item | translate }}</span>
+	<input
+		(ngModelChange)="setCheckboxValue($event, i); onChange()"
+		class="w-input__checkbox"
+		[disabled]="disabled"
+		[class.error]="error"
+		[ngClass]="wClass"
+		type="checkbox"
+		[name]="name+i"
+		#inputEl
+		ngModel
+	/>
+	<span class="mark"></span>
+</label>
+} } @if (!items.length) {
+<label class="check-label" [class.disabled]="disabled">
+	@if (label) {
+	<span class="check-text form-label"
+		>{{ 'Input.' + label | translate }}</span
+	>
+	}
+	<input
+		(ngModelChange)="value = $event; onChange()"
+		class="w-input__checkbox"
+		[disabled]="disabled"
+		[class.error]="error"
+		[ngModel]="value"
+		[ngClass]="wClass"
+		type="checkbox"
+		[name]="name"
+		#inputEl
+	/>
+	<span class="mark"></span>
+</label>
+} }

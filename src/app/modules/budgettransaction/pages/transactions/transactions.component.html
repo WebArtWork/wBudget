@@ -5,39 +5,38 @@
 </div>
 
 <div class="transactions-cards">
-	<div
-		class="transaction-card clickable-card"
-		*ngFor="let transaction of documents"
-	>
+	@for (transaction of documents; track transaction) {
+	<div class="transaction-card clickable-card">
 		<div class="transaction-left">
 			<h3 class="transaction-note">{{ transaction.note }}</h3>
 			<p class="transaction-amount">
 				{{ transaction.isDeposit ? '+' : '-' }}{{ transaction.amount }}
-				{{ selectedBudget?.currency }}
+				<span class="currency">{{ selectedBudget?.currency }}</span>
 			</p>
 		</div>
 		<div class="transaction-right">
 			<p class="transaction-unit">{{ transaction.unitName }}</p>
 			<p class="transaction-budget">{{ transaction.budgetName }}</p>
 		</div>
-
-		<div class="transaction-actions" *ngIf="config?.buttons?.length">
-			<ng-container *ngFor="let btn of config.buttons.slice(1)">
-				<button
-					class="action-btn"
-					*ngIf="btn?.icon"
-					(click)="handleButtonClick(btn, transaction); $event.stopPropagation()"
-				>
-					<span class="material-icons">{{ btn?.icon }}</span>
-				</button>
-			</ng-container>
+		@if (config.buttons.length) {
+		<div class="transaction-actions">
+			@for (btn of config.buttons.slice(1); track btn) { @if (btn?.icon) {
+			<button
+				class="action-btn"
+				(click)="handleButtonClick(btn, transaction); $event.stopPropagation()"
+			>
+				<span class="material-icons">{{ btn?.icon }}</span>
+			</button>
+			} }
 		</div>
+		}
 	</div>
+	}
 </div>
 
 <!--<wtable
-	title="Transactions"
-	[columns]="columns"
-	[config]="config"
-	[rows]="documents"
+title="Transactions"
+[columns]="columns"
+[config]="config"
+[rows]="documents"
 ></wtable>-->
