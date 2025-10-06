@@ -145,6 +145,9 @@ export class SignComponent {
 			);
 		}
 	}
+	toggleTheme(): void {
+		this.userService.setMode(this.userService.mode ? '' : 'dark');
+	}
 
 	login(): void {
 		this._http.post('/api/user/login', this.user, this._set.bind(this));
