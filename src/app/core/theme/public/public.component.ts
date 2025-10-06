@@ -275,6 +275,11 @@ export class PublicComponent implements OnInit, OnDestroy {
 							next: (res: Budgettransaction) => {
 								console.log('Transaction created:', res);
 								this.setDocuments();
+								window.dispatchEvent(
+									new CustomEvent('transactionCreated', {
+										detail: res
+									})
+								);
 								close();
 							},
 							error: (err: any) =>

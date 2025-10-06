@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { FormService } from 'src/app/core/modules/form/form.service';
 import { FormInterface } from 'src/app/core/modules/form/interfaces/form.interface';
@@ -83,11 +82,12 @@ export class TransactionsComponent
 		if (budgetId) {
 			const budgets = await this._budgetService.getAllBudgets();
 			this.selectedBudget =
-				budgets.find((b: Budget) => b._id === budgetId) || null;
+				budgets.find((b) => b._id === budgetId) || null;
 		}
-		await this.loadBudgets();
+
 		await this.loadUnits();
 		await this.loadTransactions();
+		await this.loadBudgets();
 		this.markSelectedBudget();
 		this.setDocuments();
 	}
@@ -147,17 +147,18 @@ export class TransactionsComponent
 	}
 
 	async loadUnits(): Promise<void> {
-		const units: Budgetunit[] = budgettransactionFormComponents
-			.components[3].fields[0].value as unknown as Budgetunit[];
-		units.splice(0, units.length);
-
-		this._unitService
-			.getUnitsByBudget(this.budget)
-			.subscribe((allUnits: Budgetunit[]) => {
-				this.allUnits = allUnits;
-				units.push(...allUnits);
-				console.log('Units loaded:', allUnits);
-			});
+		return new Promise((resolve) => {
+			this._unitService
+				.getUnitsByBudget(this.budget)
+				.subscribe((allUnits) => {
+					this.allUnits = allUnits;
+					const units = budgettransactionFormComponents.components[3]
+						.fields[0].value as Budgetunit[];
+					units.splice(0, units.length);
+					units.push(...allUnits);
+					resolve();
+				});
+		});
 	}
 
 	async loadBudgets(): Promise<void> {
