@@ -1,31 +1,5 @@
 @use 'scss';
 
-html,
-body {
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	max-width: 100%;
-	overflow-x: hidden;
-}
-
-.wrapper,
-.documents-wrapper {
-	width: 100%;
-	max-width: 100%;
-	overflow-x: hidden;
-	padding-left: env(safe-area-inset-left);
-	padding-right: env(safe-area-inset-right);
-}
-
-.documents-main-content,
-.category,
-.nav,
-.documents-header {
-	width: 100%;
-	max-width: 100%;
-	box-sizing: border-box;
-}
 .mat-datepicker-content {
 	background-color: #2c2c2c !important;
 	border-radius: 8px;
