@@ -1,6 +1,7 @@
 .units-header {
 	display: flex;
-	justify-content: flex-end;
+	justify-content: space-between;
+	align-items: center;
 	margin-right: 15px;
 
 	.create-btn {
@@ -20,6 +21,17 @@
 			background: none;
 			box-shadow: none;
 		}
+	}
+	.name-page {
+		font-size: 18px;
+		font-weight: bold;
+		margin-left: 20px;
+		color: #efe8e8;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		max-width: 400px;
+		display: block;
 	}
 }
 

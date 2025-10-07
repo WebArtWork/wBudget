@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { FormService } from 'src/app/core/modules/form/form.service';
 import { FormInterface } from 'src/app/core/modules/form/interfaces/form.interface';
@@ -72,6 +71,10 @@ export class BudgetsComponent extends CrudComponent<
 		});
 
 		this.setDocuments();
+
+		window.addEventListener('transactionCreated', (event: any) => {
+			this.onTransactionCreated(event.detail);
+		});
 	}
 
 	handleButtonClick(btn: any, budget?: Budget) {
@@ -88,7 +91,6 @@ export class BudgetsComponent extends CrudComponent<
 	override async setDocuments() {
 		this.documents = await this._budgetService.getAllBudgets();
 
-		// Підвантажуємо всі транзакції одразу
 		const allTransactionsMap: { [budgetId: string]: any[] } = {};
 
 		for (const budget of this.documents) {
@@ -99,7 +101,6 @@ export class BudgetsComponent extends CrudComponent<
 			);
 		}
 
-		// Тепер рахуємо баланс для всіх бюджетів
 		for (const budget of this.documents) {
 			const txs = allTransactionsMap[budget._id];
 			const balance = txs.reduce((sum, t) => {
@@ -117,8 +118,32 @@ export class BudgetsComponent extends CrudComponent<
 				return sum + sign * t.amount;
 			}, 0);
 
-			budget.balance = balance;
+			budget.amount = balance;
 		}
+	}
+
+	async onTransactionCreated(transaction: any) {
+		const budget = this.documents.find((b) => b._id === transaction.budget);
+		if (!budget) return;
+
+		const txs = await firstValueFrom(
+			this._budgettransactionService.getTransactionsByBudget(budget._id)
+		);
+
+		const balance = txs.reduce((sum, t) => {
+			const sign = t.isDeposit ? 1 : -1;
+			if (t.unitId) return sum + sign * t.amount;
+			if (t.units && Array.isArray(t.units)) {
+				const sumUnits = (t.units as { amount?: number }[]).reduce(
+					(s: number, u) => s + (u.amount || 0),
+					0
+				);
+				return sum + sign * sumUnits;
+			}
+			return sum + sign * t.amount;
+		}, 0);
+
+		budget.amount = balance;
 	}
 
 	async calculateBudgetBalance(budget: Budget): Promise<number> {

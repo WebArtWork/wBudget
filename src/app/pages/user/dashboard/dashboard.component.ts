@@ -8,6 +8,7 @@ import { Budgettransaction } from 'src/app/modules/budgettransaction/interfaces/
 import { ActivatedRoute } from '@angular/router';
 import { BudgetService } from 'src/app/modules/budget/services/budget.service';
 import { Budget } from 'src/app/modules/budget/interfaces/budget.interface';
+import { Router } from '@angular/router'; //
 
 @Component({
 	templateUrl: './dashboard.component.html',
@@ -43,12 +44,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		private _budgetunitService: BudgetunitService,
 		private _budgettransactionService: BudgettransactionService,
 		private budgetService: BudgetService,
-		private route: ActivatedRoute
+		private route: ActivatedRoute,
+		private router: Router
 	) {}
 
 	async ngOnInit() {
 		this.budgets = await this.budgetService.getAllBudgets();
-
+		if (!this.budgets || this.budgets.length === 0) {
+			this.router.navigate(['/budgets']);
+			return;
+		}
 		const savedBudgetId = localStorage.getItem('selectedBudgetId');
 		let budget: Budget | undefined;
 
