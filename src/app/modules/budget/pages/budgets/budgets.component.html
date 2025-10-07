@@ -1,33 +1,38 @@
-<div class="budgets-header">
-	<button class="create-btn" (click)="handleButtonClick(config.buttons[0])">
-		<span class="material-icons">{{ config.buttons[0]?.icon }}</span>
-	</button>
-</div>
+<div class="wrapper" id="wrapper">
+	<div class="budgets-header">
+		<button
+			class="create-btn"
+			(click)="handleButtonClick(config.buttons[0])"
+		>
+			<span class="material-icons">{{ config.buttons[0]?.icon }}</span>
+		</button>
+	</div>
 
-<div class="budgets-cards">
-	@for (budget of documents; track budget) {
-	<div class="budget-card clickable-card" (click)="goToDashboard(budget)">
-		<h3 class="budget-name">{{ budget.name }}</h3>
-		<p class="budget-amount">
-			{{ budget.balance }}
-			<span class="currency">{{ budget.currency }}</span>
-		</p>
-		@if (config.buttons.length) {
-		<div class="budget-actions">
-			@for (btn of config.buttons.slice(1); track btn) { @if (btn?.icon) {
-			<button
-				class="action-btn"
-				(click)="handleButtonClick(btn, budget); $event.stopPropagation()"
-			>
-				<span class="material-icons">{{ btn?.icon }}</span>
-			</button>
-			} }
+	<div class="budgets-cards">
+		@for (budget of documents; track budget) {
+		<div class="budget-card clickable-card" (click)="goToDashboard(budget)">
+			<h3 class="budget-name">{{ budget.name }}</h3>
+			<p class="budget-amount">
+				{{ budget.balance }}
+				<span class="currency">{{ budget.currency }}</span>
+			</p>
+			@if (config.buttons.length) {
+			<div class="budget-actions">
+				@for (btn of config.buttons.slice(1); track btn) { @if
+				(btn?.icon) {
+				<button
+					class="action-btn"
+					(click)="handleButtonClick(btn, budget); $event.stopPropagation()"
+				>
+					<span class="material-icons">{{ btn?.icon }}</span>
+				</button>
+				} }
+			</div>
+			}
 		</div>
 		}
 	</div>
-	}
 </div>
-
 <!-- Таблиця
 <wtable
   title="Budgets"

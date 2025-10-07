@@ -1,28 +1,34 @@
-<div class="units-header">
-	<button class="create-btn" (click)="handleButtonClick(config.buttons[0])">
-		<span class="material-icons">{{ config.buttons[0]?.icon }}</span>
-	</button>
-</div>
+<div class="wrapper" id="wrapper">
+	<div class="units-header">
+		<button
+			class="create-btn"
+			(click)="handleButtonClick(config.buttons[0])"
+		>
+			<span class="material-icons">{{ config.buttons[0]?.icon }}</span>
+		</button>
+	</div>
 
-<div class="units-cards">
-	@for (unit of documents; track unit) {
-	<div class="unit-card clickable-card">
-		<h3 class="unit-name">{{ unit.name }}</h3>
-		<p class="unit-cost">{{ unit.cost }}</p>
-		@if (config.buttons.length) {
-		<div class="unit-actions">
-			@for (btn of config.buttons.slice(1); track btn) { @if (btn?.icon) {
-			<button
-				class="action-btn"
-				(click)="handleButtonClick(btn, unit); $event.stopPropagation()"
-			>
-				<span class="material-icons">{{ btn?.icon }}</span>
-			</button>
-			} }
+	<div class="units-cards">
+		@for (unit of documents; track unit) {
+		<div class="unit-card clickable-card">
+			<h3 class="unit-name">{{ unit.name }}</h3>
+			<p class="unit-cost">{{ unit.cost }}</p>
+			@if (config.buttons.length) {
+			<div class="unit-actions">
+				@for (btn of config.buttons.slice(1); track btn) { @if
+				(btn?.icon) {
+				<button
+					class="action-btn"
+					(click)="handleButtonClick(btn, unit); $event.stopPropagation()"
+				>
+					<span class="material-icons">{{ btn?.icon }}</span>
+				</button>
+				} }
+			</div>
+			}
 		</div>
 		}
 	</div>
-	}
 </div>
 <!--<wtable
 title="Units"
