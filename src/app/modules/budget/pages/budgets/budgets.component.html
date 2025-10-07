@@ -14,7 +14,7 @@
 		<div class="budget-card clickable-card" (click)="goToDashboard(budget)">
 			<h3 class="budget-name">{{ budget.name }}</h3>
 			<p class="budget-amount">
-				{{ budget.balance }}
+				{{ budget.amount }}
 				<span class="currency">{{ budget.currency }}</span>
 			</p>
 			@if (config.buttons.length) {

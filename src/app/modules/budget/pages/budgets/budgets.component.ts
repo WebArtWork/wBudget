@@ -71,10 +71,6 @@ export class BudgetsComponent extends CrudComponent<
 		});
 
 		this.setDocuments();
-
-		window.addEventListener('transactionCreated', (event: any) => {
-			this.onTransactionCreated(event.detail);
-		});
 	}
 
 	handleButtonClick(btn: any, budget?: Budget) {
@@ -102,23 +98,25 @@ export class BudgetsComponent extends CrudComponent<
 		}
 
 		for (const budget of this.documents) {
-			const txs = allTransactionsMap[budget._id];
-			const balance = txs.reduce((sum, t) => {
-				const sign = t.isDeposit ? 1 : -1;
+			if ((budget as any).initialAmount === undefined) {
+				(budget as any).initialAmount = Number(budget.amount) || 0;
+			}
 
+			const txs = allTransactionsMap[budget._id];
+			const txSum = txs.reduce((sum, t) => {
+				const sign = t.isDeposit ? 1 : -1;
 				if (t.unitId) return sum + sign * t.amount;
 				if (t.units && Array.isArray(t.units)) {
 					const sumUnits = (t.units as { amount?: number }[]).reduce(
-						(s: number, u) => s + (u.amount || 0),
+						(s, u) => s + (u.amount || 0),
 						0
 					);
 					return sum + sign * sumUnits;
 				}
-
 				return sum + sign * t.amount;
 			}, 0);
 
-			budget.amount = balance;
+			budget.amount = (budget as any).initialAmount + txSum;
 		}
 	}
 
@@ -126,16 +124,20 @@ export class BudgetsComponent extends CrudComponent<
 		const budget = this.documents.find((b) => b._id === transaction.budget);
 		if (!budget) return;
 
+		if ((budget as any).initialAmount === undefined) {
+			(budget as any).initialAmount = Number(budget.amount) || 0;
+		}
+
 		const txs = await firstValueFrom(
 			this._budgettransactionService.getTransactionsByBudget(budget._id)
 		);
 
-		const balance = txs.reduce((sum, t) => {
+		const txSum = txs.reduce((sum, t) => {
 			const sign = t.isDeposit ? 1 : -1;
 			if (t.unitId) return sum + sign * t.amount;
 			if (t.units && Array.isArray(t.units)) {
 				const sumUnits = (t.units as { amount?: number }[]).reduce(
-					(s: number, u) => s + (u.amount || 0),
+					(s, u) => s + (u.amount || 0),
 					0
 				);
 				return sum + sign * sumUnits;
@@ -143,32 +145,7 @@ export class BudgetsComponent extends CrudComponent<
 			return sum + sign * t.amount;
 		}, 0);
 
-		budget.amount = balance;
-	}
-
-	async calculateBudgetBalance(budget: Budget): Promise<number> {
-		if (!budget._id) return 0;
-
-		const transactions = await firstValueFrom(
-			this._budgettransactionService.getTransactionsByBudget(budget._id)
-		);
-
-		const balance = transactions.reduce((sum: number, t: any) => {
-			const sign = t.isDeposit ? 1 : -1;
-
-			if (t.unitId) return sum + sign * t.amount;
-			if (t.units && Array.isArray(t.units)) {
-				const sumUnits = (t.units as { amount?: number }[]).reduce(
-					(s: number, u) => s + (u.amount || 0),
-					0
-				);
-				return sum + sign * sumUnits;
-			}
-
-			return sum + sign * t.amount;
-		}, 0);
-
-		return balance;
+		budget.amount = (budget as any).initialAmount + txSum;
 	}
 
 	createBudget() {

@@ -432,20 +432,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		return this.getTotalByType('expense');
 	}
 	public getBudgetBalance(): number {
-		const txs = this.transactions.filter((t) =>
-			this.isTransactionInRange(t)
-		);
+		if (!this.selectedBudget) return 0;
 
-		const balance = txs.reduce((sum, t) => {
+		// Перевіряємо, чи збережено початкову суму
+		if ((this.selectedBudget as any).initialAmount === undefined) {
+			(this.selectedBudget as any).initialAmount =
+				Number(this.selectedBudget.amount) || 0;
+		}
+
+		// Рахуємо суму транзакцій по цьому бюджету
+		const txSum = this.transactions.reduce((sum, t) => {
 			const sign = t.isDeposit ? 1 : -1;
 
-			if (t.unitId) {
-				return sum + sign * t.amount;
-			}
-
+			if (t.unitId) return sum + sign * t.amount;
 			if (t.units && Array.isArray(t.units)) {
 				const sumUnits = t.units.reduce(
-					(s: number, u: any) => s + (u.amount || 0),
+					(s, u) => s + (u.amount || 0),
 					0
 				);
 				return sum + sign * sumUnits;
@@ -454,8 +456,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			return sum + sign * t.amount;
 		}, 0);
 
-		this.budgetBalance = balance;
-		return balance;
+		this.budgetBalance = (this.selectedBudget as any).initialAmount + txSum;
+
+		return this.budgetBalance;
 	}
 
 	public getCircleTotal(): string {
