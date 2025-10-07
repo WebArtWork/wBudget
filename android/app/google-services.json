@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "150654625334",
+    "project_id": "wmarket-b6466",
+    "storage_bucket": "wmarket-b6466.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:150654625334:android:eea8020d86088d54c99a97",
+        "android_client_info": {
+          "package_name": "wbudget.webart.work"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJdtow3jU573dtZqme4DoAyyPDu_nQjeU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:150654625334:android:5684edee1add50a2c99a97",
+        "android_client_info": {
+          "package_name": "wcommerce.webart.work"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJdtow3jU573dtZqme4DoAyyPDu_nQjeU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
