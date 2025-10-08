@@ -17,6 +17,8 @@
 				{{ budget.amount }}
 				<span class="currency">{{ budget.currency }}</span>
 			</p>
+			<p class="budget-description">{{ budget.description }}</p>
+
 			@if (config.buttons.length) {
 			<div class="budget-actions">
 				@for (btn of config.buttons.slice(1); track btn) { @if

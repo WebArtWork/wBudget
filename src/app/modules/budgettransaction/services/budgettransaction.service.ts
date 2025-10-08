@@ -4,6 +4,7 @@ import { CrudService } from 'wacom';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
 	providedIn: 'root'

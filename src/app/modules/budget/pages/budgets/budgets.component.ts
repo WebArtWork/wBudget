@@ -10,6 +10,7 @@ import { BudgetService } from '../../services/budget.service';
 import { BudgettransactionService } from 'src/app/modules/budgettransaction/services/budgettransaction.service';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { BudgetunitService } from 'src/app/modules/budgetunit/services/budgetunit.service';
 
 @Component({
 	imports: [TableModule],
@@ -36,7 +37,8 @@ export class BudgetsComponent extends CrudComponent<
 		private _translate: TranslateService,
 		private _form: FormService,
 		public router: Router,
-		private _budgettransactionService: BudgettransactionService
+		private _budgettransactionService: BudgettransactionService,
+		private _budgetunitService: BudgetunitService
 	) {
 		super(
 			budgetFormComponents,
@@ -58,9 +60,22 @@ export class BudgetsComponent extends CrudComponent<
 		});
 		this.config.buttons.push({
 			icon: 'swap_horiz',
-			hrefFunc: (doc: Budget) =>
-				doc._id ? '/transactions/' + doc._id : '/transactions'
+			click: async (doc: Budget) => {
+				const units = await firstValueFrom(
+					this._budgetunitService.getUnitsByBudget(doc._id)
+				);
+
+				if (!units || units.length === 0) {
+					alert(
+						'Please create a category before adding transactions'
+					);
+					return;
+				}
+
+				this.router.navigateByUrl('/transactions/' + doc._id);
+			}
 		});
+
 		this.config.buttons.push({
 			icon: 'edit',
 			click: (doc: Budget) => this.editBudget(doc)

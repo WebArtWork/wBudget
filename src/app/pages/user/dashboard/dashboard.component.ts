@@ -340,41 +340,44 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	}
 
 	getFilteredUnits(): (Budgetunit & { totalAmount: number })[] {
-		return this.units.map((u) => {
-			const txs = this.transactions
-				.filter(
-					(t) =>
-						String(t.unitId) === String(u._id) ||
-						(t.units &&
-							t.units.some(
-								(x) => String(x.unit) === String(u._id)
-							))
-				)
-				.filter((t) => {
-					if (!this.selectedType) return true;
-					return this.selectedType === 'income'
-						? t.isDeposit
-						: !t.isDeposit;
-				})
-				.filter((t) => this.isTransactionInRange(t));
+		return this.units
+			.map((u) => {
+				const txs = this.transactions
+					.filter(
+						(t) =>
+							String(t.unitId) === String(u._id) ||
+							(t.units &&
+								t.units.some(
+									(x) => String(x.unit) === String(u._id)
+								))
+					)
+					.filter((t) => {
+						if (!this.selectedType) return true;
+						return this.selectedType === 'income'
+							? t.isDeposit
+							: !t.isDeposit;
+					})
+					.filter((t) => this.isTransactionInRange(t));
 
-			const totalAmount = txs.reduce((sum, t) => {
-				if (t.unitId && String(t.unitId) === String(u._id))
-					return sum + (t.isDeposit ? t.amount : -t.amount);
-				if (t.units) {
-					const entry = t.units.find(
-						(x) => String(x.unit) === String(u._id)
-					);
-					if (entry)
-						return (
-							sum + (t.isDeposit ? entry.amount : -entry.amount)
+				const totalAmount = txs.reduce((sum, t) => {
+					if (t.unitId && String(t.unitId) === String(u._id))
+						return sum + (t.isDeposit ? t.amount : -t.amount);
+					if (t.units) {
+						const entry = t.units.find(
+							(x) => String(x.unit) === String(u._id)
 						);
-				}
-				return sum;
-			}, 0);
+						if (entry)
+							return (
+								sum +
+								(t.isDeposit ? entry.amount : -entry.amount)
+							);
+					}
+					return sum;
+				}, 0);
 
-			return { ...u, totalAmount };
-		});
+				return { ...u, totalAmount };
+			})
+			.filter((u) => u.totalAmount !== 0);
 	}
 
 	getTotalByType(type: 'income' | 'expense'): number {
@@ -434,13 +437,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	public getBudgetBalance(): number {
 		if (!this.selectedBudget) return 0;
 
-		// Перевіряємо, чи збережено початкову суму
 		if ((this.selectedBudget as any).initialAmount === undefined) {
 			(this.selectedBudget as any).initialAmount =
 				Number(this.selectedBudget.amount) || 0;
 		}
 
-		// Рахуємо суму транзакцій по цьому бюджету
 		const txSum = this.transactions.reduce((sum, t) => {
 			const sign = t.isDeposit ? 1 : -1;
 
@@ -557,18 +558,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		const categories: { [key: string]: number } = {};
 		let total = 0;
 
-		this.getFilteredUnits().forEach((u) => {
-			if (!this.selectedType) {
-				categories[u.name] = Math.abs(u.totalAmount!);
-				total += Math.abs(u.totalAmount!);
-			} else if (this.selectedType === 'income' && u.totalAmount! > 0) {
-				categories[u.name] = u.totalAmount!;
-				total += u.totalAmount!;
-			} else if (this.selectedType === 'expense' && u.totalAmount! < 0) {
-				categories[u.name] = Math.abs(u.totalAmount!);
-				total += Math.abs(u.totalAmount!);
-			}
-		});
+		if (this.selectedUnit) {
+			// Додаємо транзакції для обраного юніта
+			this.filteredTransactions.forEach((t) => {
+				const category = t.note || 'Без категорії';
+				categories[category] =
+					(categories[category] || 0) + Math.abs(t.displayAmount);
+				total += Math.abs(t.displayAmount);
+			});
+		} else {
+			// Логіка для юнітів, як було раніше
+			this.getFilteredUnits().forEach((u) => {
+				if (!this.selectedType) {
+					categories[u.name] = Math.abs(u.totalAmount!);
+					total += Math.abs(u.totalAmount!);
+				} else if (
+					this.selectedType === 'income' &&
+					u.totalAmount! > 0
+				) {
+					categories[u.name] = u.totalAmount!;
+					total += u.totalAmount!;
+				} else if (
+					this.selectedType === 'expense' &&
+					u.totalAmount! < 0
+				) {
+					categories[u.name] = Math.abs(u.totalAmount!);
+					total += Math.abs(u.totalAmount!);
+				}
+			});
+		}
 
 		if (total === 0) return { background: '#ccc', borderRadius: '50%' };
 

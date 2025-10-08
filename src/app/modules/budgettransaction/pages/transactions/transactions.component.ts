@@ -125,12 +125,12 @@ export class TransactionsComponent
 				c.key === 'unitId' && c.name === 'Select'
 		);
 		if (!selectComponent)
-			throw new Error('Unit select component not found');
+			throw new Error('Category select component not found');
 
 		const itemsField = selectComponent.fields.find(
 			(f: { name: string; value: any }) => f.name === 'Items'
 		);
-		if (!itemsField) throw new Error('Unit items field not found');
+		if (!itemsField) throw new Error('Category items field not found');
 
 		doc.units = [{ unit: doc.unitId as string, amount: doc.amount }];
 
@@ -265,7 +265,7 @@ export class TransactionsComponent
 							created.amount <= 0
 						) {
 							alert(
-								'Please select a unit and enter an amount greater than 0.'
+								'Please select a category and enter an amount greater than 0.'
 							);
 							return;
 						}
@@ -333,7 +333,7 @@ export class TransactionsComponent
 							edited.amount <= 0
 						) {
 							alert(
-								'Please select a unit and enter an amount greater than 0.'
+								'Please select a Category and enter an amount greater than 0.'
 							);
 							return;
 						}

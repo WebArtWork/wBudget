@@ -9,7 +9,7 @@ export const budgetFormComponents = {
 			fields: [
 				{
 					name: 'Placeholder',
-					value: 'Fill  title'
+					value: 'Fill budget name...'
 				},
 				{
 					name: 'Label',
@@ -24,7 +24,7 @@ export const budgetFormComponents = {
 			fields: [
 				{
 					name: 'Placeholder',
-					value: 'Fill  amount'
+					value: 'Fill budget amount...'
 				},
 				{
 					name: 'Label',
@@ -39,7 +39,7 @@ export const budgetFormComponents = {
 			fields: [
 				{
 					name: 'Placeholder',
-					value: 'Fill  currency'
+					value: 'Fill budget currency...'
 				},
 				{
 					name: 'Label',
@@ -53,7 +53,7 @@ export const budgetFormComponents = {
 			fields: [
 				{
 					name: 'Placeholder',
-					value: 'Fill  description'
+					value: 'Fill budget description...'
 				},
 				{
 					name: 'Label',

@@ -1,6 +1,6 @@
 export const budgettransactionFormComponents = {
 	formId: 'budgettransaction',
-	title: 'Budgettransaction',
+	title: 'Transaction',
 	components: [
 		{
 			name: 'Boolean',
@@ -9,7 +9,7 @@ export const budgettransactionFormComponents = {
 			fields: [
 				{
 					name: 'Label',
-					value: 'Deposit'
+					value: 'Is this a deposit?'
 				}
 			]
 		},
@@ -20,7 +20,7 @@ export const budgettransactionFormComponents = {
 			fields: [
 				{
 					name: 'Placeholder',
-					value: 'Fill amount'
+					value: 'Fill transaction amount...'
 				},
 				{
 					name: 'Label',
@@ -34,11 +34,11 @@ export const budgettransactionFormComponents = {
 			fields: [
 				{
 					name: 'Placeholder',
-					value: 'Fill note'
+					value: 'Fill transaction name...'
 				},
 				{
 					name: 'Label',
-					value: 'Note'
+					value: 'Name'
 				}
 			]
 		},
@@ -53,7 +53,7 @@ export const budgettransactionFormComponents = {
 				},
 				{
 					name: 'Placeholder',
-					value: 'Select unit'
+					value: 'Select category for transaction'
 				},
 				{
 					name: 'Label',

@@ -1,6 +1,6 @@
 export const budgetunitFormComponents = {
 	formId: 'budgetunit',
-	title: 'Budgetunit',
+	title: 'Category',
 	components: [
 		{
 			name: 'Text',
@@ -9,7 +9,7 @@ export const budgetunitFormComponents = {
 			fields: [
 				{
 					name: 'Placeholder',
-					value: 'Fill a category name'
+					value: 'Fill category name...'
 				},
 				{
 					name: 'Label',
