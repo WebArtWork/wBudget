@@ -130,6 +130,19 @@ const routes: Routes = [
 					import('./pages/user/profile/profile.module').then(
 						(m) => m.ProfileModule
 					)
+			},
+			{
+				path: 'confidential',
+				canActivate: [MetaGuard],
+				data: {
+					meta: {
+						title: 'Confidential'
+					}
+				},
+				loadChildren: () =>
+					import(
+						'./pages/user/confidential/confidential.module'
+					).then((m) => m.ConfidentialModule)
 			}
 		]
 	},
@@ -138,6 +151,7 @@ const routes: Routes = [
 		component: PublicComponent,
 		children: [
 			/* user */
+
 			{
 				path: 'document',
 				canActivate: [MetaGuard],
