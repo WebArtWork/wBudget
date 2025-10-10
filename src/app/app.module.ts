@@ -53,6 +53,39 @@ const routes: Routes = [
 	},
 	{
 		path: '',
+		component: GuestComponent,
+		children: [
+			/* guest */
+			{
+				path: 'sign',
+				canActivate: [MetaGuard],
+				data: {
+					meta: {
+						title: 'Sign'
+					}
+				},
+				loadChildren: () =>
+					import('./pages/guest/sign/sign.module').then(
+						(m) => m.SignModule
+					)
+			},
+			{
+				path: 'confidential',
+				canActivate: [MetaGuard],
+				data: {
+					meta: {
+						title: 'Confidential'
+					}
+				},
+				loadChildren: () =>
+					import(
+						'./pages/user/confidential/confidential.module'
+					).then((m) => m.ConfidentialModule)
+			}
+		]
+	},
+	{
+		path: '',
 		canActivate: [AuthenticatedGuard],
 		component: PublicComponent,
 		children: [
@@ -130,19 +163,6 @@ const routes: Routes = [
 					import('./pages/user/profile/profile.module').then(
 						(m) => m.ProfileModule
 					)
-			},
-			{
-				path: 'confidential',
-				canActivate: [MetaGuard],
-				data: {
-					meta: {
-						title: 'Confidential'
-					}
-				},
-				loadChildren: () =>
-					import(
-						'./pages/user/confidential/confidential.module'
-					).then((m) => m.ConfidentialModule)
 			}
 		]
 	},
